@@ -23,7 +23,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost]
-        public async Task<UsersQueryResults> Add([FromBody] User user)
+        public async Task<UserQueryResults> Add([FromBody] User user)
         {
             return await service.Add(user);
         }

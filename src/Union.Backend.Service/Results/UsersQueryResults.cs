@@ -1,8 +1,14 @@
-﻿using Union.Backend.Model.Models;
+﻿using System.Collections.Generic;
+using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.Service.Results
 {
-    public class UsersQueryResults : QueryResults<User>
+    public class UsersQueryResults : QueryResults<List<UserDto>>
     {
+    }
+
+    public class UserQueryResults : QueryResults<UserDto>
+    {
+
     }
 }

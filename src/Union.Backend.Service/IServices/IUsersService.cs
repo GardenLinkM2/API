@@ -7,6 +7,6 @@ namespace Union.Backend.Service.IServices
     public interface IUsersService
     {
         public Task<UsersQueryResults> All();
-        public Task<UsersQueryResults> Add(User user);
+        public Task<UserQueryResults> Add(User user);
     }
 }
