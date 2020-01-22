@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
-using Union.Backend.Service.IServices;
+using Union.Backend.Service.Services;
 using Union.Backend.Service.Results;
 
 namespace Union.Backend.Service.Services
 {
-    public class UsersService : IUsersService
+    public class UsersService
     {
         private readonly GardenLinkContext db;
         public UsersService(GardenLinkContext gardenLinkContext)

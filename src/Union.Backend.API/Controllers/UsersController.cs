@@ -1,17 +1,17 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Model.Models;
-using Union.Backend.Service.IServices;
+using Union.Backend.Service.Services;
 using Union.Backend.Service.Results;
 
 namespace Union.Backend.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase, IUsersService
+    public class UsersController : ControllerBase
     {
-        private readonly IUsersService service;
-        public UsersController(IUsersService service)
+        private readonly UsersService service;
+        public UsersController(UsersService service)
         {
             this.service = service;
         }

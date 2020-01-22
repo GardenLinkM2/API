@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Union.Backend.Model.DAO;
-using Union.Backend.Service.IServices;
 using Union.Backend.Service.Services;
 
 namespace Union.Backend.API
@@ -38,7 +37,7 @@ namespace Union.Backend.API
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "SwaggerDemo", Version = "v1" });
             });
 
-            services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<UsersService, UsersService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
