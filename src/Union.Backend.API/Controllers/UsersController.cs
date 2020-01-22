@@ -21,7 +21,8 @@ namespace Union.Backend.API.Controllers
         [HttpGet]
         public async Task<UsersQueryResults> GetAllUsers()
         {
-            return await service.GetAllUsers();
+            //return await service.GetAllUsers();
+            throw new NotFoundApiException();
         }
 
         [HttpGet("{id}")]
