@@ -4,6 +4,7 @@ using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Results;
 using System;
+using Union.Backend.Service.Exceptions;
 
 namespace Union.Backend.API.Controllers
 {
@@ -24,10 +25,16 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<UserQueryResults> GetUser([FromRoute(Name = "id")] Guid userId)
+        public async Task<IActionResult> GetUser([FromRoute(Name = "id")] Guid userId)
         {
-            //TODO gestion http404
-            return await service.GetUser(userId);
+            try
+            {
+                return Ok(await service.GetUser(userId));
+            }
+            catch (NotFoundApiException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet("me")]

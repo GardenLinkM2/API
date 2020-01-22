@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
+using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
 
 namespace Union.Backend.Service.Services
@@ -24,10 +25,10 @@ namespace Union.Backend.Service.Services
 
         public async Task<UserQueryResults> GetUser(Guid userId)
         {
-            var user = GetUserEntity(userId).Result;
+            var user = await GetUserEntity(userId);
             if (user == null)
             {
-                throw new Exception();
+                throw new NotFoundApiException();
             }
             return new UserQueryResults()
             {
