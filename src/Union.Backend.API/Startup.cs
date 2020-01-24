@@ -28,9 +28,15 @@ namespace Union.Backend.API
                 {
                     opt.JsonSerializerOptions.IgnoreNullValues = true;
                 });
+            services.AddControllers(opt =>
+            {
+                opt.Filters.Add(new HttpResponseExceptionFilter());
+            });
+
             services.AddDbContext<GardenLinkContext>(opt =>
                opt.UseInMemoryDatabase("TodoList")
             );
+
             services.AddSwaggerGen(sd =>
             {
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "SwaggerDemo", Version = "v1" });
