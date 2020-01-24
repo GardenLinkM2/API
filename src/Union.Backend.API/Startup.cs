@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Union.Backend.Model.DAO;
-using Union.Backend.Service.IServices;
 using Union.Backend.Service.Services;
 
 namespace Union.Backend.API
@@ -21,7 +20,6 @@ namespace Union.Backend.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
@@ -30,18 +28,32 @@ namespace Union.Backend.API
                 {
                     opt.JsonSerializerOptions.IgnoreNullValues = true;
                 });
+            services.AddControllers(opt =>
+            {
+                opt.Filters.Add(new HttpResponseExceptionFilter());
+            });
+
             services.AddDbContext<GardenLinkContext>(opt =>
                opt.UseInMemoryDatabase("TodoList")
             );
+
             services.AddSwaggerGen(sd =>
             {
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "SwaggerDemo", Version = "v1" });
+                sd.OrderActionsBy(key => key.HttpMethod switch
+                {
+                    "GET" => "0",
+                    "POST" => "1",
+                    "PUT" => "2",
+                    "DELETE" => "3",
+                    _ => "4",
+                });
+                sd.DocumentFilter<JustDtoDocumentFilter>();
             });
 
-            services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<UsersService, UsersService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

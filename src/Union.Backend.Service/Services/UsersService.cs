@@ -1,16 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
-using Union.Backend.Service.IServices;
+using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
 
 namespace Union.Backend.Service.Services
 {
-    public class UsersService : IUsersService
+    public class UsersService
     {
         private readonly GardenLinkContext db;
         public UsersService(GardenLinkContext gardenLinkContext)
@@ -18,17 +18,25 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<UserQueryResults> Add(User user)
+        private async Task<User> GetUserEntity(Guid id)
         {
-            await db.Users.AddAsync(user);
-            await db.SaveChangesAsync();
+            return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+        }
+
+        public async Task<UserQueryResults> GetUser(Guid userId)
+        {
+            var user = await GetUserEntity(userId);
+            if (user == null)
+            {
+                throw new NotFoundApiException();
+            }
             return new UserQueryResults()
             {
-                Data =  new UserDto  { Id = user.Id }
+                Data = new UserDto() { Id = user.Id }
             };
         }
 
-        public async Task<UsersQueryResults> All()
+        public async Task<UsersQueryResults> GetAllUsers()
         {
             var users = db.Users
                     .Select(u => new UserDto
@@ -40,6 +48,43 @@ namespace Union.Backend.Service.Services
                 Data = await users.ToListAsync(),
                 Count = await users.CountAsync()
             };
+        }
+
+        public async Task<UserQueryResults> AddUser(User user)
+        {
+            await db.Users.AddAsync(user);
+            await db.SaveChangesAsync();
+            return new UserQueryResults()
+            {
+                Data = new UserDto { Id = user.Id }
+            };
+        }
+
+        public async Task<UserQueryResults> ChangeUser(Guid id, User user)
+        {
+            var foundUser = GetUserEntity(id).Result;
+            if (foundUser == null)
+            {
+                throw new Exception();
+            }
+            // todo change common foundUser properties by thoses of user
+            db.Users.Update(foundUser);
+            await db.SaveChangesAsync();
+            return new UserQueryResults()
+            {
+                Data = new UserDto { Id = foundUser.Id }
+            };
+        }
+
+        public async Task DeleteUser(Guid userId)
+        {
+            var foundUser = GetUserEntity(userId).Result;
+            if (foundUser == null)
+            {
+                throw new Exception();
+            }
+            db.Users.Remove(foundUser);
+            await db.SaveChangesAsync();
         }
     }
 }
