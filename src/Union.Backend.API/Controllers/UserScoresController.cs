@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using System;
-using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -20,23 +17,22 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}/score")]
-        public async Task<ScoreQueryResults> GetScore([FromRoute(Name = "id")] Guid UserId)
+        public async Task<IActionResult> GetScore([FromRoute(Name = "id")] Guid UserId)
         {
-            return await service.GetScore(UserId);
+            return Ok(await service.GetScore(UserId));
         }
 
 
-        [HttpPost("{id}/score")]
-        public async Task<ScoreQueryResults> AddScore([FromRoute(Name = "id")] Guid UserId, [FromBody] ScoreDto Score)
+        [HttpPost("{id}/score")] //TODO
+        public async Task<IActionResult> AddScore([FromRoute(Name = "id")] Guid UserId, [FromBody] ScoreDto Score)
         {
-            return await service.AddScore(Score, UserId);
+            return Created("TODO", await service.AddScore(Score, UserId));
         }
 
         [HttpPost("score/{id}/report")]
-        public async Task<ScoreQueryResults> ReportScore([FromRoute(Name = "id")] Guid ScoreId, [FromBody] ScoreDto Score)
+        public async Task<IActionResult> ReportScore([FromRoute(Name = "id")] Guid ScoreId, [FromBody] ScoreDto Score)
         {
-
-            return await service.ReportScore(ScoreId, Score);
+            return Ok(await service.ReportScore(ScoreId, Score));
         }
 
         [HttpDelete("score/{id}")]

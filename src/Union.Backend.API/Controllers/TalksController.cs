@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using System;
-using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -20,31 +17,29 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<TalksQueryResults> GetAllTalks()
+        public async Task<IActionResult> GetAllTalks()
         {
-            return await service.GetAllTalks();
+            return Ok(await service.GetAllTalks());
         }
 
         [HttpGet("{id}")]
-        public async Task<TalkQueryResults> GetTalk([FromRoute(Name = "id")] Guid UserId)
+        public async Task<IActionResult> GetTalk([FromRoute(Name = "id")] Guid UserId)
         {
-            return await service.GetTalk(UserId);
+            return Ok(await service.GetTalk(UserId));
         }
 
 
-        [HttpPost]
-        public async Task<TalkQueryResults> CreateTalk([FromBody] TalkDto Talk)
+        [HttpPost] //TODO
+        public async Task<IActionResult> CreateTalk([FromBody] TalkDto Talk)
         {
-            return await service.AddTalk(Talk);
+            return Created("TODO", await service.AddTalk(Talk));
         }
 
-        [HttpPost("{id}")]
-        public async Task<TalkQueryResults> AddMessage([FromRoute(Name = "id")] Guid TalkId, [FromBody] MessageDto message)
+        [HttpPost("{id}")] //TODO
+        public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid TalkId, [FromBody] MessageDto message)
         {
-            return await service.AddMessage(message, TalkId);
+            return Created("TODO", await service.AddMessage(message, TalkId));
         }
-
-
 
         [HttpDelete("{id}")]
         public async Task DeleteTalk([FromRoute(Name = "id")] Guid TalkId)

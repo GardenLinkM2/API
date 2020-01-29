@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -17,17 +16,15 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<WalletQueryResults> GetAllWallets()
+        public async Task<IActionResult> GetAllWallets()
         {
-            return await service.GetWallet();
+            return Ok(await service.GetWallet());
         }
 
-
         [HttpPut]
-        public async Task<WalletQueryResults> AddMessage([FromBody] WalletDto Wallet)
+        public async Task<IActionResult> AddMessage([FromBody] WalletDto Wallet)
         {
-
-            return await service.ChangeWallet(Wallet);
+            return Ok(await service.ChangeWallet(Wallet));
         }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using System;
-using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -20,21 +17,21 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<PaymentsQueryResults> GetAllPayments()
+        public async Task<IActionResult> GetAllPayments()
         {
-            return await service.GetAllPayments();
+            return Ok(await service.GetAllPayments());
         }
 
         [HttpGet("{id}")]
-        public async Task<PaymentQueryResults> GetPaymentById([FromRoute(Name = "id")] Guid PaymentId)
+        public async Task<IActionResult> GetPaymentById([FromRoute(Name = "id")] Guid PaymentId)
         {
-            return await service.GetPayment(PaymentId);
+            return Ok(await service.GetPayment(PaymentId));
         }
 
-        [HttpPost]
-        public async Task<PaymentQueryResults> CreatePayment([FromBody] PaymentDto Payment)
+        [HttpPost] //TODO
+        public async Task<IActionResult> CreatePayment([FromBody] PaymentDto Payment)
         {
-            return await service.AddPayment(Payment);
+            return Created("TODO", await service.AddPayment(Payment));
         }
 
         [HttpDelete("{id}")]

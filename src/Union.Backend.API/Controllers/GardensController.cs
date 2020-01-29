@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using System;
-using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -20,45 +17,45 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<GardensQueryResults> GetAllGardens()
+        public async Task<IActionResult> GetAllGardens()
         {
-            return await service.GetAllGardens();
+            return Ok(await service.GetAllGardens());
         }
 
         [HttpGet("search/{params}")] //TODO
-        public async Task<GardensQueryResults> GetGardenByParam([FromRoute(Name = "id")] Guid GardenId)
+        public async Task<IActionResult> GetGardenByParam([FromRoute(Name = "id")] Guid GardenId)
         {
-            return await service.GetGardenByParams();
+            return Ok(await service.GetGardenByParams());
         }
 
         [HttpGet("{id}")]
-        public async Task<GardenQueryResults> GetGardenById([FromRoute(Name = "id")] Guid GardenId)
+        public async Task<IActionResult> GetGardenById([FromRoute(Name = "id")] Guid GardenId)
         {
-            return await service.GetGardenById(GardenId);
+            return Ok(await service.GetGardenById(GardenId));
         }
 
-        [HttpPost]
-        public async Task<GardenQueryResults> CreateGarden([FromBody] GardenDto Garden)
+        [HttpPost] //TODO
+        public async Task<IActionResult> CreateGarden([FromBody] GardenDto Garden)
         {
-            return await service.AddGarden(Garden);
+            return Created("TODO", await service.AddGarden(Garden));
         }
 
         [HttpPut("{id}")]
-        public async Task<GardenQueryResults> AddMessage([FromRoute(Name = "id")] Guid GardenId, [FromBody] GardenDto garden)
+        public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid GardenId, [FromBody] GardenDto garden)
         {
-            return await service.ChangeGarden(garden, GardenId);
+            return Ok(await service.ChangeGarden(garden, GardenId));
         }
 
         [HttpPut("{id}/description")]
-        public async Task<GardenQueryResults> UpdateGardenDescription([FromRoute(Name = "id")] Guid GardenId, [FromBody] DescriptionDto desc)
+        public async Task<IActionResult> UpdateGardenDescription([FromRoute(Name = "id")] Guid GardenId, [FromBody] DescriptionDto desc)
         {
-            return await service.ChangeGardenDescription(desc, GardenId);
+            return Ok(await service.ChangeGardenDescription(desc, GardenId));
         }
 
         [HttpPut("{id}/validation")]
-        public async Task<GardenQueryResults> UpdateGardenValidation([FromRoute(Name = "id")] Guid GardenId, [FromBody] ValidationDto valid)
+        public async Task<IActionResult> UpdateGardenValidation([FromRoute(Name = "id")] Guid GardenId, [FromBody] ValidationDto valid)
         {
-            return await service.ChangeGardenValidation(valid, GardenId);
+            return Ok(await service.ChangeGardenValidation(valid, GardenId));
         }
 
         [HttpDelete("{id}")]
@@ -66,6 +63,5 @@ namespace Union.Backend.API.Controllers
         {
             await service.DeleteGarden(GardenId);
         }
-
     }
 }

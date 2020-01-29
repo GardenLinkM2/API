@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using System;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
@@ -22,10 +20,9 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<UsersQueryResults> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            //return await service.GetAllUsers();
-            throw new NotFoundApiException();
+            return Ok(await service.GetAllUsers());
         }
 
         [HttpGet("{id}")]
@@ -42,13 +39,13 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}/gardens")]
-        public async Task<GardensQueryResults> GetGardens([FromRoute(Name = "id")] Guid userId)
+        public async Task<IActionResult> GetGardens([FromRoute(Name = "id")] Guid userId)
         {
-            return await gardensService.GetGardensByUser(userId);
+            return Ok(await gardensService.GetGardensByUser(userId));
         }
 
         [HttpGet("me")]
-        public async Task<UserQueryResults> GetMe()
+        public async Task<IActionResult> GetMe()
         {
             //TODO
             //return await service.GetUser(GET_IDFROM_TOKEN);
@@ -56,14 +53,14 @@ namespace Union.Backend.API.Controllers
             //TODO gestion http404
         }
 
-        [HttpPost]
-        public async Task<UserQueryResults> AddUser([FromBody] UserDto user)
+        [HttpPost] //TODO
+        public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
-            return await service.AddUser(user);
+            return Created("TODO", await service.AddUser(user));
         }
 
         [HttpPut("me")]
-        public async Task<UserQueryResults> ChangeMe([FromBody] UserDto user)
+        public async Task<IActionResult> ChangeMe([FromBody] UserDto user)
         {
             //TODO var id = getuserIdFromToken();
             //return await service.ChangeUser(user, id);
@@ -71,10 +68,9 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<UserQueryResults> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] UserDto user)
+        public async Task<IActionResult> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] UserDto user)
         {
-
-            return await service.ChangeUser(userId, user);
+            return Ok(await service.ChangeUser(userId, user));
         }
 
         [HttpDelete("{id}")]

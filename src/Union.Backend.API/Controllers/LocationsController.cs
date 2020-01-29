@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using System;
-using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -20,30 +17,28 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<LocationsQueryResults> GetAllLocations()
+        public async Task<IActionResult> GetAllLocations()
         {
-            return await service.GetAllLocations();
+            return Ok(await service.GetAllLocations());
         }
 
         [HttpGet("{id}")]
-        public async Task<LocationQueryResults> GetLocationById([FromRoute(Name = "id")] Guid LocationId)
+        public async Task<IActionResult> GetLocationById([FromRoute(Name = "id")] Guid LocationId)
         {
-            return await service.GetLocation(LocationId);
+            return Ok(await service.GetLocation(LocationId));
         }
 
-        [HttpPost]
-        public async Task<LocationQueryResults> CreateLocation([FromBody] LocationDto Location)
+        [HttpPost] //TODO
+        public async Task<IActionResult> CreateLocation([FromBody] LocationDto Location)
         {
-            return await service.AddLocation(Location);
+            return Created("TODO", await service.AddLocation(Location));
         }
 
         [HttpPut("{id}")]
-        public async Task<LocationQueryResults> AddMessage([FromRoute(Name = "id")] Guid LocationId, [FromBody] LocationDto Location)
+        public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid LocationId, [FromBody] LocationDto Location)
         {
-            return await service.ChangeLocation(Location, LocationId);
+            return Ok(await service.ChangeLocation(Location, LocationId));
         }
-
-
 
         [HttpDelete("{id}")]
         public async Task DeleteLocation([FromRoute(Name = "id")] Guid LocationId)

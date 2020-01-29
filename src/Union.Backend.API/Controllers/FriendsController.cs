@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
 using System;
-using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -20,28 +17,27 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ContactsQueryResults> GetAllFriends()
+        public async Task<IActionResult> GetAllFriends()
         {
-            //return await service.GetAllUsers();
-            throw new NotFoundApiException();
+            //return Ok(await service.GetAllFriends(GUID)); TODO
+            throw new NotImplementedException();
         }
 
-        [HttpPost]
-        public async Task<DemandQueryResults> CreateFriendDemand([FromBody] DemandDto demand)
+        [HttpPost] //TODO
+        public async Task<IActionResult> CreateFriendDemand([FromBody] DemandDto demand)
         {
-            return await service.AddContactDemand(demand);
+            return Created("TODO", await service.AddContactDemand(demand));
         }
 
-        [HttpPost("{id}/Accept")]
-        public async Task<ContactQueryResults> AcceptDemand([FromRoute(Name = "id")] Guid friendId)
+        [HttpPost("{id}/Accept")] //TODO
+        public async Task<IActionResult> AcceptDemand([FromRoute(Name = "id")] Guid friendId)
         {
-            return await service.CreateContact(friendId);
+            return Created("TODO", await service.CreateContact(friendId));
         }
 
-        [HttpPost("{id}/decline")]
+        [HttpPost("{id}/decline")] //TODO
         public async Task DeclineDemand([FromRoute(Name = "id")] Guid friendId)
         {
-
             await service.DeleteDemand(friendId);
         }
 
