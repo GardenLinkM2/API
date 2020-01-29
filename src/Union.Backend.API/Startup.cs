@@ -51,7 +51,14 @@ namespace Union.Backend.API
                 sd.DocumentFilter<JustDtoDocumentFilter>();
             });
 
+            services.AddTransient<FriendsService, FriendsService>();
+            services.AddTransient<GardensService, GardensService>();
+            services.AddTransient<LocationsService, LocationsService>();
+            services.AddTransient<PaymentsService, PaymentsService>();
+            services.AddTransient<ScoresService, ScoresService>();
+            services.AddTransient<TalksService, TalksService>();
             services.AddTransient<UsersService, UsersService>();
+            services.AddTransient<WalletsService, WalletsService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

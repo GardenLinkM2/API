@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Results;
-using System;
-using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
@@ -32,8 +29,5 @@ namespace Union.Backend.API.Controllers
 
             return await service.ChangeWallet(Wallet);
         }
-
-
-
     }
 }
