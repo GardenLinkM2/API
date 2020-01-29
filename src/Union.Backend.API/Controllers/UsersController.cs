@@ -5,6 +5,7 @@ using Union.Backend.Service.Services;
 using Union.Backend.Service.Results;
 using System;
 using Union.Backend.Service.Exceptions;
+using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
 {
@@ -48,13 +49,13 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost]
-        public async Task<UserQueryResults> AddUser([FromBody] User user)
+        public async Task<UserQueryResults> AddUser([FromBody] UserDto user)
         {
             return await service.AddUser(user);
         }
 
         [HttpPut("me")]
-        public async Task<UserQueryResults> ChangeMe([FromBody] User user)
+        public async Task<UserQueryResults> ChangeMe([FromBody] UserDto user)
         {
             //TODO var id = getuserIdFromToken();
             //return await service.ChangeUser(user, id);
@@ -62,7 +63,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<UserQueryResults> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] User user)
+        public async Task<UserQueryResults> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] UserDto user)
         {
 
             return await service.ChangeUser(userId, user);

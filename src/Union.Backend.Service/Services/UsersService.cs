@@ -50,17 +50,19 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<UserQueryResults> AddUser(User user)
+        public async Task<UserQueryResults> AddUser(UserDto user)
         {
-            await db.Users.AddAsync(user);
+            User createdUser = new User();
+            createdUser.Id = user.Id;
+            await db.Users.AddAsync(createdUser);
             await db.SaveChangesAsync();
             return new UserQueryResults()
             {
-                Data = new UserDto { Id = user.Id }
+                Data = user
             };
         }
 
-        public async Task<UserQueryResults> ChangeUser(Guid id, User user)
+        public async Task<UserQueryResults> ChangeUser(Guid id, UserDto user)
         {
             var foundUser = GetUserEntity(id).Result;
             if (foundUser == null)
