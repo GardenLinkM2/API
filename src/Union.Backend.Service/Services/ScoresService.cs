@@ -19,26 +19,26 @@ namespace Union.Backend.Service.Services
         }
 
 
-        public async Task<ScoreQueryResults> GetScore(Guid UserId)
+        public async Task<ScoreQueryResults> GetScore(Guid Id)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
 
 
 
-        public async Task<ScoreQueryResults> AddScore(ScoreDto Score, Guid UserId)
+        public async Task<ScoreQueryResults> AddScore(ScoreDto Score, Guid Id)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
 
         public async Task<ScoreQueryResults> ReportScore(Guid id, ScoreDto Score)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
 
         public async Task DeleteScore(Guid ScoreId)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
     }
 }

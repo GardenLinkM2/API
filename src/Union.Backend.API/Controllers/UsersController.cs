@@ -14,9 +14,11 @@ namespace Union.Backend.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UsersService service;
-        public UsersController(UsersService service)
+        private readonly GardensService gardensService;
+        public UsersController(UsersService service, GardensService gardensService)
         {
             this.service = service;
+            this.gardensService = gardensService;
         }
 
         [HttpGet]
@@ -37,6 +39,12 @@ namespace Union.Backend.API.Controllers
             {
                 return NotFound(ex.Message);
             }
+        }
+
+        [HttpGet("{id}/gardens")]
+        public async Task<GardensQueryResults> GetGardens([FromRoute(Name = "id")] Guid userId)
+        {
+            return await gardensService.GetGardensByUser(userId);
         }
 
         [HttpGet("me")]

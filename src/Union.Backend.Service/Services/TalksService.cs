@@ -20,26 +20,26 @@ namespace Union.Backend.Service.Services
 
         public async Task<TalkQueryResults> GetTalk(Guid UserId)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
 
         public async Task<TalksQueryResults> GetAllTalks()
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
 
         public async Task<TalkQueryResults> AddTalk(TalkDto Talk)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
 
         public async Task<TalkQueryResults> AddMessage(MessageDto Message, Guid TalkId)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
         public async Task DeleteTalk(Guid TalkId)
         {
-            throw new NotFoundApiException();
+            throw new NotImplementedException();
         }
     }
 }

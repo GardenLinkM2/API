@@ -11,10 +11,10 @@ namespace Union.Backend.API.Controllers
 {
     [Route("api/users/")]
     [ApiController]
-    public class ScoresController : ControllerBase
+    public class UserScoresController : ControllerBase
     {
         private readonly ScoresService service;
-        public ScoresController(ScoresService service)
+        public UserScoresController(ScoresService service)
         {
             this.service = service;
         }
@@ -32,14 +32,14 @@ namespace Union.Backend.API.Controllers
             return await service.AddScore(Score, UserId);
         }
 
-        [HttpPost("/score/{id}/report")]
+        [HttpPost("score/{id}/report")]
         public async Task<ScoreQueryResults> ReportScore([FromRoute(Name = "id")] Guid ScoreId, [FromBody] ScoreDto Score)
         {
 
             return await service.ReportScore(ScoreId, Score);
         }
 
-        [HttpDelete("/score/{id}")]
+        [HttpDelete("score/{id}")]
         public async Task DeleteScore([FromRoute(Name = "id")] Guid ScoreId)
         {
             await service.DeleteScore(ScoreId);
