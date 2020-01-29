@@ -20,19 +20,35 @@ namespace Union.Backend.Service.Services
 
         private async Task<User> GetUserEntity(Guid id)
         {
-            return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+            try
+            {
+                return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+            }
+            catch (NullReferenceException)
+            {
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task<UserQueryResults> GetUser(Guid userId)
         {
-            var user = await GetUserEntity(userId);
-            if (user == null)
-            {
-                throw new NotFoundApiException();
-            }
+            var user = await GetUserEntity(userId) ?? throw new NotFoundApiException();
+
             return new UserQueryResults()
             {
-                Data = new UserDto() { Id = user.Id }
+                Data = new UserDto() {
+                    Id = user.Id,
+                    Name = user.Name,
+                    FirstName = user.FirstName,
+                    Mail = user.Mail,
+                    PhoneNumber = user.PhoneNumber,
+                    Photos = user.Photos,
+                    Wallet = user.Wallet
+                }
             };
         }
 
@@ -52,6 +68,8 @@ namespace Union.Backend.Service.Services
 
         public async Task<UserQueryResults> AddUser(User user)
         {
+            user.Inscription = DateTime.Now;
+
             await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
             return new UserQueryResults()
@@ -67,7 +85,14 @@ namespace Union.Backend.Service.Services
             {
                 throw new Exception();
             }
-            // todo change common foundUser properties by thoses of user
+
+            foundUser.Name = user.Name;
+            foundUser.FirstName = user.FirstName;
+            foundUser.Mail = user.Mail;
+            foundUser.PhoneNumber = user.PhoneNumber;
+            foundUser.Photos = user.Photos;
+            foundUser.Password = user.Password;
+            
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();
             return new UserQueryResults()
