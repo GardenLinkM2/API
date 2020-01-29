@@ -19,7 +19,7 @@ namespace Union.Backend.API
             }
             else
             {
-                context.Result = new ObjectResult("An error occured")
+                context.Result = new ObjectResult($"An error occured\n{context.Exception.Message}\n{context.Exception.StackTrace}")
                 {
                     StatusCode = 500,
                 };

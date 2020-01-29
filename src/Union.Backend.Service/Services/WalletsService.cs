@@ -21,13 +21,13 @@ namespace Union.Backend.Service.Services
 
         public async Task<WalletQueryResults> GetWallet()
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
 
         public async Task<WalletQueryResults> ChangeWallet(WalletDto Wallet)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
 

@@ -21,27 +21,27 @@ namespace Union.Backend.Service.Services
 
         public async Task<LocationQueryResults> GetLocation(Guid Id)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task<LocationsQueryResults> GetAllLocations()
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task<LocationQueryResults> AddLocation(LocationDto Locationd)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task<LocationQueryResults> ChangeLocation(LocationDto Location, Guid id)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task DeleteLocation(Guid LocationId)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
     }
 }

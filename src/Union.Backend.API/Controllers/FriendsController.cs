@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using System;
 using Union.Backend.Service.Dtos;
+using Union.Backend.Service.Exceptions;
 
 namespace Union.Backend.API.Controllers
 {
@@ -20,7 +21,7 @@ namespace Union.Backend.API.Controllers
         public async Task<IActionResult> GetAllFriends()
         {
             //return Ok(await service.GetAllFriends(GUID)); TODO
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         [HttpPost] //TODO

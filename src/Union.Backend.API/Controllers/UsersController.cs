@@ -49,7 +49,7 @@ namespace Union.Backend.API.Controllers
         {
             //TODO
             //return await service.GetUser(GET_IDFROM_TOKEN);
-            throw new NotImplementedException("nik");
+            throw new WorkInProgressApiException();
             //TODO gestion http404
         }
 
@@ -64,7 +64,7 @@ namespace Union.Backend.API.Controllers
         {
             //TODO var id = getuserIdFromToken();
             //return await service.ChangeUser(user, id);
-            throw new NotImplementedException("nik");
+            throw new WorkInProgressApiException();
         }
 
         [HttpPut("{id}")]
@@ -84,7 +84,7 @@ namespace Union.Backend.API.Controllers
         {
             //TODO var id = getuserIdFromToken();
             //return await service.DeleteUser(id);
-            throw new NotImplementedException("nik");
+            throw new WorkInProgressApiException();
         }
     }
 }

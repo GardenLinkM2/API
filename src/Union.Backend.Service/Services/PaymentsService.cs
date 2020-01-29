@@ -21,27 +21,27 @@ namespace Union.Backend.Service.Services
 
         public async Task<PaymentQueryResults> GetPayment(Guid Id)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task<PaymentsQueryResults> GetAllPayments()
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task<PaymentQueryResults> AddPayment(PaymentDto Paymentd)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task<PaymentQueryResults> ChangePayment(PaymentDto Payment, Guid id)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task DeletePayment(Guid PaymentId)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
     }
 }

@@ -21,24 +21,24 @@ namespace Union.Backend.Service.Services
 
         public async Task<ScoreQueryResults> GetScore(Guid Id)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
 
 
         public async Task<ScoreQueryResults> AddScore(ScoreDto Score, Guid Id)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task<ScoreQueryResults> ReportScore(Guid id, ScoreDto Score)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
 
         public async Task DeleteScore(Guid ScoreId)
         {
-            throw new NotImplementedException();
+            throw new WorkInProgressApiException();
         }
     }
 }

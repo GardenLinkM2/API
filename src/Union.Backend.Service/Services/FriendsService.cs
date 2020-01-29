@@ -54,8 +54,8 @@ namespace Union.Backend.Service.Services
         public async Task<ContactQueryResults> CreateContact(Guid friendId)
         {
             //TODO
-
-            DemandDto demande = GetContactDemandFromUserId(friendId).Result.Data;
+            var result = await GetContactDemandFromUserId(friendId) ?? throw new NotFoundApiException();
+            DemandDto demande = result.Data;
             //create Contact dto from demande
             return null;
         }
@@ -63,14 +63,15 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteDemand(Guid friendId)
         {
-            DemandDto demande = GetContactDemandFromUserId(friendId).Result.Data;
+            var result = await GetContactDemandFromUserId(friendId) ?? throw new NotFoundApiException();
+            DemandDto demande = result.Data;
             //TODO deletedemand
 
         }
 
         public async Task DeleteContact(Guid friendId)
         {
-            DemandDto demande = GetContactFromUserId(friendId).Result.Data;
+            DemandDto demande = GetContactFromUserId(friendId).Result.Data; //Pas sur de ça
             //TODO deleteContact
 
         }
