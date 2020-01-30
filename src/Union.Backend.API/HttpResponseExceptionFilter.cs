@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System;
 using Union.Backend.Service.Exceptions;
 
 namespace Union.Backend.API
@@ -10,6 +11,7 @@ namespace Union.Backend.API
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
+            if (context.Exception == null) return;
             if (context.Exception is HttpResponseException exception)
             {
                 context.Result = new ObjectResult(exception.Message)
@@ -19,7 +21,7 @@ namespace Union.Backend.API
             }
             else
             {
-                context.Result = new ObjectResult("An error occured")
+                context.Result = new ObjectResult(context.Exception.ConvertToString())
                 {
                     StatusCode = 500,
                 };

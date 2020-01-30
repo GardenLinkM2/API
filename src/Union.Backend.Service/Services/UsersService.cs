@@ -20,29 +20,35 @@ namespace Union.Backend.Service.Services
 
         private async Task<User> GetUserEntity(Guid id)
         {
-            return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+            try
+            {
+                return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+            }
+            catch (NullReferenceException)
+            {
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task<UserQueryResults> GetUser(Guid userId)
         {
-            var user = await GetUserEntity(userId);
-            if (user == null)
-            {
-                throw new NotFoundApiException();
-            }
+            var user = await GetUserEntity(userId) ?? throw new NotFoundApiException();
+
             return new UserQueryResults()
             {
-                Data = new UserDto() { Id = user.Id }
+                Data = user.ConvertToDto()
             };
         }
 
         public async Task<UsersQueryResults> GetAllUsers()
         {
             var users = db.Users
-                    .Select(u => new UserDto
-                    {
-                        Id = u.Id
-                    });
+                .Include(u => u.Photos)
+                .Select(u => u.ConvertToDto());
             return new UsersQueryResults()
             {
                 Data = await users.ToListAsync(),
@@ -50,13 +56,16 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<UserQueryResults> AddUser(User user)
+        public async Task<UserQueryResults> AddUser(UserDto dto)
         {
+            var user = dto.ConvertToModel();
+            user.Inscription = DateTime.Now;
+
             await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
             return new UserQueryResults()
             {
-                Data = new UserDto { Id = user.Id }
+                Data = user.ConvertToDto()
             };
         }
 
@@ -67,7 +76,13 @@ namespace Union.Backend.Service.Services
             {
                 throw new Exception();
             }
-            // todo change common foundUser properties by thoses of user
+
+            foundUser.Name = user.Name;
+            foundUser.FirstName = user.FirstName;
+            foundUser.Mail = user.Mail;
+            foundUser.PhoneNumber = user.PhoneNumber;
+            foundUser.Photos = user.Photos;
+            
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();
             return new UserQueryResults()
@@ -85,6 +100,14 @@ namespace Union.Backend.Service.Services
             }
             db.Users.Remove(foundUser);
             await db.SaveChangesAsync();
+        }
+
+        public async Task<PhotoDto> Photograph(Guid id, PhotoDto dto)
+        {
+            var photo = dto.ConvertToModel<User>(id);
+            db.UserPhotos.Add(photo);
+            await db.SaveChangesAsync();
+            return photo.ConvertToDto();
         }
     }
 }
