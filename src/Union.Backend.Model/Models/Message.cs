@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Message
+    public class Message : IPhotographable
     {
         public Guid Id { get; set; }
         public string Text { get; set; }
@@ -12,6 +11,6 @@ namespace Union.Backend.Model.Models
         public bool Read { get; set; }
         public Conversation Conversation { get; set; }
         public User Sender { get; set; }
-        public List<Photo> Photos { get; set; }
+        public List<Photo<Message>> Photos { get; set; }
     }
 }

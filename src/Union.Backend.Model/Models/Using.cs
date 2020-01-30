@@ -4,9 +4,8 @@ using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Using
+    public class Using //TODO: se confond avec Caracteristic
     {
         public Guid Id { get; set; }
-
     }
 }

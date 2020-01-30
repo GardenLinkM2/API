@@ -40,25 +40,15 @@ namespace Union.Backend.Service.Services
 
             return new UserQueryResults()
             {
-                Data = new UserDto() {
-                    Id = user.Id,
-                    Name = user.Name,
-                    FirstName = user.FirstName,
-                    Mail = user.Mail,
-                    PhoneNumber = user.PhoneNumber,
-                    Photos = user.Photos,
-                    Wallet = user.Wallet
-                }
+                Data = user.ConvertToDto()
             };
         }
 
         public async Task<UsersQueryResults> GetAllUsers()
         {
             var users = db.Users
-                    .Select(u => new UserDto
-                    {
-                        Id = u.Id
-                    });
+                .Include(u => u.Photos)
+                .Select(u => u.ConvertToDto());
             return new UsersQueryResults()
             {
                 Data = await users.ToListAsync(),
@@ -66,15 +56,16 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<UserQueryResults> AddUser(User user)
+        public async Task<UserQueryResults> AddUser(UserDto dto)
         {
+            var user = dto.ConvertToModel();
             user.Inscription = DateTime.Now;
 
             await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
             return new UserQueryResults()
             {
-                Data = new UserDto { Id = user.Id }
+                Data = user.ConvertToDto()
             };
         }
 
@@ -91,7 +82,6 @@ namespace Union.Backend.Service.Services
             foundUser.Mail = user.Mail;
             foundUser.PhoneNumber = user.PhoneNumber;
             foundUser.Photos = user.Photos;
-            foundUser.Password = user.Password;
             
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();
@@ -110,6 +100,14 @@ namespace Union.Backend.Service.Services
             }
             db.Users.Remove(foundUser);
             await db.SaveChangesAsync();
+        }
+
+        public async Task<PhotoDto> Photograph(Guid id, PhotoDto dto)
+        {
+            var photo = dto.ConvertToModel<User>(id);
+            db.UserPhotos.Add(photo);
+            await db.SaveChangesAsync();
+            return photo.ConvertToDto();
         }
     }
 }

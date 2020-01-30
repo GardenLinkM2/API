@@ -4,10 +4,11 @@ using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Garden
+    public class Garden : IPhotographable
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        //TODO: ajouter Localisation avec une nouvelle classe dédiée
         public int Size { get; set; }
         public bool Reserve { get; set; }
         public string Type { get; set; }
@@ -17,6 +18,6 @@ namespace Union.Backend.Model.Models
         public Validation Validation { get; set; }
         public Using Use { get; set; }
         public Characteristic Carac { get; set; }
-        public List<Photo> Photos { get; set; }
+        public List<Photo<Garden>> Photos { get; set; }
     }
 }

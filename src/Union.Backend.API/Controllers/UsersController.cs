@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Results;
-using System;
 using Union.Backend.Service.Exceptions;
+using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API.Controllers
 {
@@ -48,7 +49,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost]
-        public async Task<UserQueryResults> AddUser([FromBody] User user)
+        public async Task<UserQueryResults> AddUser([FromBody] UserDto user)
         {
             return await service.AddUser(user);
         }
@@ -80,6 +81,12 @@ namespace Union.Backend.API.Controllers
             //TODO var id = getuserIdFromToken();
             //return await service.DeleteUser(id);
             throw new NotImplementedException("nik");
+        }
+
+        [HttpPost("{id}/photograph")]
+        public async Task<IActionResult> Photograph([FromRoute(Name = "id")] Guid id, [FromBody] PhotoDto photo)
+        {
+            return Created("NIK", await service.Photograph(id, photo));
         }
     }
 }

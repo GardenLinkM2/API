@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Validation
+    public class Validation //TODO: suppr
     {
         public Guid Id { get; set; }
         public int State { get; set; }

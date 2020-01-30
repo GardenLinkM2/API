@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Photo
+    public interface IPhotographable
+    { }
+
+    public class Photo<TRelated> where TRelated : IPhotographable
     {
         public Guid Id { get; set; }
         public string Path { get; set; }
         public string FileName { get; set; }
+        public Guid RelatedTo { get; set; }
     }
 }
