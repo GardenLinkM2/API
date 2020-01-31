@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Services;
-using Union.Backend.Service.Results;
+using System;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 
@@ -14,16 +13,17 @@ namespace Union.Backend.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UsersService service;
-        public UsersController(UsersService service)
+        private readonly GardensService gardensService;
+        public UsersController(UsersService service, GardensService gardensService)
         {
             this.service = service;
+            this.gardensService = gardensService;
         }
 
         [HttpGet]
-        public async Task<UsersQueryResults> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            //return await service.GetAllUsers();
-            throw new NotFoundApiException();
+            return Ok(await service.GetAllUsers());
         }
 
         [HttpGet("{id}")]
@@ -39,34 +39,39 @@ namespace Union.Backend.API.Controllers
             }
         }
 
+        [HttpGet("{id}/gardens")]
+        public async Task<IActionResult> GetGardens([FromRoute(Name = "id")] Guid userId)
+        {
+            return Ok(await gardensService.GetGardensByUser(userId));
+        }
+
         [HttpGet("me")]
-        public async Task<UserQueryResults> GetMe()
+        public async Task<IActionResult> GetMe()
         {
             //TODO
             //return await service.GetUser(GET_IDFROM_TOKEN);
-            throw new NotImplementedException("nik");
+            throw new WorkInProgressApiException();
             //TODO gestion http404
         }
 
-        [HttpPost]
-        public async Task<UserQueryResults> AddUser([FromBody] UserDto user)
+        [HttpPost] //TODO
+        public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
-            return await service.AddUser(user);
+            return Created("TODO", await service.AddUser(user));
         }
 
         [HttpPut("me")]
-        public async Task<UserQueryResults> ChangeMe([FromBody] User user)
+        public async Task<IActionResult> ChangeMe([FromBody] UserDto user)
         {
             //TODO var id = getuserIdFromToken();
             //return await service.ChangeUser(user, id);
-            throw new NotImplementedException("nik");
+            throw new WorkInProgressApiException();
         }
 
         [HttpPut("{id}")]
-        public async Task<UserQueryResults> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] User user)
+        public async Task<IActionResult> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] UserDto user)
         {
-
-            return await service.ChangeUser(userId, user);
+            return Ok(await service.ChangeUser(userId, user));
         }
 
         [HttpDelete("{id}")]
@@ -80,7 +85,7 @@ namespace Union.Backend.API.Controllers
         {
             //TODO var id = getuserIdFromToken();
             //return await service.DeleteUser(id);
-            throw new NotImplementedException("nik");
+            throw new WorkInProgressApiException();
         }
 
         [HttpPost("{id}/photograph")]
