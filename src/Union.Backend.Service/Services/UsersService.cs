@@ -70,17 +70,13 @@ namespace Union.Backend.Service.Services
 
         public async Task<UserQueryResults> ChangeUser(Guid id, UserDto user)
         {
-            var foundUser = GetUserEntity(id).Result;
-            if (foundUser == null)
-            {
-                throw new Exception();
-            }
+            var foundUser = GetUserEntity(id).Result ?? throw new Exception();
 
             foundUser.Name = user.Name;
             foundUser.FirstName = user.FirstName;
             foundUser.Mail = user.Mail;
             foundUser.PhoneNumber = user.PhoneNumber;
-            foundUser.Photos = user.Photos;
+            foundUser.Photos = user.Photos.Select(p => p.ConvertToModel<User>(id)).ToList();
             
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();
