@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Union.Backend.Model.DAO;
-using Union.Backend.Service.IServices;
 using Union.Backend.Service.Services;
 
 namespace Union.Backend.API
@@ -21,22 +20,37 @@ namespace Union.Backend.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddJsonOptions(opt =>
+                {
+                    opt.JsonSerializerOptions.IgnoreNullValues = true;
+                });
+            services.AddControllers(opt =>
+            {
+                opt.Filters.Add(new HttpResponseExceptionFilter());
+            });
+
             services.AddDbContext<GardenLinkContext>(opt =>
                opt.UseInMemoryDatabase("TodoList")
             );
             services.AddSwaggerGen(sd =>
             {
-                sd.SwaggerDoc("v1", new OpenApiInfo { Title = "SwaggerDemo", Version = "v1" });
+                sd.SwaggerDoc("v1", new OpenApiInfo { Title = "GardenLink", Version = "v1" });
             });
 
-            services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<FriendsService, FriendsService>();
+            services.AddTransient<GardensService, GardensService>();
+            services.AddTransient<LocationsService, LocationsService>();
+            services.AddTransient<PaymentsService, PaymentsService>();
+            services.AddTransient<ScoresService, ScoresService>();
+            services.AddTransient<TalksService, TalksService>();
+            services.AddTransient<UsersService, UsersService>();
+            services.AddTransient<WalletsService, WalletsService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -59,7 +73,7 @@ namespace Union.Backend.API
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "SwaggerDemo v1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenLink v1");
             });
         }
     }

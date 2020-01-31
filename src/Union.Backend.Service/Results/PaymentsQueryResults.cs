@@ -3,11 +3,11 @@ using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.Service.Results
 {
-    public class UsersQueryResults : QueryResults<List<UserDto>>
+    public class PaymentsQueryResults : QueryResults<List<PaymentDto>>
     {
     }
 
-    public class UserQueryResults : QueryResults<UserDto>
+    public class PaymentQueryResults : QueryResults<PaymentDto>
     {
 
     }

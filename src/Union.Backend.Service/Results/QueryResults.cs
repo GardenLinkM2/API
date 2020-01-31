@@ -4,7 +4,7 @@ namespace Union.Backend.Service.Results
 {
     public class QueryResults<T>
     {
-        public List<T> Data { get; set; }
-        public int Count { get => Data.Count; }
+        public T Data { get; set; }
+        public int? Count { get; set; }
     }
 }
