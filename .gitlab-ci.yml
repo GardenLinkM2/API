@@ -1,0 +1,34 @@
+image: local_dotnet
+
+stages:
+    - build
+
+build_prd:
+    stage: build
+    only:
+      - master
+    script:
+        - cd src
+        - /usr/bin/msbuild -t:restore
+        - ~/.dotnet/tools/dotnet-sonarscanner begin $SONAR_LOGIN $SONAR_URL
+        - dotnet build
+        - ~/.dotnet/tools/dotnet-sonarscanner end $SONAR_LOGIN
+        - cd ../Build/netcoreapp3.1/
+        - tar cvf archive.tar ./
+        - cd ../..
+        - curl $CURL_PARAMS "$BINARIES/prd/backend$(cat ./version)-$(/bin/date +"%s").tar" 
+
+build_dev:
+    stage: build
+    only:
+      - develop
+    script:
+        - cd src
+        - /usr/bin/msbuild -t:restore
+        - ~/.dotnet/tools/dotnet-sonarscanner begin $SONAR_LOGIN $SONAR_URL
+        - dotnet build
+        - ~/.dotnet/tools/dotnet-sonarscanner end $SONAR_LOGIN
+        - cd ../Build/netcoreapp3.1/
+        - tar cvf archive.tar ./
+        - cd ../..
+        - curl $CURL_PARAMS "$BINARIES/dev/backend$(cat ./version)-$(/bin/date +"%s").tar" 
