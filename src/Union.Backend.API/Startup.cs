@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Union.Backend.Model.DAO;
+using Union.Backend.Service;
 using Union.Backend.Service.Services;
+using static Union.Backend.API.AuthorizeActionFilter;
 
 namespace Union.Backend.API
 {
@@ -22,7 +25,11 @@ namespace Union.Backend.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
+            services
+                .AddMvc(config =>
+                {
+                    config.Filters.Add(typeof(AuthorizeAttribute), 255);
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddJsonOptions(opt =>
                 {
@@ -39,6 +46,7 @@ namespace Union.Backend.API
             services.AddSwaggerGen(sd =>
             {
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "GardenLink", Version = "v1" });
+                sd.SchemaFilter<SwaggerExcludeSchemaFilter>();
             });
 
             services.AddTransient<FriendsService, FriendsService>();

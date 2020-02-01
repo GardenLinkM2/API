@@ -47,6 +47,5 @@ namespace Union.Backend.API.Controllers
         {
             await service.DeleteContact(userId);
         }
-
     }
 }

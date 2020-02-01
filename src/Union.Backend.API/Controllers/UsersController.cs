@@ -21,6 +21,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(PermissionType.All)]
         public async Task<IActionResult> GetAllUsers()
         {
             return Ok(await service.GetAllUsers());
@@ -46,6 +47,8 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("me")]
+        [Authorize(PermissionType.Admin)]
+        [Authorize(PermissionType.All)]
         public async Task<IActionResult> GetMe()
         {
             //TODO
