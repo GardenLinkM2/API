@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
-using System;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 

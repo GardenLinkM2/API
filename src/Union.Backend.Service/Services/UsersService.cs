@@ -58,13 +58,12 @@ namespace Union.Backend.Service.Services
 
         public async Task<UserQueryResults> AddUser(UserDto user)
         {
-            User createdUser = new User();
-            createdUser.Id = user.Id;
+            User createdUser = user.ConvertToModel();
             await db.Users.AddAsync(createdUser);
             await db.SaveChangesAsync();
             return new UserQueryResults()
             {
-                Data = user
+                Data = createdUser.ConvertToDto()
             };
         }
 

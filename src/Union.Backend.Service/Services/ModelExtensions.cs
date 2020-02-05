@@ -1,17 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.Service.Services
 {
-    static class Extensions
+    static class ModelExtensions
     {
+        public static List<T> ToListIfNotEmpty<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Count() == 0 ? null : enumerable.ToList();
+        }
+
         public static User ConvertToModel(this UserDto dto)
         {
             return new User
             {
-                Name = dto.Name
+                Name = dto.Name,
+                FirstName = dto.FirstName,
+                Mail = dto.Mail,
+                PhoneNumber = dto.PhoneNumber
             };
         }
         public static UserDto ConvertToDto(this User user)
@@ -23,7 +32,7 @@ namespace Union.Backend.Service.Services
                 FirstName = user.FirstName,
                 Mail = user.Mail,
                 PhoneNumber = user.PhoneNumber,
-                Photos = user.Photos?.Select(p => p.ConvertToDto()).ToList(),
+                Photos = user.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty(),
                 Wallet = user.Wallet
             };
         }

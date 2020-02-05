@@ -11,7 +11,7 @@ build_prd:
         - cd src
         - /usr/bin/msbuild -t:restore
         - ~/.dotnet/tools/dotnet-sonarscanner begin $SONAR_LOGIN $SONAR_URL
-        - dotnet build -c Release
+        - dotnet build -c Release -db prod
         - ~/.dotnet/tools/dotnet-sonarscanner end $SONAR_LOGIN
         - cd ../Build/Release/netcoreapp3.1/
         - tar cvf archive.tar ./
@@ -27,7 +27,7 @@ build_dev:
         - cd src
         - /usr/bin/msbuild -t:restore
         - ~/.dotnet/tools/dotnet-sonarscanner begin $SONAR_LOGIN $SONAR_URL
-        - dotnet build
+        - dotnet build -db dev
         - ~/.dotnet/tools/dotnet-sonarscanner end $SONAR_LOGIN
         - cd ../Build/Debug/netcoreapp3.1/
         - tar cvf archive.tar ./
