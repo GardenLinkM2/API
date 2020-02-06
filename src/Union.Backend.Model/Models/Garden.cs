@@ -13,11 +13,11 @@ namespace Union.Backend.Model.Models
         public bool Reserve { get; set; }
         public string Type { get; set; }
         public int MinUse { get; set; }
-        public User Owner { get; set; }
-        public User Tenant { get; set; }
-        public Validation Validation { get; set; }
-        public Using Use { get; set; }
-        public Characteristic Carac { get; set; }
-        public List<Photo<Garden>> Photos { get; set; }
+        public virtual User Owner { get; set; }
+        public virtual User Tenant { get; set; }
+        public virtual Validation Validation { get; set; }
+        public virtual Using Use { get; set; }
+        public virtual Characteristic Carac { get; set; }
+        public virtual List<Photo<Garden>> Photos { get; set; }
     }
 }

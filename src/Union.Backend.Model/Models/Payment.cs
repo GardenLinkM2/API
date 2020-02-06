@@ -9,8 +9,8 @@ namespace Union.Backend.Model.Models
         public Guid Id { get; set; }
         public int Sum { get; set; }
         public int State { get; set; }
-        public Location Location { get; set; }
-        public User Payer { get; set; }
-        public User Collector { get; set; }
+        public virtual Location Location { get; set; }
+        public virtual User Payer { get; set; }
+        public virtual User Collector { get; set; }
     }
 }
