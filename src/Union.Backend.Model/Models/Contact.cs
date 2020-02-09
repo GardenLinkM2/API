@@ -8,8 +8,8 @@ namespace Union.Backend.Model.Models
     {
         public Guid Id { get; set; }
         public bool Accept { get; set; }
-        public virtual User UserOne { get; set; }
-        public virtual User UserTwo { get; set; }
-        public virtual ContactAsk Ask { get; set; }
+        public Guid UserOne { get; set; }
+        public Guid UserTwo { get; set; }
+        public Guid Ask { get; set; }
     }
 }

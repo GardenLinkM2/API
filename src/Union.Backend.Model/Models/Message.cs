@@ -9,8 +9,8 @@ namespace Union.Backend.Model.Models
         public string Text { get; set; }
         public DateTime Date { get; set; }
         public bool Read { get; set; }
-        public virtual Conversation Conversation { get; set; }
-        public virtual User Sender { get; set; }
-        public virtual List<Photo<Message>> Photos { get; set; }
+        public Guid Conversation { get; set; }
+        public Guid Sender { get; set; }
+        public List<Photo<Message>> Photos { get; set; }
     }
 }
