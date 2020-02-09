@@ -1,0 +1,51 @@
+---
+- name: Send artifact
+  hosts: builder
+  tasks:
+    - name: Copy artifact
+      copy:
+        src: /root/app.tar
+        dest: backend/app.tar
+        mode: 0600
+  no_log: false
+- name: Template configuration file
+  hosts: builder
+  vars_files:
+    - "{{inventory_dir}}/vars.yml"
+    - "{{inventory_dir}}/secrets.yml"
+  tasks:
+    - template:
+        src: ./templates/appsettings.json.j2
+        dest: backend/appsettings.json
+        owner: administrateur
+        mode: '0644'
+- name: Stop and remove old docker container
+  hosts: builder
+  any_errors_fatal: False
+  ignore_errors: yes
+  vars_files:
+    - "{{inventory_dir}}/vars.yml"
+  tasks:
+    - command: sudo docker stop {{docker_name}} 
+    - command: sudo docker rm {{docker_name}}
+- name: Build new Docker Image
+  hosts: builder
+  tasks:
+    - command: sudo docker build -t="backend" ./backend
+- name: Run Docker Image
+  hosts: builder
+  vars_files:
+    - "{{inventory_dir}}/vars.yml"
+  tasks:
+    - command: sudo docker run -d --name="{{docker_name}}" --network interne --ip {{docker_ip}} backend:latest
+- name: remove files
+  hosts: builder
+  tasks:
+    - name: delete appsettings.json
+      file:
+        path: "backend/appsettings.json"
+        state: absent
+    - name: delete app.jar
+      file:
+        path: "backend/app.tar"
+        state: absent
