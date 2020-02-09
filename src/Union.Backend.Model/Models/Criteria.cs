@@ -13,8 +13,8 @@ namespace Union.Backend.Model.Models
         public TimeSpan LocationTime { get; set; }
         public int Area { get; set; }
         public double Price { get; set; }
-        //TODO : faire classe localisation
-        public string Localisation { get; set; }
+        //TODO : faire classe location
+        public string Location { get; set; }
         public string Orientation { get; set; }
         public string TypeOfClay { get; set; }
         public bool Equipments { get; set; }
