@@ -16,8 +16,7 @@ namespace Union.Backend.API
     enum DbContextConfig
     {
         Local,
-        Dev, //Peut être plutot un NoLocal pour les deux ?
-        Prod
+        NoLocal
     }
 
     public class Startup
