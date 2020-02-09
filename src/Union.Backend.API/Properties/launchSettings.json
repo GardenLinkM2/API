@@ -21,7 +21,7 @@
     },
     "Backend.API [dev]": {
       "commandName": "Project",
-      "commandLineArgs": "DbContext=dev",
+      "commandLineArgs": "DbContext=noLocal",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
