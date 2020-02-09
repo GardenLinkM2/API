@@ -3,15 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;
 
-namespace Union.Backend.API
+namespace Union.Backend.Service.Auth
 {
-    public enum PermissionType
-    {
-        Admin,
-        User,
-        All
-    }
-
     public class AuthorizeAttribute : TypeFilterAttribute
     {
         public AuthorizeAttribute(PermissionType permission = PermissionType.User)
@@ -35,9 +28,14 @@ namespace Union.Backend.API
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             context.Filters
-                .Where(item => item is AuthorizeActionFilter && item != this)
                 .ToList()
-                .ForEach(f => ((AuthorizeActionFilter)f).ToIgnore = true);
+                .ForEach(f =>
+                {
+                    if (f is AuthorizeActionFilter fa && f != this)
+                    {
+                        fa.ToIgnore = true;
+                    }
+                });
 
             if (!ToIgnore && !CheckToken(context.HttpContext.Request, permission))
             {
@@ -45,9 +43,19 @@ namespace Union.Backend.API
             }
         }
 
-        private bool CheckToken(HttpRequest req, PermissionType permission)
+        private bool CheckToken(HttpRequest req, PermissionType necessary)
         {
-            return permission.Equals(PermissionType.All); //Juste pour tester
+            return necessary.Equals(PermissionType.All); //Juste pour tester
+            //Règles de validation
+            //si necessary est All
+            //  retourner true
+            //sinon
+            //  vérifier que req.Headers.Authorization (token) contient un user valide
+            //  si necessary est User
+            //      retourner true
+            //  si necessary est Admin
+            //      retourner si l'user a isAdmin sur true
+            //retourner false (fallback)
         }
     }
 }

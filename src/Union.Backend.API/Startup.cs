@@ -10,7 +10,6 @@ using Microsoft.OpenApi.Models;
 using Union.Backend.Model.DAO;
 using Union.Backend.Service;
 using Union.Backend.Service.Services;
-using static Union.Backend.API.AuthorizeActionFilter;
 
 namespace Union.Backend.API
 {
@@ -49,6 +48,7 @@ namespace Union.Backend.API
                 sd.SchemaFilter<SwaggerExcludeSchemaFilter>();
             });
 
+            services.AddTransient<ClientDialogService, ClientDialogService>();
             services.AddTransient<FriendsService, FriendsService>();
             services.AddTransient<GardensService, GardensService>();
             services.AddTransient<LocationsService, LocationsService>();
