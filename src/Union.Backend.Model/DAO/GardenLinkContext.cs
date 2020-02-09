@@ -16,7 +16,7 @@ namespace Union.Backend.Model.DAO
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<GardenNotation> GardenNotations { get; set; }
         public DbSet<Garden> Gardens { get; set; }
-        public DbSet<Location> Locations { get; set; }
+        public DbSet<Leasing> Locations { get; set; }
         public DbSet<Photo<Message>> MessagePhotos { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Payment> Payments { get; set; }

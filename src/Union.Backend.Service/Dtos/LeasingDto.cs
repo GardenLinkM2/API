@@ -2,7 +2,7 @@
 
 namespace Union.Backend.Service.Dtos
 {
-    public class LocationDto
+    public class LeasingDto
     {
         public Guid Id { get; set; }
     }
