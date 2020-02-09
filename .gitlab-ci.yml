@@ -2,6 +2,7 @@ image: local_dotnet
 
 stages:
     - build
+    - deploy
 
 build_prd:
     stage: build
