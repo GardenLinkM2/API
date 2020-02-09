@@ -51,9 +51,8 @@ namespace Union.Backend.API
                 {
                     switch (dbContextConfig)
                     {
-                        case DbContextConfig.Dev: opt.UseInMemoryDatabase("DevList"); break; //TEMP
-                        case DbContextConfig.Prod: opt.UseInMemoryDatabase("ProdList"); break; //TEMP
-                        default: opt.UseInMemoryDatabase("LocalList"); break;
+                        case DbContextConfig.Local: opt.UseInMemoryDatabase("LocalList"); break;
+                        default: opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext")); break;
                     }
                 }
             );
