@@ -1,0 +1,3 @@
+docker_name: "backend_dev"
+docker_ip: "172.16.100.121"
+authURL: "https://devauthm2.artheriom.fr/"
