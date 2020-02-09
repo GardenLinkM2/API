@@ -58,7 +58,7 @@ deploy_prd:
         - master
     script:
         - echo "$VAULT_PASSWORD" > vault_password.txt
-        - python3 /root/getPackage.py -r "generic-local/backend/prd" -m true -o /root/app.tar
+        - python3 /root/getPackage.py -r "generic-local/backend/prd" -m false -o /root/app.tar
         - ansible-playbook -i deploy/inventories/prd --vault-password-file vault_password.txt -u administrateur deploy/playbook.yml
 
 deploy_dev:
@@ -69,5 +69,5 @@ deploy_dev:
         - master
     script:
         - echo "$VAULT_PASSWORD" > vault_password.txt
-        - python3 /root/getPackage.py -r "generic-local/backend/dev" -m true -o /root/app.tar
+        - python3 /root/getPackage.py -r "generic-local/backend/dev" -m false -o /root/app.tar
         - ansible-playbook -i deploy/inventories/dev --vault-password-file vault_password.txt -u administrateur deploy/playbook.yml
