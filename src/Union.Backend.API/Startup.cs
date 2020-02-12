@@ -7,17 +7,30 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
 using Union.Backend.Model.DAO;
 using Union.Backend.Service;
 using Union.Backend.Service.Services;
+using static Union.Backend.API.Program;
 
 namespace Union.Backend.API
 {
+    enum DbContextConfig
+    {
+        Local,
+        NoLocal
+    }
+
     public class Startup
     {
+        private readonly DbContextConfig dbContextConfig;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            if (!Enum.TryParse(Configuration.GetValue<string>(DB_CONTEXT_ARG), true, out dbContextConfig))
+                dbContextConfig = DbContextConfig.Local;
+            Console.WriteLine($"DbContext in {dbContextConfig} mode");
         }
 
         public IConfiguration Configuration { get; }
@@ -40,8 +53,15 @@ namespace Union.Backend.API
             });
 
             services.AddDbContext<GardenLinkContext>(opt =>
-               opt.UseInMemoryDatabase("TodoList")
+                {
+                    switch (dbContextConfig)
+                    {
+                        case DbContextConfig.Local: opt.UseInMemoryDatabase("LocalList"); break;
+                        default: opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext")); break;
+                    }
+                }
             );
+
             services.AddSwaggerGen(sd =>
             {
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "GardenLink", Version = "v1" });

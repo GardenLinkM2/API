@@ -8,6 +8,8 @@ namespace Union.Backend.Model.DAO
         public GardenLinkContext(DbContextOptions<GardenLinkContext> options)
             : base(options)
         {
+            Database.EnsureCreated();
+            //TODO: vérifier les impacts et trouver comment faire la migration du Model
         }
 
         public DbSet<Characteristic> Characteristics { get; set; }

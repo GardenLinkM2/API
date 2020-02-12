@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace Union.Backend.API
 {
     public class Program
     {
+        public readonly static string DB_CONTEXT_ARG = "DbContext";
+        private static readonly Dictionary<string, string> argsMapping = new Dictionary<string, string>
+        {
+            { "-db", DB_CONTEXT_ARG }
+        };
+
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
@@ -19,6 +20,10 @@ namespace Union.Backend.API
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddCommandLine(args, argsMapping);
+                })
                 .UseStartup<Startup>();
     }
 }
