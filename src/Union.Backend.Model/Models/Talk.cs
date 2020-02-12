@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Conversation //TODO: rajouter la list de Message
+    public class Talk //TODO: rajouter la list de Message
     {
         public Guid Id { get; set; }
         public string Subject { get; set; }
