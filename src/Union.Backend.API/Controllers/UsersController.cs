@@ -47,7 +47,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("me")]
-        [Authorize(PermissionType.All)]
+        [Authorize(PermissionType.All)] //Exemple
         [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> GetMe()
         {
@@ -57,10 +57,12 @@ namespace Union.Backend.API.Controllers
             //TODO gestion http404
         }
 
-        [HttpPost] //TODO
+        [HttpPost]
+        [Authorize(PermissionType.All)]
         public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
-            return Created("TODO", await service.AddUser(user));
+            var result = await service.AddUser(user, Guid.NewGuid());
+            return Created($"/api/users/{result.Data.Id}", result);
         }
 
         [HttpPut("me")]

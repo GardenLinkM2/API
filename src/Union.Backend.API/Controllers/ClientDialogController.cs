@@ -6,18 +6,18 @@ using Union.Backend.Service.Services;
 
 namespace Union.Backend.API.Controllers
 {
-    [Route("api/hello")] //TODO: def endpoint
+    [Route("api/syn")]
     [ApiController]
     public class ClientDialogController : ControllerBase
     {
-        private ClientDialogService service;
+        private readonly ClientDialogService service;
 
         public ClientDialogController(ClientDialogService service)
         {
             this.service = service;
         }
 
-        [HttpPost("syn")]
+        [HttpPost]
         [Authorize(PermissionType.All)]
         public async Task<IActionResult> Syn([FromBody] TokenDto tokenDto)
         {
