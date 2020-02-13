@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Jose;
+using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -51,6 +53,12 @@ namespace Union.Backend.Service.Auth
             }
             else
                 throw new BadRequestApiException();
+        }
+
+        public static T ValidateAndGetToken<T>(string token, string secret)
+        {
+            var accessToken = JWT.Decode<T>(token, Convert.FromBase64String(secret));
+            return accessToken;
         }
     }
 }

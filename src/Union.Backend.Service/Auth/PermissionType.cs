@@ -2,7 +2,7 @@
 {
     public enum PermissionType
     {
-        Admin,
+        Admin = 0,
         User,
         All
     }

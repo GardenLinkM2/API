@@ -1,5 +1,8 @@
 ﻿namespace Union.Backend.Service.Dtos
 {
+    /// <summary>
+    /// Dialog class with Authentication Server
+    /// </summary>
     public class AuthUserDto
     {
         public string Id { get; set; }

@@ -47,8 +47,6 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("me")]
-        [Authorize(PermissionType.All)] //Exemple
-        [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> GetMe()
         {
             //TODO
@@ -58,7 +56,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(PermissionType.All)]
+        [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
             var result = await service.AddUser(user, Guid.NewGuid());
