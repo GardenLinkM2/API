@@ -18,7 +18,7 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        private async Task<User> GetUserEntity(Guid id)
+        public async Task<User> GetUserById(Guid id)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<UserQueryResults> GetUser(Guid userId)
         {
-            var user = await GetUserEntity(userId) ?? throw new NotFoundApiException();
+            var user = await GetUserById(userId) ?? throw new NotFoundApiException();
 
             return new UserQueryResults()
             {
@@ -56,9 +56,13 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<UserQueryResults> AddUser(UserDto user)
+        public async Task<UserQueryResults> AddUser(UserDto userDto, Guid id)
         {
-            User createdUser = user.ConvertToModel();
+            userDto.Id = id;
+
+            var createdUser = userDto.ConvertToModel();
+            createdUser.Inscription = DateTime.Now;
+
             await db.Users.AddAsync(createdUser);
             await db.SaveChangesAsync();
             return new UserQueryResults()
@@ -69,12 +73,10 @@ namespace Union.Backend.Service.Services
 
         public async Task<UserQueryResults> ChangeUser(Guid id, UserDto user)
         {
-            var foundUser = GetUserEntity(id).Result ?? throw new Exception();
+            var foundUser = GetUserById(id).Result ?? throw new Exception();
 
-            foundUser.Name = user.Name;
+            foundUser.LastName = user.LastName;
             foundUser.FirstName = user.FirstName;
-            foundUser.Mail = user.Mail;
-            foundUser.PhoneNumber = user.PhoneNumber;
             foundUser.Photos = user.Photos.Select(p => p.ConvertToModel<User>(id)).ToList();
             
             db.Users.Update(foundUser);
@@ -87,7 +89,7 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteUser(Guid userId)
         {
-            var foundUser = GetUserEntity(userId).Result;
+            var foundUser = GetUserById(userId).Result;
             if (foundUser == null)
             {
                 throw new Exception();

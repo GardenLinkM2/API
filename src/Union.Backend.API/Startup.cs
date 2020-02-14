@@ -7,7 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
+using Union.Backend.Model;
 using Union.Backend.Model.DAO;
+using Union.Backend.Service;
 using Union.Backend.Service.Services;
 using static Union.Backend.API.Program;
 
@@ -35,7 +37,11 @@ namespace Union.Backend.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
+            services
+                .AddMvc(config =>
+                {
+                    config.Filters.Add(typeof(Service.Auth.AuthorizeAttribute), 255);
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddJsonOptions(opt =>
                 {
@@ -59,8 +65,10 @@ namespace Union.Backend.API
             services.AddSwaggerGen(sd =>
             {
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "GardenLink", Version = "v1" });
+                sd.SchemaFilter<SwaggerExcludeSchemaFilter>();
             });
 
+            services.AddTransient<ClientDialogService, ClientDialogService>();
             services.AddTransient<FriendsService, FriendsService>();
             services.AddTransient<GardensService, GardensService>();
             services.AddTransient<LocationsService, LocationsService>();
@@ -69,6 +77,8 @@ namespace Union.Backend.API
             services.AddTransient<TalksService, TalksService>();
             services.AddTransient<UsersService, UsersService>();
             services.AddTransient<WalletsService, WalletsService>();
+
+            services.Configure<AuthSettings>(Configuration.GetSection("authServer"));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -76,10 +86,12 @@ namespace Union.Backend.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                Console.WriteLine($"Environment is Development mode");
             }
             else
             {
                 app.UseHsts();
+                Console.WriteLine($"Environment is Prod mode");
             }
 
             app.UseRouting();

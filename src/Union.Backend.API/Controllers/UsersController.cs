@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
+using Union.Backend.Service.Auth;
+using System.Net;
 
 namespace Union.Backend.API.Controllers
 {
@@ -20,6 +22,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(PermissionType.All)]
         public async Task<IActionResult> GetAllUsers()
         {
             return Ok(await service.GetAllUsers());
@@ -28,14 +31,7 @@ namespace Union.Backend.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser([FromRoute(Name = "id")] Guid userId)
         {
-            try
-            {
-                return Ok(await service.GetUser(userId));
-            }
-            catch (NotFoundApiException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok(await service.GetUser(userId));
         }
 
         [HttpGet("{id}/gardens")]
@@ -45,18 +41,34 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("me")]
+        [Authorize(PermissionType.All)] //TEMP
         public async Task<IActionResult> GetMe()
         {
+            //Example
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                throw new WorkInProgressApiException();
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
             //TODO
             //return await service.GetUser(GET_IDFROM_TOKEN);
-            throw new WorkInProgressApiException();
             //TODO gestion http404
         }
 
-        [HttpPost] //TODO
+        [HttpPost]
+        [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
-            return Created("TODO", await service.AddUser(user));
+            var result = await service.AddUser(user, Guid.NewGuid());
+            return Created($"/api/users/{result.Data.Id}", result);
         }
 
         [HttpPut("me")]

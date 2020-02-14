@@ -18,21 +18,21 @@ namespace Union.Backend.Service.Services
         {
             return new User
             {
-                Name = dto.Name,
-                FirstName = dto.FirstName,
-                Mail = dto.Mail,
-                PhoneNumber = dto.PhoneNumber
+                Id = dto.Id,
+                UserName = dto.UserName,
+                LastName = dto.LastName,
+                FirstName = dto.FirstName
             };
         }
+
         public static UserDto ConvertToDto(this User user)
         {
             return new UserDto
             {
                 Id = user.Id,
-                Name = user.Name,
+                UserName = user.UserName,
+                LastName = user.LastName,
                 FirstName = user.FirstName,
-                Mail = user.Mail,
-                PhoneNumber = user.PhoneNumber,
                 Photos = user.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty(),
                 Wallet = user.Wallet.ConvertToDto()
             };
