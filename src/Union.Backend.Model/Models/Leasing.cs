@@ -13,8 +13,8 @@ namespace Union.Backend.Model.Models
         public bool Renew { get; set; }
         public float Price { get; set; }
         public int State { get; set; }
-        public Guid Garden { get; set; }
-        public Guid Owner { get; set; }
-        public Guid Renter { get; set; }
+        public Garden Garden { get; set; }
+        public User Owner { get; set; }
+        public User Renter { get; set; }
     }
 }

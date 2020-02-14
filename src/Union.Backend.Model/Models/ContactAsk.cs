@@ -8,7 +8,7 @@ namespace Union.Backend.Model.Models
     {
         public Guid Id { get; set; }
         public string Message { get; set; }
-        public Guid Sender { get; set; }
-        public Guid Receiver { get; set; }
+        public User Sender { get; set; }
+        public User Receiver { get; set; }
     }
 }

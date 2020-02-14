@@ -6,5 +6,6 @@ namespace Union.Backend.Model.Models
     {
         public Guid Id { get; set; }
         public int State { get; set; }
+        public Guid ForGarden { get; set; }
     }
 }
