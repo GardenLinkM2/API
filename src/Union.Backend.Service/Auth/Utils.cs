@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 
 namespace Union.Backend.Service.Auth
@@ -59,6 +60,12 @@ namespace Union.Backend.Service.Auth
         {
             var accessToken = JWT.Decode<T>(token, Convert.FromBase64String(secret));
             return accessToken;
+        }
+
+        public static Guid ExtractIdFromToken(string token)
+        {
+            var accessToken = JWT.Payload<TokenDto>(token);
+            return new Guid(accessToken.Uuid);
         }
     }
 }

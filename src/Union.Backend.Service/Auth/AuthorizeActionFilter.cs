@@ -73,7 +73,7 @@ namespace Union.Backend.Service.Auth
                 }
 
                 var granted = (accessToken.IsAdmin ?? false) ? PermissionType.Admin : PermissionType.User;
-                if((int)granted > (int)necessary)
+                if ((int)granted > (int)necessary)
                     context.Result = new StatusCodeResult(403);
             }
             catch (ArgumentException)
