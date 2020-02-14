@@ -13,7 +13,7 @@ namespace Union.Backend.Model.Models
         public string UserName { get; set; }
         public DateTime Inscription { get; set; }
         public bool Admin { get; set; }
-        public Guid Wallet { get; set; }
+        public Wallet Wallet { get; set; }
         public List<Photo<User>> Photos { get; set; }
     }
 }

@@ -23,7 +23,6 @@ namespace Union.Backend.Model.DAO
         public DbSet<UserNotation> UserNotations { get; set; }
         public DbSet<Photo<User>> UserPhotos { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Using> Usings { get; set; }
         public DbSet<Validation> Validations { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
 

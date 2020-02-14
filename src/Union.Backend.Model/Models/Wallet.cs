@@ -8,5 +8,6 @@ namespace Union.Backend.Model.Models
     {
         public Guid Id { get; set; }
         public int Balance { get; set; }
+        public Guid OfUser { get; set; }
     }
 }
