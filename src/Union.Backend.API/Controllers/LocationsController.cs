@@ -29,13 +29,13 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost] //TODO
-        public async Task<IActionResult> CreateLocation([FromBody] LocationDto Location)
+        public async Task<IActionResult> CreateLocation([FromBody] LeasingDto Location)
         {
             return Created("TODO", await service.AddLocation(Location));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid LocationId, [FromBody] LocationDto Location)
+        public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid LocationId, [FromBody] LeasingDto Location)
         {
             return Ok(await service.ChangeLocation(Location, LocationId));
         }

@@ -13,6 +13,6 @@ namespace Union.Backend.Service.Dtos
         [SwaggerExclude]
         public List<PhotoDto> Photos { get; set; }
         [SwaggerExclude]
-        public Wallet Wallet { get; set; }
+        public WalletDto Wallet { get; set; }
     }
 }

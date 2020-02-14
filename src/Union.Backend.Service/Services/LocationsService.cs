@@ -29,12 +29,12 @@ namespace Union.Backend.Service.Services
             throw new WorkInProgressApiException();
         }
 
-        public async Task<LocationQueryResults> AddLocation(LocationDto Locationd)
+        public async Task<LocationQueryResults> AddLocation(LeasingDto Locationd)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<LocationQueryResults> ChangeLocation(LocationDto Location, Guid id)
+        public async Task<LocationQueryResults> ChangeLocation(LeasingDto Location, Guid id)
         {
             throw new WorkInProgressApiException();
         }
