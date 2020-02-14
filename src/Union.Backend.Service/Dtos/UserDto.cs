@@ -12,6 +12,6 @@ namespace Union.Backend.Service.Dtos
         public string Mail { get; set; }
         public string PhoneNumber { get; set; }
         public List<PhotoDto> Photos { get; set; }
-        public Wallet Wallet { get; set; }
+        public WalletDto Wallet { get; set; }
     }
 }

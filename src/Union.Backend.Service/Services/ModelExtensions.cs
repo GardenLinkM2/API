@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 
@@ -33,7 +34,7 @@ namespace Union.Backend.Service.Services
                 Mail = user.Mail,
                 PhoneNumber = user.PhoneNumber,
                 Photos = user.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty(),
-                Wallet = user.Wallet
+                Wallet = user.Wallet.ConvertToDto()
             };
         }
 
@@ -54,6 +55,15 @@ namespace Union.Backend.Service.Services
                 Id = photo.Id,
                 FileName = photo.FileName,
                 RelatedTo = photo.RelatedTo
+            };
+        }
+
+        public static WalletDto ConvertToDto(this Wallet wallet)
+        {
+            return new WalletDto
+            {
+                Id = wallet.Id,
+                Balance = wallet.Balance
             };
         }
     }
