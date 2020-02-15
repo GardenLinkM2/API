@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
@@ -19,22 +17,22 @@ namespace Union.Backend.Service.Services
         }
 
 
-        public async Task<LocationQueryResults> GetLocation(Guid Id)
+        public async Task<QueryResults<LocationDto>> GetLocation(Guid Id)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<LocationsQueryResults> GetAllLocations()
+        public async Task<QueryResults<List<LocationDto>>> GetAllLocations()
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<LocationQueryResults> AddLocation(LeasingDto Locationd)
+        public async Task<QueryResults<LocationDto>> AddLocation(LeasingDto Locationd)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<LocationQueryResults> ChangeLocation(LeasingDto Location, Guid id)
+        public async Task<QueryResults<LocationDto>> ChangeLocation(LeasingDto Location, Guid id)
         {
             throw new WorkInProgressApiException();
         }

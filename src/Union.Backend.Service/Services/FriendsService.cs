@@ -1,9 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
@@ -20,38 +17,38 @@ namespace Union.Backend.Service.Services
         }
 
 
-        public async Task<DemandQueryResults> GetAllFriends(Guid demandId)
+        public async Task<QueryResults<DemandDto>> GetAllFriends(Guid demandId)
         {
             //TODO
             return null;
         }
 
-        public async Task<DemandQueryResults> GetContactDemandFromUserId(Guid friendId)
+        public async Task<QueryResults<DemandDto>> GetContactDemandFromUserId(Guid friendId)
         {
             //TODO
             return null;
         }
 
-        public async Task<DemandQueryResults> GetContactFromUserId(Guid friendId)
+        public async Task<QueryResults<DemandDto>> GetContactFromUserId(Guid friendId)
         {
             //TODO
             return null;
         }
 
-        public async Task<DemandQueryResults> GetContactDemand(Guid demandId)
+        public async Task<QueryResults<DemandDto>> GetContactDemand(Guid demandId)
         {
             //TODO
             return null;
         }
 
-        public async Task<DemandQueryResults> AddContactDemand(DemandDto demand)
+        public async Task<QueryResults<DemandDto>> AddContactDemand(DemandDto demand)
         {
             //TODO
 
             return null;
         }
 
-        public async Task<ContactQueryResults> CreateContact(Guid friendId)
+        public async Task<QueryResults<ContactDto>> CreateContact(Guid friendId)
         {
             //TODO
             var result = await GetContactDemandFromUserId(friendId) ?? throw new NotFoundApiException();

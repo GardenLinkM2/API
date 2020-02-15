@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
@@ -18,39 +16,39 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<GardensQueryResults> GetAllGardens()
+        public async Task<QueryResults<List<GardenDto>>> GetAllGardens()
         {
             throw new WorkInProgressApiException();
         }
-        public async Task<GardensQueryResults> GetGardenByParams()
-        {
-            throw new WorkInProgressApiException();
-        }
-
-        public async Task<GardenQueryResults> GetGardenById(Guid GardenId)
+        public async Task<QueryResults<List<GardenDto>>> GetGardenByParams()
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<GardensQueryResults> GetGardensByUser(Guid UserId)
+        public async Task<QueryResults<List<GardenDto>>> GetGardenById(Guid GardenId)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<GardenQueryResults> AddGarden(GardenDto Garden)
+        public async Task<QueryResults<List<GardenDto>>> GetGardensByUser(Guid UserId)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<GardenQueryResults> ChangeGarden(GardenDto Garden, Guid GardenId)
+        public async Task<QueryResults<GardenDto>> AddGarden(GardenDto Garden)
         {
             throw new WorkInProgressApiException();
         }
-        public async Task<GardenQueryResults> ChangeGardenDescription(DescriptionDto desc, Guid GardenId)
+
+        public async Task<QueryResults<GardenDto>> ChangeGarden(GardenDto Garden, Guid GardenId)
         {
             throw new WorkInProgressApiException();
         }
-        public async Task<GardenQueryResults> ChangeGardenValidation(ValidationDto val, Guid GardenId)
+        public async Task<QueryResults<GardenDto>> ChangeGardenDescription(DescriptionDto desc, Guid GardenId)
+        {
+            throw new WorkInProgressApiException();
+        }
+        public async Task<QueryResults<GardenDto>> ChangeGardenValidation(ValidationDto val, Guid GardenId)
         {
             throw new WorkInProgressApiException();
         }

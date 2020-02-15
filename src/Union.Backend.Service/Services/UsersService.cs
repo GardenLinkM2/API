@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
@@ -34,29 +35,29 @@ namespace Union.Backend.Service.Services
             }
         }
 
-        public async Task<UserQueryResults> GetUser(Guid userId)
+        public async Task<QueryResults<UserDto>> GetUser(Guid userId)
         {
             var user = await GetUserById(userId) ?? throw new NotFoundApiException();
 
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = user.ConvertToDto()
             };
         }
 
-        public async Task<UsersQueryResults> GetAllUsers()
+        public async Task<QueryResults<List<UserDto>>> GetAllUsers()
         {
             var users = db.Users
                 .Include(u => u.Photos)
                 .Select(u => u.ConvertToDto());
-            return new UsersQueryResults()
+            return new QueryResults<List<UserDto>>
             {
                 Data = await users.ToListAsync(),
                 Count = await users.CountAsync()
             };
         }
 
-        public async Task<UserQueryResults> AddUser(UserDto userDto, Guid id)
+        public async Task<QueryResults<UserDto>> AddUser(UserDto userDto, Guid id)
         {
             userDto.Id = id;
 
@@ -65,13 +66,13 @@ namespace Union.Backend.Service.Services
 
             await db.Users.AddAsync(createdUser);
             await db.SaveChangesAsync();
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = createdUser.ConvertToDto()
             };
         }
 
-        public async Task<UserQueryResults> ChangeUser(Guid id, UserDto user)
+        public async Task<QueryResults<UserDto>> ChangeUser(Guid id, UserDto user)
         {
             var foundUser = GetUserById(id).Result ?? throw new Exception();
 
@@ -81,7 +82,7 @@ namespace Union.Backend.Service.Services
             
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = new UserDto { Id = foundUser.Id }
             };

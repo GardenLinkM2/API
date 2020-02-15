@@ -1,9 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
-using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
@@ -18,18 +14,14 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-
-        public async Task<WalletQueryResults> GetWallet()
+        public async Task<QueryResults<WalletDto>> GetWallet()
         {
             throw new WorkInProgressApiException();
         }
 
-
-        public async Task<WalletQueryResults> ChangeWallet(WalletDto Wallet)
+        public async Task<QueryResults<WalletDto>> ChangeWallet(WalletDto Wallet)
         {
             throw new WorkInProgressApiException();
         }
-
-
     }
 }
