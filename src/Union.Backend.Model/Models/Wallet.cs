@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Wallet
+    public class Wallet : UniqueEntity
     {
-        public Guid Id { get; set; }
         public int Balance { get; set; }
         public Guid OfUser { get; set; }
     }

@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Criteria 
-        //TODO: Une Table (id, nom, type (visuel) <-probablement la même chose-> type (valeur), valuePossible)
-        //valuePossible (table générique ?) T ou T[]
-        //-> probablement une Table de jointure avec Jardin
+    public class Criteria : UniqueEntity
+    //TODO: Une Table (id, nom, type (visuel) <-probablement la même chose-> type (valeur), valuePossible)
+    //valuePossible (table générique ?) T ou T[]
+    //-> probablement une Table de jointure avec Jardin
     {
-        public Guid Id { get; set; }
-        public TimeSpan LocationTime { get; set; }
+        public TimeSpan LocationTime { get; set; } //TODO: utiliser des long (= Timestamp)
         public int Area { get; set; }
         public double Price { get; set; }
         public Location Location { get; set; }

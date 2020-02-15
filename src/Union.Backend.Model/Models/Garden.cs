@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace Union.Backend.Model.Models
 {
-    public class Garden : IPhotographable
+    public class Garden : UniqueEntity, IPhotographable
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
         public int Size { get; set; }
         public bool Reserve { get; set; }

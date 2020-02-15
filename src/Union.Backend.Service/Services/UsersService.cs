@@ -19,25 +19,9 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<User> GetUserById(Guid id)
-        {
-            try
-            {
-                return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
-            }
-            catch (NullReferenceException)
-            {
-                return null;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         public async Task<QueryResults<UserDto>> GetUser(Guid userId)
         {
-            var user = await GetUserById(userId) ?? throw new NotFoundApiException();
+            var user = await db.Users.GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
             return new QueryResults<UserDto>
             {
@@ -49,6 +33,7 @@ namespace Union.Backend.Service.Services
         {
             var users = db.Users
                 .Include(u => u.Photos)
+                .Include(u => u.Wallet)
                 .Select(u => u.ConvertToDto());
             return new QueryResults<List<UserDto>>
             {
@@ -62,6 +47,7 @@ namespace Union.Backend.Service.Services
             userDto.Id = id;
 
             var createdUser = userDto.ConvertToModel();
+            createdUser.Wallet = new Wallet();
             createdUser.Inscription = DateTime.Now;
 
             await db.Users.AddAsync(createdUser);
@@ -74,7 +60,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<UserDto>> ChangeUser(Guid id, UserDto user)
         {
-            var foundUser = GetUserById(id).Result ?? throw new Exception();
+            var foundUser = db.Users.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
             foundUser.LastName = user.LastName;
             foundUser.FirstName = user.FirstName;
@@ -90,11 +76,7 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteUser(Guid userId)
         {
-            var foundUser = GetUserById(userId).Result;
-            if (foundUser == null)
-            {
-                throw new Exception();
-            }
+            var foundUser = db.Users.GetByIdAsync(userId).Result ?? throw new NotFoundApiException();
             db.Users.Remove(foundUser);
             await db.SaveChangesAsync();
         }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Union.Backend.Model;
+using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Auth;
 using Union.Backend.Service.Dtos;
@@ -16,12 +17,15 @@ namespace Union.Backend.Service.Services
     public class ClientDialogService
     {
         private readonly IOptions<AuthSettings> auth;
+        private readonly GardenLinkContext db;
         private readonly UsersService usersService;
         public ClientDialogService(
             IOptions<AuthSettings> auth,
+            GardenLinkContext gardenLinkContext,
             UsersService usersService)
         {
             this.auth = auth;
+            this.db = gardenLinkContext;
             this.usersService = usersService;
         }
 
@@ -73,7 +77,7 @@ namespace Union.Backend.Service.Services
                 var accessToken = ValidateAndGetToken<TokenDto>(tokenDto.Token, auth.Value.ClientSecret);
                 accessToken.Token = tokenDto.Token;
                 var userId = new Guid(accessToken.Uuid);
-                var user = await usersService.GetUserById(userId) ?? await GenereateNewUser(userId, accessToken.Token);
+                var user = await db.Users.GetByIdAsync(userId) ?? await GenereateNewUser(userId, accessToken.Token);
                 return GenerateUserToken(user, accessToken.IsAdmin ?? false);
             }
             catch (HttpResponseException)

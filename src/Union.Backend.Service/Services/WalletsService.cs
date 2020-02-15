@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
@@ -19,9 +21,18 @@ namespace Union.Backend.Service.Services
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<WalletDto>> ChangeWallet(WalletDto Wallet)
+        public async Task<QueryResults<WalletDto>> ChangeWallet(Guid me, Guid my, WalletDto walletDto)
         {
-            throw new WorkInProgressApiException();
+            var wallet = await db.Wallets.GetByIdAsync(my) ?? throw new NotFoundApiException();
+            if (!wallet.OfUser.Equals(me))
+                throw new UnauthorizedAccessException();
+
+            wallet.Balance = walletDto.Balance;
+            await db.SaveChangesAsync();
+            return new QueryResults<WalletDto>
+            {
+                Data = wallet.ConvertToDto()
+            };
         }
     }
 }

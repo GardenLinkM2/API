@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Union.Backend.Model.Models;
 
 namespace Union.Backend.Service.Dtos
 {

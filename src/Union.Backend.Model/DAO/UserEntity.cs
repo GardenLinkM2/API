@@ -11,6 +11,7 @@ namespace Union.Backend.Model.DAO
             builder.HasKey(u => u.Id);
             builder.Property(u => u.LastName).IsRequired();
             builder.HasMany(u => u.Photos).WithOne();
+            builder.HasOne(u => u.Wallet).WithOne().HasForeignKey<Wallet>(w => w.OfUser);
         }
     }
 }

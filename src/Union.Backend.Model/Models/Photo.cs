@@ -2,8 +2,7 @@
 
 namespace Union.Backend.Model.Models
 {
-    public interface IPhotographable
-    { }
+    public interface IPhotographable { }
 
     public class Photo<TRelated> where TRelated : IPhotographable
     {
