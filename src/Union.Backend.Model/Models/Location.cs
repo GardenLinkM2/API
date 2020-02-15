@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Union.Backend.Model.Models
+﻿namespace Union.Backend.Model.Models
 {
-    public class Location
+    public class Location : UniqueEntity
     {
-        public Guid Id { get; set; }
+        //TODO: je suppose qu'il manque des propriétés
     }
 }

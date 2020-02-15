@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Union.Backend.Model.Models
 {
-    public class Leasing
+    public class Leasing : UniqueEntity
     {
-        public Guid Id { get; set; }
         public int Time { get; set; }
         public DateTime Begin { get; set; }
         public DateTime End { get; set; }

@@ -2,9 +2,8 @@
 
 namespace Union.Backend.Model.Models
 {
-    public class Validation
+    public class Validation : UniqueEntity
     {
-        public Guid Id { get; set; }
         public int State { get; set; }
         public Guid ForGarden { get; set; }
     }

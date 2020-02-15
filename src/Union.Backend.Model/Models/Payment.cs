@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Union.Backend.Model.Models
+﻿namespace Union.Backend.Model.Models
 {
-    public class Payment
+    public class Payment : UniqueEntity
     {
-        public Guid Id { get; set; }
         public int Sum { get; set; }
         public int State { get; set; }
         public Leasing Leasing { get; set; }

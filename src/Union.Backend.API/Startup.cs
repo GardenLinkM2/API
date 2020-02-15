@@ -107,6 +107,9 @@ namespace Union.Backend.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenLink v1");
             });
+
+            using var serviceScope = app.ApplicationServices.CreateScope();
+            serviceScope.ServiceProvider.GetService<GardenLinkContext>().Migrate();
         }
     }
 }
