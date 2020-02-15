@@ -21,7 +21,10 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<UserDto>> GetUser(Guid userId)
         {
-            var user = await db.Users.GetByIdAsync(userId) ?? throw new NotFoundApiException();
+            var user = await db.Users
+                .Include(u => u.Photos)
+                .Include(u => u.Wallet)
+                .GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
             return new QueryResults<UserDto>
             {
