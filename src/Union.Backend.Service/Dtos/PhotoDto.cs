@@ -6,6 +6,5 @@ namespace Union.Backend.Service.Dtos
     {
         public Guid Id { get; set; }
         public string FileName { get; set; }
-        public Guid RelatedTo { get; set; }
     }
 }

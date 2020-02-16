@@ -78,7 +78,8 @@ namespace Union.Backend.Service.Services
                 accessToken.Token = tokenDto.Token;
                 var userId = new Guid(accessToken.Uuid);
                 var user = await db.Users.GetByIdAsync(userId) ?? await GenereateNewUser(userId, accessToken.Token);
-                return GenerateUserToken(user, accessToken.IsAdmin ?? false);
+                //return GenerateUserToken(user, accessToken.IsAdmin ?? false);
+                return GenerateUserToken(user, true); //TEMP
             }
             catch (HttpResponseException)
             {

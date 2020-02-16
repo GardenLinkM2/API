@@ -69,7 +69,7 @@ namespace Union.Backend.API
             });
 
             services.AddTransient<ClientDialogService, ClientDialogService>();
-            services.AddTransient<FriendsService, FriendsService>();
+            services.AddTransient<ContactsService, ContactsService>();
             services.AddTransient<GardensService, GardensService>();
             services.AddTransient<LocationsService, LocationsService>();
             services.AddTransient<PaymentsService, PaymentsService>();

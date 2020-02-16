@@ -22,7 +22,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<UserDto>> GetUser(Guid userId)
         {
             var user = await db.Users
-                .Include(u => u.Photos)
+                .Include(u => u.Photo)
                 .Include(u => u.Wallet)
                 .GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
@@ -35,7 +35,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<UserDto>>> GetAllUsers()
         {
             var users = db.Users
-                .Include(u => u.Photos)
+                .Include(u => u.Photo)
                 .Include(u => u.Wallet)
                 .Select(u => u.ConvertToDto());
             return new QueryResults<List<UserDto>>
@@ -67,7 +67,7 @@ namespace Union.Backend.Service.Services
 
             foundUser.LastName = user.LastName;
             foundUser.FirstName = user.FirstName;
-            foundUser.Photos = user.Photos.Select(p => p.ConvertToModel<User>(id)).ToList();
+            foundUser.Photo = user.Photo.ConvertToModel<User>(id);
             
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();

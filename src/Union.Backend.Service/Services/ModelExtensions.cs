@@ -33,8 +33,8 @@ namespace Union.Backend.Service.Services
                 UserName = user.UserName,
                 LastName = user.LastName,
                 FirstName = user.FirstName,
-                Photos = user.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty(),
-                Wallet = user.Wallet.ConvertToDto()
+                Photo = user.Photo?.ConvertToDto(),
+                Wallet = user.Wallet?.ConvertToDto()
             };
         }
 
@@ -53,8 +53,7 @@ namespace Union.Backend.Service.Services
             return new PhotoDto
             {
                 Id = photo.Id,
-                FileName = photo.FileName,
-                RelatedTo = photo.RelatedTo
+                FileName = photo.FileName
             };
         }
 
@@ -177,9 +176,9 @@ namespace Union.Backend.Service.Services
             return new ContactDto
             {
                 Id = contact.Id,
-                Accept = contact.Accept,
-                UserOne = contact.UserOne.ConvertToDto(),
-                UserTwo = contact.UserTwo.ConvertToDto()
+                Contact = contact.MyContact.ConvertToDto(),
+                Status = contact.Status,
+                FirstMessage = contact.FirstMessage
             };
         }
 

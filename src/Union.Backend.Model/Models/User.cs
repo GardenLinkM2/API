@@ -11,7 +11,8 @@ namespace Union.Backend.Model.Models
         public string PhoneNumber { get; set; }
         public string UserName { get; set; }
         public DateTime Inscription { get; set; } //TODO: changer pour un lng (= Timestamp)
+        public List<Contact> Contacts { get; set; }
         public Wallet Wallet { get; set; }
-        public List<Photo<User>> Photos { get; set; }
+        public Photo<User> Photo { get; set; }
     }
 }
