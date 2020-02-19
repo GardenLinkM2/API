@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
@@ -18,69 +19,59 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        private async Task<User> GetUserEntity(Guid id)
+        public async Task<QueryResults<UserDto>> GetUser(Guid userId)
         {
-            try
-            {
-                return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
-            }
-            catch (NullReferenceException)
-            {
-                return null;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+            var user = await db.Users
+                .Include(u => u.Photo)
+                .Include(u => u.Wallet)
+                .GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
-        public async Task<UserQueryResults> GetUser(Guid userId)
-        {
-            var user = await GetUserEntity(userId) ?? throw new NotFoundApiException();
-
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = user.ConvertToDto()
             };
         }
 
-        public async Task<UsersQueryResults> GetAllUsers()
+        public async Task<QueryResults<List<UserDto>>> GetAllUsers()
         {
             var users = db.Users
-                .Include(u => u.Photos)
+                .Include(u => u.Photo)
+                .Include(u => u.Wallet)
                 .Select(u => u.ConvertToDto());
-            return new UsersQueryResults()
+            return new QueryResults<List<UserDto>>
             {
                 Data = await users.ToListAsync(),
                 Count = await users.CountAsync()
             };
         }
 
-        public async Task<UserQueryResults> AddUser(UserDto user)
+        public async Task<QueryResults<UserDto>> AddUser(UserDto userDto, Guid id)
         {
-            User createdUser = new User();
-            createdUser.Id = user.Id;
+            userDto.Id = id;
+
+            var createdUser = userDto.ConvertToModel();
+            createdUser.Wallet = new Wallet();
+            createdUser.Inscription = DateTime.Now;
+
             await db.Users.AddAsync(createdUser);
             await db.SaveChangesAsync();
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
-                Data = user
+                Data = createdUser.ConvertToDto()
             };
         }
 
-        public async Task<UserQueryResults> ChangeUser(Guid id, UserDto user)
+        public async Task<QueryResults<UserDto>> ChangeUser(Guid id, UserDto user)
         {
-            var foundUser = GetUserEntity(id).Result ?? throw new Exception();
+            var foundUser = db.Users.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
-            foundUser.Name = user.Name;
+            foundUser.LastName = user.LastName;
             foundUser.FirstName = user.FirstName;
-            foundUser.Mail = user.Mail;
-            foundUser.PhoneNumber = user.PhoneNumber;
-            foundUser.Photos = user.Photos.Select(p => p.ConvertToModel<User>(id)).ToList();
+            foundUser.Photo = user.Photo.ConvertToModel<User>(id);
             
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = new UserDto { Id = foundUser.Id }
             };
@@ -88,11 +79,7 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteUser(Guid userId)
         {
-            var foundUser = GetUserEntity(userId).Result;
-            if (foundUser == null)
-            {
-                throw new Exception();
-            }
+            var foundUser = db.Users.GetByIdAsync(userId).Result ?? throw new NotFoundApiException();
             db.Users.Remove(foundUser);
             await db.SaveChangesAsync();
         }

@@ -9,10 +9,10 @@ namespace Union.Backend.Model.DAO
         public void Configure(EntityTypeBuilder<Photo<User>> builder)
         {
             builder.HasKey(p => p.Id);
-            builder
-                .HasOne<User>()
-                .WithMany(u => u.Photos)
-                .HasForeignKey(p => p.RelatedTo);
+            //builder
+            //    .Property(p => p.)
+            //    .WithOne(u => u.Photo)
+            //    .HasForeignKey(p => p.RelatedTo);
         }
     }
 

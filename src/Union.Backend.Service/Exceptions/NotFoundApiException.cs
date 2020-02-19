@@ -6,10 +6,10 @@ namespace Union.Backend.Service.Exceptions
 {
     public class NotFoundApiException : HttpResponseException
     {
-        public override int Status => 404;
-
         public NotFoundApiException(string message = "No entity found for the request")
             : base(message)
         { }
+
+        public override int Status => 404;
     }
 }
