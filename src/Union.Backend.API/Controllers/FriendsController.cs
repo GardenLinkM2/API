@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Union.Backend.Service.Services;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Net;
+using System.Threading.Tasks;
+using Union.Backend.Service.Auth;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
+using Union.Backend.Service.Services;
 
 namespace Union.Backend.API.Controllers
 {
@@ -20,26 +22,89 @@ namespace Union.Backend.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllFriends()
         {
-            //return Ok(await service.GetAllFriends(GUID)); TODO
-            throw new WorkInProgressApiException();
+
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetAllFriends(id));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+
         }
 
-        [HttpPost] //TODO
+        [HttpGet("Demands")]
+        public async Task<IActionResult> GetAllDemandsForCurrentUser()
+        {
+
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetAllContactDemands(id));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+
+        }
+
+        [HttpGet("Demands/{id}")]
+        public async Task<IActionResult> GetDemandsbyId([FromRoute(Name = "id")] Guid demandId)
+        {
+
+            return Ok(await service.GetContactDemandById(demandId));
+
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> CreateFriendDemand([FromBody] DemandDto demand)
         {
-            return Created("TODO", await service.AddContactDemand(demand));
+            var result = await service.AddContactDemand(demand);
+            return Created($"/api/Friends/Demands/{result.Data.Id}", result);
         }
 
-        [HttpPost("{id}/Accept")] //TODO
-        public async Task<IActionResult> AcceptDemand([FromRoute(Name = "id")] Guid friendId)
+        [HttpPost("Demands/{id}/Accept")]
+        public async Task<IActionResult> AcceptDemand([FromRoute(Name = "id")] Guid demandId)
         {
-            return Created("TODO", await service.CreateContact(friendId));
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                /* MODIFIER DEMANDDTO to only expose receiver and sender uuid
+                if(await service.GetContactDemandById(demandId) ==null || await service.GetContactDemandById(demandId).Result.Data.Receiver!=id)
+                {
+                    return Forbid();
+                }
+                */
+                return Ok(await service.CreateContact(demandId));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+
         }
 
-        [HttpPost("{id}/decline")] //TODO
-        public async Task DeclineDemand([FromRoute(Name = "id")] Guid friendId)
+        [HttpPost("Demands/{id}/Decline")]
+        public async Task DeclineDemand([FromRoute(Name = "id")] Guid demandId)
         {
-            await service.DeleteDemand(friendId);
+
+            await service.DeleteDemand(demandId);
         }
 
         [HttpDelete("{id}")]

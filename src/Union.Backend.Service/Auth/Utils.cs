@@ -58,6 +58,7 @@ namespace Union.Backend.Service.Auth
 
         public static T ValidateAndGetToken<T>(string token, string secret)
         {
+
             var accessToken = JWT.Decode<T>(token, Convert.FromBase64String(secret));
             return accessToken;
         }
@@ -66,6 +67,12 @@ namespace Union.Backend.Service.Auth
         {
             var accessToken = JWT.Payload<TokenDto>(token);
             return new Guid(accessToken.Uuid);
+        }
+
+        public static Boolean IsAdminRoleFromToken(string token)
+        {
+            var accessToken = JWT.Payload<TokenDto>(token);
+            return (bool) accessToken.IsAdmin;
         }
     }
 }

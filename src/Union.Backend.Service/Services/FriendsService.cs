@@ -20,55 +20,48 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<DemandDto>> GetAllFriends(Guid demandId)
         {
             //TODO
-            return null;
+            throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<DemandDto>> GetContactDemandFromUserId(Guid friendId)
+
+        public async Task<QueryResults<DemandDto>> GetContactDemandById(Guid demandId)
         {
             //TODO
-            return null;
+            throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<DemandDto>> GetContactFromUserId(Guid friendId)
+        public async Task<QueryResults<DemandDto>> GetAllContactDemands(Guid userId)
         {
             //TODO
-            return null;
+            throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<DemandDto>> GetContactDemand(Guid demandId)
-        {
-            //TODO
-            return null;
-        }
+        
 
         public async Task<QueryResults<DemandDto>> AddContactDemand(DemandDto demand)
         {
             //TODO
 
-            return null;
+            throw new WorkInProgressApiException();
         }
 
         public async Task<QueryResults<ContactDto>> CreateContact(Guid friendId)
         {
             //TODO
-            var result = await GetContactDemandFromUserId(friendId) ?? throw new NotFoundApiException();
-            DemandDto demande = result.Data;
-            //create Contact dto from demande
-            return null;
+            throw new WorkInProgressApiException();
         }
 
 
-        public async Task DeleteDemand(Guid friendId)
+        public async Task DeleteDemand(Guid demandId)
         {
-            var result = await GetContactDemandFromUserId(friendId) ?? throw new NotFoundApiException();
-            DemandDto demande = result.Data;
-            //TODO deletedemand
 
+            //TODO deletedemand
+            throw new WorkInProgressApiException();
         }
 
         public async Task DeleteContact(Guid friendId)
         {
-            DemandDto demande = GetContactFromUserId(friendId).Result.Data; //Pas sur de ça
+            throw new WorkInProgressApiException();
             //TODO deleteContact
 
         }

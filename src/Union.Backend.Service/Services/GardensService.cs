@@ -5,6 +5,7 @@ using Union.Backend.Model.DAO;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
+using Union.Backend.Service.Auth;
 
 namespace Union.Backend.Service.Services
 {
@@ -20,12 +21,12 @@ namespace Union.Backend.Service.Services
         {
             throw new WorkInProgressApiException();
         }
-        public async Task<QueryResults<List<GardenDto>>> GetGardenByParams()
+        public async Task<QueryResults<List<GardenDto>>> GetGardensByParams()
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<List<GardenDto>>> GetGardenById(Guid GardenId)
+        public async Task<QueryResults<GardenDto>> GetGardenById(Guid GardenId)
         {
             throw new WorkInProgressApiException();
         }
