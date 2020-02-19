@@ -66,6 +66,7 @@ namespace Union.Backend.API
             {
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "GardenLink", Version = "v1" });
                 sd.SchemaFilter<SwaggerExcludeSchemaFilter>();
+                sd.OperationFilter<AdditionalHeaderFilter>();
             });
 
             services.AddTransient<ClientDialogService, ClientDialogService>();

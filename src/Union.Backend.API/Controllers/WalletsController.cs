@@ -44,8 +44,6 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-
-
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var user = userService.GetUser(id);
 

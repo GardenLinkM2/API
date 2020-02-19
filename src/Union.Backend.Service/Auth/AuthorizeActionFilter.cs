@@ -13,9 +13,11 @@ namespace Union.Backend.Service.Auth
 {
     public class AuthorizeAttribute : TypeFilterAttribute
     {
+        public PermissionType Permission { get; }
         public AuthorizeAttribute(PermissionType permission = PermissionType.User)
             : base(typeof(AuthorizeActionFilter))
         {
+            Permission = permission;
             Order = (int)permission;
             Arguments = new object[] { permission };
         }
@@ -65,6 +67,12 @@ namespace Union.Backend.Service.Auth
             try
             {
                 context.HttpContext.Request.Headers.TryGetValue(HttpRequestHeader.Authorization.ToString(), out var token);
+                if(string.IsNullOrEmpty(token))
+                {
+                    context.Result = new StatusCodeResult(401);
+                    return;
+                }
+
                 var accessToken = ValidateAndGetToken<TokenDto>(token, auth.Value.BackSecret);
                 if (!db.Users.Any(u => u.Id.Equals(new Guid(accessToken.Uuid))))
                 {
