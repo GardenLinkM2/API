@@ -1,12 +1,13 @@
 ﻿using System;
+using Union.Backend.Model.Models;
 
 namespace Union.Backend.Service.Dtos
 {
     public class ContactDto
     {
         public Guid Id { get; set; }
-        public  bool Accept { get; set; }
-        public UserDto UserOne { get; set; }
-        public UserDto UserTwo { get; set; }
+        public UserDto Contact { get; set; }
+        public ContactStatus Status { get; set; }
+        public string FirstMessage { get; set; }
     }
 }

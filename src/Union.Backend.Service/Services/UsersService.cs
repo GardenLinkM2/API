@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
@@ -18,70 +19,59 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<User> GetUserById(Guid id)
+        public async Task<QueryResults<UserDto>> GetUser(Guid userId)
         {
-            try
-            {
-                return await db.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
-            }
-            catch (NullReferenceException)
-            {
-                return null;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+            var user = await db.Users
+                .Include(u => u.Photo)
+                .Include(u => u.Wallet)
+                .GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
-        public async Task<UserQueryResults> GetUser(Guid userId)
-        {
-            var user = await GetUserById(userId) ?? throw new NotFoundApiException();
-
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = user.ConvertToDto()
             };
         }
 
-        public async Task<UsersQueryResults> GetAllUsers()
+        public async Task<QueryResults<List<UserDto>>> GetAllUsers()
         {
             var users = db.Users
-                .Include(u => u.Photos)
+                .Include(u => u.Photo)
+                .Include(u => u.Wallet)
                 .Select(u => u.ConvertToDto());
-            return new UsersQueryResults()
+            return new QueryResults<List<UserDto>>
             {
                 Data = await users.ToListAsync(),
                 Count = await users.CountAsync()
             };
         }
 
-        public async Task<UserQueryResults> AddUser(UserDto userDto, Guid id)
+        public async Task<QueryResults<UserDto>> AddUser(UserDto userDto, Guid id)
         {
             userDto.Id = id;
 
             var createdUser = userDto.ConvertToModel();
+            createdUser.Wallet = new Wallet();
             createdUser.Inscription = DateTime.Now;
 
             await db.Users.AddAsync(createdUser);
             await db.SaveChangesAsync();
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = createdUser.ConvertToDto()
             };
         }
 
-        public async Task<UserQueryResults> ChangeUser(Guid id, UserDto user)
+        public async Task<QueryResults<UserDto>> ChangeUser(Guid id, UserDto user)
         {
-            var foundUser = GetUserById(id).Result ?? throw new Exception();
+            var foundUser = db.Users.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
             foundUser.LastName = user.LastName;
             foundUser.FirstName = user.FirstName;
-            foundUser.Photos = user.Photos.Select(p => p.ConvertToModel<User>(id)).ToList();
+            foundUser.Photo = user.Photo.ConvertToModel<User>(id);
             
             db.Users.Update(foundUser);
             await db.SaveChangesAsync();
-            return new UserQueryResults()
+            return new QueryResults<UserDto>
             {
                 Data = new UserDto { Id = foundUser.Id }
             };
@@ -89,11 +79,7 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteUser(Guid userId)
         {
-            var foundUser = GetUserById(userId).Result;
-            if (foundUser == null)
-            {
-                throw new Exception();
-            }
+            var foundUser = db.Users.GetByIdAsync(userId).Result ?? throw new NotFoundApiException();
             db.Users.Remove(foundUser);
             await db.SaveChangesAsync();
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Union.Backend.Model.Models;
 
 namespace Union.Backend.Service.Dtos
 {
@@ -11,7 +10,7 @@ namespace Union.Backend.Service.Dtos
         public string LastName { get; set; }
         public string FirstName { get; set; }
         [SwaggerExclude]
-        public List<PhotoDto> Photos { get; set; }
+        public PhotoDto Photo { get; set; }
         [SwaggerExclude]
         public WalletDto Wallet { get; set; }
     }

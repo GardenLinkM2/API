@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Union.Backend.Service.Results
+﻿namespace Union.Backend.Service.Results
 {
     public class QueryResults<T>
     {

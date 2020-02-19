@@ -69,7 +69,7 @@ namespace Union.Backend.API
             });
 
             services.AddTransient<ClientDialogService, ClientDialogService>();
-            services.AddTransient<FriendsService, FriendsService>();
+            services.AddTransient<ContactsService, ContactsService>();
             services.AddTransient<GardensService, GardensService>();
             services.AddTransient<LocationsService, LocationsService>();
             services.AddTransient<PaymentsService, PaymentsService>();
@@ -107,6 +107,9 @@ namespace Union.Backend.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenLink v1");
             });
+
+            using var serviceScope = app.ApplicationServices.CreateScope();
+            serviceScope.ServiceProvider.GetService<GardenLinkContext>().Migrate();
         }
     }
 }
