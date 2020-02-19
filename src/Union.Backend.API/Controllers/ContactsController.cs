@@ -78,7 +78,7 @@ namespace Union.Backend.API.Controllers
         [HttpDelete("{id}")]
         public async Task DeleteContact([FromRoute(Name = "id")] Guid userId)
         {
-            await service.DeleteContact(userId);
+            //await service.DeleteContact(userId);
         }
     }
 }

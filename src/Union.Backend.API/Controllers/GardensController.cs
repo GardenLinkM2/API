@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using System;
 using Union.Backend.Service.Dtos;
+using Union.Backend.Model.Models;
 
 namespace Union.Backend.API.Controllers
 {
@@ -25,7 +26,8 @@ namespace Union.Backend.API.Controllers
         [HttpGet("search/{params}")] //TODO
         public async Task<IActionResult> GetGardenByParam([FromRoute(Name = "id")] Guid GardenId)
         {
-            return Ok(await service.GetGardenByParams());
+            Criteria crit = new Criteria();
+            return Ok(await service.GetGardenByParams(crit));
         }
 
         [HttpGet("{id}")]
@@ -37,7 +39,7 @@ namespace Union.Backend.API.Controllers
         [HttpPost] //TODO
         public async Task<IActionResult> CreateGarden([FromBody] GardenDto Garden)
         {
-            return Created("TODO", await service.AddGarden(Garden));
+            return Created("TODO", await service.AddGarden(Garden, Garden.Id));
         }
 
         [HttpPut("{id}")]

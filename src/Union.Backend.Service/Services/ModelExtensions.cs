@@ -18,7 +18,6 @@ namespace Union.Backend.Service.Services
         {
             return new User
             {
-                Id = dto.Id,
                 UserName = dto.UserName,
                 LastName = dto.LastName,
                 FirstName = dto.FirstName
@@ -47,6 +46,24 @@ namespace Union.Backend.Service.Services
                 RelatedTo = id
             };
         }
+
+        public static List<Photo<T>> ConvertToModel<T>(this List<PhotoDto> dto, Guid id)
+            where T : IPhotographable
+        {
+            List<Photo<T>> photos = new List<Photo<T>>();
+
+            foreach(PhotoDto p in dto)
+            {
+                photos.Add(new Photo<T>
+                {
+                    FileName = p.FileName,
+                    RelatedTo = id
+                });
+            }
+
+            return photos;
+        }
+
         public static PhotoDto ConvertToDto<T>(this Photo<T> photo)
             where T : IPhotographable
         {
@@ -83,12 +100,36 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public static Garden ConvertToModel(this GardenDto dto)
+        {
+            return new Garden
+            {
+                Name = dto.Name,
+                Size = dto.Size,
+                Reserve = dto.Reserve,
+                Type = dto.Type,
+                MinUse = dto.MinUse,
+                IdOwner = dto.Owner,
+                Criteria = dto.Criteria.ConvertToModel(dto.Id),
+                Validation = dto.Validation.ConvertToModel(dto.Id)
+            };
+        }
+
         public static ValidationDto ConvertToDto(this Validation validation)
         {
             return new ValidationDto
             {
                 Id = validation.Id,
                 State = validation.State
+            };
+        }
+
+        public static Validation ConvertToModel(this ValidationDto dto, Guid id)
+        {
+            return new Validation
+            {
+                State = dto.State,
+                ForGarden = id
             };
         }
 
@@ -109,11 +150,35 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public static Criteria ConvertToModel(this CriteriaDto dto, Guid id)
+        {
+            return new Criteria
+            {
+                Area = dto.Area,
+                DirectAccess = dto.DirectAccess,
+                Equipments = dto.Equipments,
+                Orientation = dto.Orientation,
+                Price = dto.Price,
+                TypeOfClay = dto.TypeOfClay,
+                WaterAccess = dto.WaterAccess,
+                LocationTime = dto.LocationTime,
+                Location = dto.Location.ConvertToModel()
+            };
+        }
+
         public static LocationDto ConvertToDto(this Location location)
         {
             return new LocationDto
             {
                 Id = location.Id
+            };
+        }
+
+        public static Location ConvertToModel(this LocationDto dto)
+        {
+            return new Location
+            {
+
             };
         }
 
