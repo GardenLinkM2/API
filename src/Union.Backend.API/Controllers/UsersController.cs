@@ -55,9 +55,7 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-            //TODO
-            //return await service.GetUser(GET_IDFROM_TOKEN);
-            //TODO gestion http404
+
         }
 
         [HttpPost]
@@ -71,10 +69,10 @@ namespace Union.Backend.API.Controllers
         [HttpPut("me")]
         public async Task<IActionResult> ChangeMe([FromBody] UserDto user)
         {
-             try
+            try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return Ok(await service.ChangeUser( id,user));
+                return Ok(await service.ChangeUser(id, user));
             }
             catch (HttpResponseException)
             {

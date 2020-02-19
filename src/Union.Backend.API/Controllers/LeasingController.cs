@@ -43,14 +43,14 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                /* MODIFIER LeasingDTO to only expose receiver and sender uuid
+
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var leasing = service.GetLeasing(LeasingId);
-                if (leasing.Result.Data.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]) )
+                if (leasing.Result.Data.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     return Forbid();
                 }
-               */
+
                 return Ok(await service.ChangeLeasing(Leasing, LeasingId));
             }
             catch (HttpResponseException)
@@ -69,14 +69,14 @@ namespace Union.Backend.API.Controllers
             try
             {
 
-                /* MODIFIER LeasingDTO to only expose receiver and sender uuid
+
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var leasing = service.GetLeasing(LeasingId);
-                if (leasing.Result.Data.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]) )
+                if (leasing.Result.Data.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
-                    return Forbid();
+                    throw new ForbidenException();
                 }
-               */
+
 
                 await service.DeleteLeasing(LeasingId);
 

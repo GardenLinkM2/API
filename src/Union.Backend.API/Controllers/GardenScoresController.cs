@@ -34,12 +34,12 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var garden = await GardenService.GetGardenById(GardenId);
-                /* modifier dto
-                 if (garden.Data.Owner != id &&  garden.Data.Owner != id &&  !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                 {
-                     return Forbid();
-                 }*/
-                return Created("TODO", await service.AddScore(Score, GardenId));
+                if (garden.Data.Owner != id && garden.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    return Forbid();
+                }
+                var result = await service.AddScore(Score, GardenId);
+                return Created($"api/gardens/{result.Data.Id}/score", result);
 
             }
             catch (HttpResponseException)
@@ -54,10 +54,10 @@ namespace Union.Backend.API.Controllers
 
         }
 
-        [HttpPost("score/{id}/report")] //TODO
+        [HttpPost("score/{id}/report")]
         public async Task<IActionResult> ReportScore([FromRoute(Name = "id")] Guid ScoreId, [FromBody] ScoreDto Score)
         {
-            return Created("TODO", await service.ReportScore(ScoreId, Score));
+            return Ok(await service.ReportScore(ScoreId, Score));
         }
 
         [HttpDelete("score/{id}")]
@@ -68,11 +68,10 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var score = await service.GetScore(ScoreId);
-                /* modifier dto
                 if (score.Data.Rater == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     await service.DeleteScore(ScoreId);
-                }*/
+                }
 
             }
             catch (HttpResponseException)

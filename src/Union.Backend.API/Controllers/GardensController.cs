@@ -56,11 +56,11 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var jardin = await service.GetGardenById(GardenId);
-                /*
+
                 if (jardin.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     return Forbid();
-                }*/
+                }
                 return Ok(await service.ChangeGarden(garden, GardenId));
             }
             catch (HttpResponseException)
@@ -82,11 +82,11 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var jardin = await service.GetGardenById(GardenId);
-                /*Modifeir GardenDto pur remplacer  Owner entity par guid
+
                 if (jardin.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     return Forbid();
-                }*/
+                }
                 return Ok(await service.ChangeGardenDescription(desc, GardenId));
             }
             catch (HttpResponseException)
@@ -108,11 +108,11 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var jardin = await service.GetGardenById(GardenId);
-                /*Modifeir GardenDto pur remplacer  Owner entity par guid
+
                 if (jardin.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     return Forbid();
-                }*/
+                }
                 return Ok(await service.ChangeGardenValidation(valid, GardenId));
             }
             catch (HttpResponseException)
@@ -134,11 +134,15 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var jardin = await service.GetGardenById(GardenId);
-                /*Modifeir GardenDto pur remplacer  Owner entity par guid
-                if(jardin.Data.Owner == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]) ){
+
+                if (jardin.Data.Owner == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
                     await service.DeleteGarden(GardenId);
                 }
-                */
+                else
+                {
+                    throw new ForbidenException();
+                }
             }
             catch (HttpResponseException)
             {

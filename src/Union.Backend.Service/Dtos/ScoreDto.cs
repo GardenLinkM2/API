@@ -7,7 +7,7 @@ namespace Union.Backend.Service.Dtos
         public Guid Id { get; set; }
         public int Note { get; set; }
         public string Comment { get; set; }
-        public UserDto Rater { get; set; }
+        public Guid Rater { get; set; }
         public Guid Rated { get; set; } //Garden ou User
     }
 }

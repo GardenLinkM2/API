@@ -53,7 +53,7 @@ namespace Union.Backend.Service.Services
         {
             List<Photo<T>> photos = new List<Photo<T>>();
 
-            foreach(PhotoDto p in dto)
+            foreach (PhotoDto p in dto)
             {
                 photos.Add(new Photo<T>
                 {
@@ -205,10 +205,10 @@ namespace Union.Backend.Service.Services
                 State = leasing.State,
                 End = leasing.End,
                 Garden = leasing.Garden.ConvertToDto(),
-                Owner = leasing.Owner.ConvertToDto(),
+                Owner = leasing.Owner.Id,
                 Price = leasing.Price,
                 Renew = leasing.Renew,
-                Renter = leasing.Renter.ConvertToDto(),
+                Renter = leasing.Renter.Id,
                 Time = leasing.Time
             };
         }
@@ -219,8 +219,8 @@ namespace Union.Backend.Service.Services
             {
                 Id = talk.Id,
                 Archive = talk.Archive,
-                Receiver = talk.Receiver.ConvertToDto(),
-                Sender = talk.Sender.ConvertToDto(),
+                Receiver = talk.Receiver.Id,
+                Sender = talk.Sender.Id,
                 Subject = talk.Subject
             };
         }
@@ -232,7 +232,7 @@ namespace Union.Backend.Service.Services
                 Id = notation.Id,
                 Comment = notation.Comment,
                 Note = notation.Note,
-                Rater = notation.Rater.ConvertToDto(),
+                Rater = notation.Rater.Id,
                 Rated = notation.Rated.Id
             };
         }

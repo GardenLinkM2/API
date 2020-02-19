@@ -14,6 +14,8 @@ namespace Union.Backend.API.Controllers
     public class WalletsController : ControllerBase
     {
         private readonly WalletsService service;
+        private readonly UsersService userService;
+
         public WalletsController(WalletsService service)
         {
             this.service = service;
@@ -42,8 +44,16 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return Ok(await service.ChangeWallet(myId, walletId, Wallet));
+
+
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var user = userService.GetUser(id);
+
+                if (user.Result.Data.Wallet.Id != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    return Forbid();
+                }
+                return Ok(await service.ChangeWallet(id, walletId, Wallet));
             }
             catch (HttpResponseException)
             {

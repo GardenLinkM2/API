@@ -7,7 +7,7 @@ namespace Union.Backend.Service.Dtos
         public Guid Id { get; set; }
         public string Subject { get; set; }
         public bool Archive { get; set; }
-        public UserDto Sender { get; set; }
-        public UserDto Receiver { get; set; }
+        public Guid Sender { get; set; }
+        public Guid Receiver { get; set; }
     }
 }

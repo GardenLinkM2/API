@@ -44,15 +44,15 @@ namespace Union.Backend.API.Controllers
 
             try
             {
-                var Pay = await service.GetPayment(PaymentId);
+                var pay = await service.GetPayment(PaymentId);
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                /* MODIFIER DEMANDDTO to only expose receiver and sender uuid
-               if (Pay.Data.Collector != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-               {
-                   return Forbid();
-               }
-               */
-                return Ok(Pay);
+
+                if (pay.Data.Leasing.Owner != id || pay.Data.Leasing.Renter != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    return Forbid();
+                }
+
+                return Ok(pay);
             }
             catch (HttpResponseException)
             {
@@ -63,14 +63,13 @@ namespace Union.Backend.API.Controllers
                 throw new BadRequestApiException();
             }
 
-
-
         }
 
         [HttpPost]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentDto Payment)
         {
-            return Created("TODO", await service.AddPayment(Payment));
+            var result = await service.AddPayment(Payment);
+            return Created($"api/Payments/{result.Data.Id}", result);
         }
 
         [HttpDelete("{id}")]
@@ -79,13 +78,16 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var jardin = await service.GetPayment(PaymentId);
-                /* Modifier PaymentDTO pour remplacer entitté collector par guid 
-                if (jardin.Data.Collector== id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                var pay = await service.GetPayment(PaymentId);
+
+                if (pay.Data.Leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     await service.DeletePayment(PaymentId);
                 }
-                */
+                else
+                {
+                    throw new ForbidenException();
+                }
             }
             catch (HttpResponseException)
             {

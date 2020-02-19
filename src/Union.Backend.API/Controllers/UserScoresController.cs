@@ -9,7 +9,7 @@ using System.Net;
 
 namespace Union.Backend.API.Controllers
 {
-    [Route("api/users/")]
+    [Route("api/Users")]
     [ApiController]
     public class UserScoresController : ControllerBase
     {
@@ -26,10 +26,11 @@ namespace Union.Backend.API.Controllers
         }
 
 
-        [HttpPost("{id}/score")] //TODO
+        [HttpPost("{id}/score")]
         public async Task<IActionResult> AddScore([FromRoute(Name = "id")] Guid UserId, [FromBody] ScoreDto Score)
         {
-            return Created("TODO", await service.AddScore(Score, UserId));
+            var result = await service.AddScore(Score, UserId);
+            return Created($"/api/Users/{result.Data.Id}/score", result);
         }
 
         [HttpPost("score/{id}/report")]
@@ -45,11 +46,15 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var score = await service.GetScore(ScoreId);
-                /* modifier dto 
-                   if (score.Data.Rater == id ||  Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                     {
-                     await service.DeleteScore(ScoreId);
-                 }*/
+
+                if (score.Data.Rater == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    await service.DeleteScore(ScoreId);
+                }
+                else
+                {
+                    throw new ForbidenException();
+                }
 
             }
             catch (HttpResponseException)

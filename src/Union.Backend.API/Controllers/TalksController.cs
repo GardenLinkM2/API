@@ -25,14 +25,7 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-
-                /* modifier dto
-                if (garden.Data.Owner != id &&  garden.Data.Owner == id &&  !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    return Forbid();
-                }*/
-
-                return Created("TODO", await service.GetAllTalks(id));
+                return Ok(await service.GetAllTalks(id));
 
             }
             catch (HttpResponseException)
@@ -54,11 +47,10 @@ namespace Union.Backend.API.Controllers
                 var talk = await service.GetTalk(TalkId);
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
-                /* modifier dto
-                if (talk.Data.Sender != id &&  garden.Data.Receiver != id &&  !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (talk.Data.Sender != id && talk.Data.Receiver != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     return Forbid();
-                }*/
+                }
 
                 return Ok(talk);
 
@@ -89,11 +81,11 @@ namespace Union.Backend.API.Controllers
             {
                 var talk = await service.GetTalk(TalkId);
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                /* modifier dto
-                    if (talk.Data.Sender != id &&  garden.Data.Receiver != id &&  !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                    {
-                        return Forbid();
-                    }*/
+
+                if (talk.Data.Sender != id && talk.Data.Receiver != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    return Forbid();
+                }
                 return Created("TODO", await service.AddMessage(message, TalkId));
 
             }
@@ -113,12 +105,16 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var score = await service.GetTalk(TalkId);
-                /* modifier dto 
-                 * if (talk.Data.Sender == id ||  garden.Data.Receiver == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                    {
-                        await service.DeleteTalk(TalkId);
-                    }*/
+                var talk = await service.GetTalk(TalkId);
+
+                if (talk.Data.Sender == id || talk.Data.Receiver == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    await service.DeleteTalk(TalkId);
+                }
+                else
+                {
+                    throw new ForbidenException();
+                }
 
             }
             catch (HttpResponseException)
