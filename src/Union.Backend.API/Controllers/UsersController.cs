@@ -55,7 +55,9 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-            
+            //TODO
+            //return await service.GetUser(GET_IDFROM_TOKEN);
+            //TODO gestion http404
         }
 
         [HttpPost]
