@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
 using Union.Backend.Service.Dtos;
@@ -18,19 +20,29 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<List<GardenDto>>> GetAllGardens()
         {
-            throw new WorkInProgressApiException();
+            var gardens = db.Gardens
+                .Include(g => g.Photos)
+                .Include(g => g.Tenant)
+                .Include(g => g.Validation)
+                .Include(g => g.Criteria)
+                .Select(g => g.ConvertToDto());
+            return new QueryResults<List<GardenDto>>
+            {
+                Data = await gardens.ToListAsync(),
+                Count = await gardens.CountAsync()
+            };
         }
         public async Task<QueryResults<List<GardenDto>>> GetGardenByParams()
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<List<GardenDto>>> GetGardenById(Guid GardenId)
+        public async Task<QueryResults<GardenDto>> GetGardenById(Guid GardenId)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<List<GardenDto>>> GetGardensByUser(Guid UserId)
+        public async Task<QueryResults<List<GardenDto>>> GetGardensByUser(Guid OwnerId)
         {
             throw new WorkInProgressApiException();
         }

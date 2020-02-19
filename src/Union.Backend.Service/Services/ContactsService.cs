@@ -66,9 +66,13 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task DeleteContact(Guid friendId)
+        public async Task DeleteContact(Guid me, Guid friendId)
         {
-            throw new NotImplementedException();
+            var contact = await db.Contacts.FirstOrDefaultAsync(c => c.Me.Equals(me) && c.MyContact.Equals(friendId)) ?? throw new NotFoundApiException();
+
+            db.Contacts.Remove(contact);
+            await db.SaveChangesAsync();
+
         }
     }
 }

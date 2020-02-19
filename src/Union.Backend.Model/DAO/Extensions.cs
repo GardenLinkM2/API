@@ -43,9 +43,10 @@ namespace Union.Backend.Model.DAO
 
         public static ModelBuilder MapProduct(this ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new UserEntity());
+            /*modelBuilder.ApplyConfiguration(new UserEntity());
             modelBuilder.ApplyConfiguration(new PhotoUserEntity());
             modelBuilder.ApplyConfiguration(new PhotoMessageEntity());
+            modelBuilder.ApplyConfiguration(new GardenEntity());*/
 
             return modelBuilder;
         }

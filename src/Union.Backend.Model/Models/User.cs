@@ -14,5 +14,6 @@ namespace Union.Backend.Model.Models
         public List<Contact> Contacts { get; set; }
         public Wallet Wallet { get; set; }
         public Photo<User> Photo { get; set; }
+        public List<Garden> Gardens { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace Union.Backend.Service.Dtos
         public bool Reserve { get; set; }
         public string Type { get; set; }
         public int MinUse { get; set; }
-        public UserDto Owner { get; set; }
+        public Guid Owner { get; set; }
         public ValidationDto Validation { get; set; }
         public CriteriaDto Criteria { get; set; } // TODO : changer le type dans la liste
         public List<PhotoDto> Photos { get; set; }

@@ -76,7 +76,7 @@ namespace Union.Backend.Service.Services
                 Reserve = garden.Reserve,
                 Type = garden.Type,
                 MinUse = garden.MinUse,
-                Owner = garden.Owner.ConvertToDto(),
+                Owner = garden.IdOwner,
                 Criteria = garden.Criteria.ConvertToDto(),
                 Validation = garden.Validation.ConvertToDto(),
                 Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
