@@ -19,20 +19,26 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task Contact(Guid me, Guid contact, DemandDto demand)
+        public async Task<QueryResults<ContactDto>> Contact(Guid me, Guid contact, DemandDto demand)
         {
             var userMe = await db.Users.GetByIdAsync(me) ?? throw new NotFoundApiException();
             if (!db.Users.Any(c => c.Id.Equals(contact)))
                 throw new NotFoundApiException();
 
-            db.Contacts.Add(new Contact
+            var newContact = new Contact
             {
                 Me = contact,
                 MyContact = userMe,
                 FirstMessage = demand.FirstMessage,
                 Status = ContactStatus.Pending
-            });
+            };
+            db.Contacts.Add(newContact);
             await db.SaveChangesAsync();
+
+            return new QueryResults<ContactDto>
+            {
+                Data = newContact.ConvertToDto()
+            };
         }
 
         public async Task<QueryResults<List<ContactDto>>> GetMyContacts(Guid me)
@@ -45,6 +51,21 @@ namespace Union.Backend.Service.Services
             {
                 Data = await contacts.ToListAsync(),
                 Count = await contacts.CountAsync()
+            };
+        }
+
+        public async Task<QueryResults<ContactDto>> GetContactbyId(Guid me, Guid demandId)
+        {
+            var contact = await db.Contacts
+                .Include(c => c.MyContact)
+                .GetByIdAsync(demandId) ?? throw new NotFoundApiException();
+
+            if (contact.Me != me)
+                throw new UnauthorizeApiException();
+
+            return new QueryResults<ContactDto>
+            {
+                Data = contact.ConvertToDto()
             };
         }
 
@@ -72,7 +93,6 @@ namespace Union.Backend.Service.Services
 
             db.Contacts.Remove(contact);
             await db.SaveChangesAsync();
-
         }
     }
 }

@@ -22,7 +22,6 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(PermissionType.All)]
         public async Task<IActionResult> GetAllUsers()
         {
             return Ok(await service.GetAllUsers());
@@ -41,14 +40,12 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("me")]
-        [Authorize(PermissionType.All)] //TEMP
         public async Task<IActionResult> GetMe()
         {
-            //Example
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                throw new WorkInProgressApiException();
+                return Ok(await service.GetUser(id));
             }
             catch (HttpResponseException)
             {
@@ -64,7 +61,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(PermissionType.Admin)]
+        //[Authorize(PermissionType.Admin)] //TEMP
         public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
             var result = await service.AddUser(user, Guid.NewGuid());
@@ -74,18 +71,30 @@ namespace Union.Backend.API.Controllers
         [HttpPut("me")]
         public async Task<IActionResult> ChangeMe([FromBody] UserDto user)
         {
-            //TODO var id = getuserIdFromToken();
-            //return await service.ChangeUser(user, id);
-            throw new WorkInProgressApiException();
+             try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.ChangeUser( id,user));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpPut("{id}")]
+        [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] UserDto user)
         {
             return Ok(await service.ChangeUser(userId, user));
         }
 
         [HttpDelete("{id}")]
+        [Authorize(PermissionType.Admin)]
         public async Task DeleteUser([FromRoute(Name = "id")] Guid userId)
         {
             await service.DeleteUser(userId);
@@ -94,9 +103,19 @@ namespace Union.Backend.API.Controllers
         [HttpDelete("me")]
         public async Task DeleteMe()
         {
-            //TODO var id = getuserIdFromToken();
-            //return await service.DeleteUser(id);
-            throw new WorkInProgressApiException();
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                await service.DeleteUser(id);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpPost("{id}/photograph")]

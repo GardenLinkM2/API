@@ -26,8 +26,8 @@ namespace Union.Backend.API.Controllers
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 //await service.Contact(myId, contactId, contact);
-                await service.Contact(contactId, myId, demand); //TEMP
-                return NoContent();
+                var result = await service.Contact(contactId, myId, demand); //TEMP
+                return Created($"/api/contacts/{result.Data.Id}", result);
             }
             catch (HttpResponseException)
             {
@@ -39,13 +39,31 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpGet("me")]
+        [HttpGet]
         public async Task<IActionResult> GetMyContacts()
         {
             try
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetMyContacts(myId));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetContactbyId([FromRoute(Name = "id")] Guid demandId)
+        {
+            try
+            {
+                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetContactbyId(myId, demandId));
             }
             catch (HttpResponseException)
             {
@@ -76,9 +94,21 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteContact([FromRoute(Name = "id")] Guid userId)
+        public async Task DeleteContact([FromRoute(Name = "id")] Guid friendId)
         {
-            //await service.DeleteContact(userId);
+            try
+            {
+                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                await service.DeleteContact(myId, friendId);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
     }
 }

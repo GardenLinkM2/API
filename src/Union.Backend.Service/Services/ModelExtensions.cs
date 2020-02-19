@@ -18,6 +18,7 @@ namespace Union.Backend.Service.Services
         {
             return new User
             {
+                Id = dto.Id, //Necessary
                 UserName = dto.UserName,
                 LastName = dto.LastName,
                 FirstName = dto.FirstName

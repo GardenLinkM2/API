@@ -16,10 +16,11 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<QueryResults<WalletDto>> GetWallet()
+        public async Task<QueryResults<WalletDto>> GetWalletByUserId(Guid userId)
         {
             throw new WorkInProgressApiException();
         }
+
 
         public async Task<QueryResults<WalletDto>> ChangeWallet(Guid me, Guid my, WalletDto walletDto)
         {

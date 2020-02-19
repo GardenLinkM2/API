@@ -21,7 +21,7 @@ namespace Union.Backend.Service.Services
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<List<TalkDto>>> GetAllTalks()
+        public async Task<QueryResults<List<TalkDto>>> GetAllTalks(Guid userId)
         {
             throw new WorkInProgressApiException();
         }

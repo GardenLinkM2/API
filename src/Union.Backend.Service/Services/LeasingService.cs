@@ -8,36 +8,36 @@ using Union.Backend.Service.Results;
 
 namespace Union.Backend.Service.Services
 {
-    public class LocationsService
+    public class LeasingsService
     {
         private readonly GardenLinkContext db;
-        public LocationsService(GardenLinkContext gardenLinkContext)
+        public LeasingsService(GardenLinkContext gardenLinkContext)
         {
             db = gardenLinkContext;
         }
 
 
-        public async Task<QueryResults<LocationDto>> GetLocation(Guid Id)
+        public async Task<QueryResults<LeasingDto>> GetLeasing(Guid Id)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<List<LocationDto>>> GetAllLocations()
+        public async Task<QueryResults<List<LeasingDto>>> GetAllLeasings()
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<LocationDto>> AddLocation(LeasingDto Locationd)
+        public async Task<QueryResults<LeasingDto>> AddLeasing(LeasingDto Leasingd)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<LocationDto>> ChangeLocation(LeasingDto Location, Guid id)
+        public async Task<QueryResults<LeasingDto>> ChangeLeasing(LeasingDto Leasing, Guid id)
         {
             throw new WorkInProgressApiException();
         }
 
-        public async Task DeleteLocation(Guid LocationId)
+        public async Task DeleteLeasing(Guid LeasingId)
         {
             throw new WorkInProgressApiException();
         }

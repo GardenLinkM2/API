@@ -56,16 +56,30 @@ namespace Union.Backend.Service.Auth
                 throw new BadRequestApiException();
         }
 
+        private static string SanitizeToken(string token)
+        {
+            var bearerStart = "Bearer ";
+            if (token.StartsWith(bearerStart))
+                return token.Remove(0, bearerStart.Length);
+            return token;
+        }
+
         public static T ValidateAndGetToken<T>(string token, string secret)
         {
-            var accessToken = JWT.Decode<T>(token, Convert.FromBase64String(secret));
+            var accessToken = JWT.Decode<T>(SanitizeToken(token), Convert.FromBase64String(secret));
             return accessToken;
         }
 
         public static Guid ExtractIdFromToken(string token)
         {
-            var accessToken = JWT.Payload<TokenDto>(token);
+            var accessToken = JWT.Payload<TokenDto>(SanitizeToken(token));
             return new Guid(accessToken.Uuid);
+        }
+
+        public static bool IsAdminRoleFromToken(string token)
+        {
+            var accessToken = JWT.Payload<TokenDto>(SanitizeToken(token));
+            return accessToken.IsAdmin ?? false;
         }
     }
 }

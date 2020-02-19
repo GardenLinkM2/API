@@ -8,6 +8,7 @@ using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
+using Union.Backend.Service.Auth;
 
 namespace Union.Backend.Service.Services
 {
@@ -91,18 +92,17 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<GardenDto>> AddGarden(GardenDto gardenDto, Guid id)
+        public async Task<QueryResults<GardenDto>> AddGarden(GardenDto gardenDto)
         {
-            gardenDto.Id = id;
-
             var createdGarden = gardenDto.ConvertToModel();
+            await db.Gardens.AddAsync(createdGarden);
+
             createdGarden.Validation = new Validation
             {
-                ForGarden = id,
+                ForGarden = createdGarden.Id, //TODO: @Alexis
                 State = 0
             };
 
-            await db.Gardens.AddAsync(createdGarden);
             await db.SaveChangesAsync();
             return new QueryResults<GardenDto>
             {
@@ -129,10 +129,12 @@ namespace Union.Backend.Service.Services
                 Data = new GardenDto { Id = foundGarden.Id }
             };
         }
+
         public async Task<QueryResults<GardenDto>> ChangeGardenDescription(DescriptionDto desc, Guid GardenId)
         {
             throw new WorkInProgressApiException();
         }
+
         public async Task<QueryResults<GardenDto>> ChangeGardenValidation(ValidationDto val, Guid gardenId)
         {
             var foundGarden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
