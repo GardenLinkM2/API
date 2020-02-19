@@ -22,7 +22,7 @@ namespace Union.Backend.Service.Services
             throw new WorkInProgressApiException();
         }
 
-        public async Task<QueryResults<List<PaymentDto>>> GetAllPayments()
+        public async Task<QueryResults<List<PaymentDto>>> GetAllPayments(Guid UserId)
         {
             throw new WorkInProgressApiException();
         }

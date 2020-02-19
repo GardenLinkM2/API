@@ -1,8 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
-using System;
+using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
+using Union.Backend.Service.Auth;
+using System.Net;
 
 namespace Union.Backend.API.Controllers
 {
@@ -19,33 +22,113 @@ namespace Union.Backend.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTalks()
         {
-            return Ok(await service.GetAllTalks());
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+
+                /* modifier dto
+                if (garden.Data.Owner != id &&  garden.Data.Owner == id &&  !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    return Forbid();
+                }*/
+
+                return Created("TODO", await service.GetAllTalks(id));
+
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTalk([FromRoute(Name = "id")] Guid UserId)
+        public async Task<IActionResult> GetTalk([FromRoute(Name = "id")] Guid TalkId)
         {
-            return Ok(await service.GetTalk(UserId));
+
+            try
+            {
+                var talk = await service.GetTalk(TalkId);
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+
+                /* modifier dto
+                if (talk.Data.Sender != id &&  garden.Data.Receiver != id &&  !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    return Forbid();
+                }*/
+
+                return Ok(talk);
+
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+
+
         }
 
 
-        [HttpPost] //TODO
+        [HttpPost]
         public async Task<IActionResult> CreateTalk([FromBody] TalkDto Talk)
         {
             return Created("TODO", await service.AddTalk(Talk));
         }
 
-        [HttpPost("{id}")] //TODO
+        [HttpPost("{id}")]
         public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid TalkId, [FromBody] MessageDto message)
         {
-            return Created("TODO", await service.AddMessage(message, TalkId));
+            try
+            {
+                var talk = await service.GetTalk(TalkId);
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                /* modifier dto
+                    if (talk.Data.Sender != id &&  garden.Data.Receiver != id &&  !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                    {
+                        return Forbid();
+                    }*/
+                return Created("TODO", await service.AddMessage(message, TalkId));
+
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task DeleteTalk([FromRoute(Name = "id")] Guid TalkId)
         {
-            await service.DeleteTalk(TalkId);
-        }
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var score = await service.GetTalk(TalkId);
+                /* modifier dto 
+                 * if (talk.Data.Sender == id ||  garden.Data.Receiver == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                    {
+                        await service.DeleteTalk(TalkId);
+                    }*/
 
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
     }
 }

@@ -19,11 +19,22 @@ namespace Union.Backend.API.Controllers
             this.service = service;
         }
 
-        [HttpGet]
-        [Authorize(PermissionType.Admin)]
-        public async Task<IActionResult> GetAllWallets()
+        [HttpGet("me")]
+        public async Task<IActionResult> GetWallet()
         {
-            return Ok(await service.GetWallet());
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetWalletByUserId(id));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpPut("{id}")]

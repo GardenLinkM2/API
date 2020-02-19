@@ -1,8 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
-using System;
+using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
+using Union.Backend.Service.Auth;
+using System.Net;
 
 namespace Union.Backend.API.Controllers
 {
@@ -38,7 +41,27 @@ namespace Union.Backend.API.Controllers
         [HttpDelete("score/{id}")]
         public async Task DeleteScore([FromRoute(Name = "id")] Guid ScoreId)
         {
-            await service.DeleteScore(ScoreId);
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var score = await service.GetScore(ScoreId);
+                /* modifier dto 
+                   if (score.Data.Rater == id ||  Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                     {
+                     await service.DeleteScore(ScoreId);
+                 }*/
+
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+
+
         }
 
     }

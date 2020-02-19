@@ -80,8 +80,8 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 /* MODIFIER DEMANDDTO to only expose receiver and sender uuid
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 if(await service.GetContactDemandById(demandId) ==null || await service.GetContactDemandById(demandId).Result.Data.Receiver!=id)
                 {
                     return Forbid();
