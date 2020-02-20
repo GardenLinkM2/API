@@ -39,21 +39,12 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTalk([FromRoute(Name = "id")] Guid TalkId)
+        public async Task<IActionResult> GetTalk([FromRoute(Name = "id")] Guid talkId)
         {
-
             try
             {
-                var talk = await service.GetTalk(TalkId);
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-
-                if (talk.Data.Sender != id && talk.Data.Receiver != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    return Forbid();
-                }
-
-                return Ok(talk);
-
+                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetTalk(myId, talkId));
             }
             catch (HttpResponseException)
             {
@@ -63,15 +54,26 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-
-
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> CreateTalk([FromBody] TalkDto Talk)
+        public async Task<IActionResult> CreateTalk([FromBody] TalkDto talkDto)
         {
-            return Created("TODO", await service.AddTalk(Talk));
+            try
+            {
+                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var talk = (await service.AddTalk(talkDto, myId)).Data;
+                
+                return Created($"{Request.Path.Value}/{talk.Id}", talk);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpPost("{id}")]
@@ -79,8 +81,8 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var talk = await service.GetTalk(TalkId);
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var talk = await service.GetTalk(id, TalkId);
 
                 if (talk.Data.Sender != id && talk.Data.Receiver != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
@@ -105,7 +107,7 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var talk = await service.GetTalk(TalkId);
+                var talk = await service.GetTalk(id, TalkId);
 
                 if (talk.Data.Sender == id || talk.Data.Receiver == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
@@ -113,7 +115,7 @@ namespace Union.Backend.API.Controllers
                 }
                 else
                 {
-                    throw new ForbidenException();
+                    throw new ForbidenApiException();
                 }
 
             }

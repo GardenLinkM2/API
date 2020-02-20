@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
 using System.Net;
@@ -24,12 +22,11 @@ namespace Union.Backend.API
                 {
                     Name = HttpRequestHeader.Authorization.ToString(),
                     In = ParameterLocation.Header,
-                    Description = "access token",
+                    Description = "Bearer {token}",
                     Required = true,
                     Schema = new OpenApiSchema
                     {
-                        Type = "string",
-                        Default = new OpenApiString("Bearer {token}")
+                        Type = "string"
                     }
                 });
             }

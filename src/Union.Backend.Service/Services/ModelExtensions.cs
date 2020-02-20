@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 
@@ -172,6 +171,7 @@ namespace Union.Backend.Service.Services
             return new LocationDto
             {
                 Id = location.Id
+                //TODO
             };
         }
 
@@ -179,7 +179,7 @@ namespace Union.Backend.Service.Services
         {
             return new Location
             {
-
+                //TODO
             };
         }
 
@@ -218,10 +218,21 @@ namespace Union.Backend.Service.Services
             return new TalkDto
             {
                 Id = talk.Id,
-                Archive = talk.Archive,
+                IsArchived = talk.IsArchived,
                 Receiver = talk.Receiver.Id,
                 Sender = talk.Sender.Id,
-                Subject = talk.Subject
+                Subject = talk.Subject,
+                Messages = talk.Messages?.Select(m => m.ConvertToDto()).ToList()
+            };
+        }
+
+        public static Talk ConvertToModel(this TalkDto dto, User sender, User receiver)
+        {
+            return new Talk
+            {
+                Subject = dto.Subject,
+                Sender = sender,
+                Receiver = receiver
             };
         }
 
@@ -253,10 +264,9 @@ namespace Union.Backend.Service.Services
             return new MessageDto
             {
                 Id = message.Id,
-                Date = message.Date,
-                Conversation = message.Talk.ConvertToDto(),
-                Sender = message.Sender.ConvertToDto(),
-                Read = message.Read,
+                CreationDate = message.CreationDate,
+                Sender = message.Sender,
+                IsReaded = message.IsReaded,
                 Text = message.Text,
                 Photos = message.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
             };

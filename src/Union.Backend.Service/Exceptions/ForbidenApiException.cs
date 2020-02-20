@@ -1,8 +1,8 @@
 ﻿namespace Union.Backend.Service.Exceptions
 {
-    public class ForbidenException : HttpResponseException
+    public class ForbidenApiException : HttpResponseException
     {
-        public ForbidenException(string message = "Forbiden request")
+        public ForbidenApiException(string message = "Forbiden request")
             : base(message)
         {
         }
