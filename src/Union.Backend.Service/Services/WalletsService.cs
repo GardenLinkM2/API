@@ -11,6 +11,7 @@ namespace Union.Backend.Service.Services
     public class WalletsService
     {
         private readonly GardenLinkContext db;
+        private readonly UsersService userService;
         public WalletsService(GardenLinkContext gardenLinkContext)
         {
             db = gardenLinkContext;
@@ -18,7 +19,12 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<WalletDto>> GetWalletByUserId(Guid userId)
         {
-            throw new WorkInProgressApiException();
+            var user = userService.GetUser(userId);
+
+            return new QueryResults<WalletDto>
+            {
+                Data = user.Result.Data.Wallet
+            };
         }
 
 

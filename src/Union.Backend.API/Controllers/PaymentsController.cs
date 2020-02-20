@@ -73,32 +73,10 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(PermissionType.Admin)]
         public async Task DeletePayment([FromRoute(Name = "id")] Guid PaymentId)
         {
-            try
-            {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var pay = await service.GetPayment(PaymentId);
-
-                if (pay.Data.Leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    await service.DeletePayment(PaymentId);
-                }
-                else
-                {
-                    throw new ForbidenException();
-                }
-            }
-            catch (HttpResponseException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException();
-            }
-
-
+            await service.DeletePayment(PaymentId);
         }
 
     }
