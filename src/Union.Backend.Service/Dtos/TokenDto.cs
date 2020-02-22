@@ -6,16 +6,16 @@ namespace Union.Backend.Service.Dtos
     {
         public string Token { get; set; }
         [SwaggerExclude]
+        public string Sub { get; set; }
+        [SwaggerExclude]
         public bool? IsAdmin { get; set; }
         [SwaggerExclude]
         public string Uuid { get; set; }
         [SwaggerExclude]
         public string Emitter { get; set; }
         [SwaggerExclude]
-        public string TokenId { get; set; }
+        public Guid? Jti { get; set; }
         [SwaggerExclude]
-        public string Username { get; set; }
-        [SwaggerExclude]
-        public DateTime? ExpirationTime { get; set; }
+        public long? Exp { get; set; }
     }
 }

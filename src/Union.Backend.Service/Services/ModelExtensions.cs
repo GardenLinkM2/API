@@ -19,7 +19,7 @@ namespace Union.Backend.Service.Services
             return new User
             {
                 Id = dto.Id, //Necessary
-                UserName = dto.UserName,
+                Mail = dto.Email,
                 LastName = dto.LastName,
                 FirstName = dto.FirstName
             };
@@ -30,7 +30,7 @@ namespace Union.Backend.Service.Services
             return new UserDto
             {
                 Id = user.Id,
-                UserName = user.UserName,
+                Email = user.Mail,
                 LastName = user.LastName,
                 FirstName = user.FirstName,
                 Photo = user.Photo?.ConvertToDto(),

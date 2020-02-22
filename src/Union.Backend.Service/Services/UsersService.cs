@@ -19,7 +19,19 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<QueryResults<UserDto>> GetUser(Guid userId)
+        public async Task<QueryResults<UserDto>> GetUserById(Guid userId)
+        {
+            var user = await db.Users
+                .Include(u => u.Photo)
+                .GetByIdAsync(userId) ?? throw new NotFoundApiException();
+
+            return new QueryResults<UserDto>
+            {
+                Data = user.ConvertToDto()
+            };
+        }
+
+        public async Task<QueryResults<UserDto>> GetMe(Guid userId)
         {
             var user = await db.Users
                 .Include(u => u.Photo)
@@ -36,7 +48,6 @@ namespace Union.Backend.Service.Services
         {
             var users = db.Users
                 .Include(u => u.Photo)
-                .Include(u => u.Wallet)
                 .Select(u => u.ConvertToDto());
             return new QueryResults<List<UserDto>>
             {

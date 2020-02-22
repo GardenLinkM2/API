@@ -43,7 +43,7 @@ namespace Union.Backend.Service.Services
             var payload = new Dictionary<string, object>()
             {
                 ["uuid"] = user.Id,
-                ["sub"] = user.UserName,
+                ["sub"] = user.Mail,
                 ["isAdmin"] = isAdmin,
                 ["exp"] = DateTime.UtcNow.AddDays(JwtConfigForBack.BaseAddDays).Subtract(new DateTime(1970, 1, 1)).TotalSeconds
             };
@@ -57,13 +57,13 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        private async Task<User> GenereateNewUser(Guid id, string token)
+        private async Task<User> GenereateNewUser(Guid id, TokenDto token)
         {
-            var authUser = await RequestUserInfo(auth.Value.Host, id, token);
+            var authUser = await RequestUserInfo(auth.Value.Host, id, token.Token);
             var userDto = new UserDto
             {
                 Id = id,
-                UserName = authUser.Username,
+                Email = token.Sub, //Use the auth token because email is hidden in the auth endpoint
                 LastName = authUser.LastName,
                 FirstName = authUser.FirstName,
             };
@@ -77,7 +77,7 @@ namespace Union.Backend.Service.Services
                 var accessToken = ValidateAndGetToken<TokenDto>(tokenDto.Token, auth.Value.ClientSecret);
                 accessToken.Token = tokenDto.Token;
                 var userId = new Guid(accessToken.Uuid);
-                var user = await db.Users.GetByIdAsync(userId) ?? await GenereateNewUser(userId, accessToken.Token);
+                var user = await db.Users.GetByIdAsync(userId) ?? await GenereateNewUser(userId, accessToken);
                 //return GenerateUserToken(user, accessToken.IsAdmin ?? false);
                 return GenerateUserToken(user, true); //TEMP
             }
