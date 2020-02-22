@@ -6,6 +6,7 @@ using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Auth;
 using System.Net;
+using System.Linq;
 
 namespace Union.Backend.API.Controllers
 {
@@ -20,13 +21,12 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTalks()
+        public async Task<IActionResult> GetMyTalks()
         {
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return Ok(await service.GetAllTalks(id));
-
+                return Ok(await service.GetMyTalks(id));
             }
             catch (HttpResponseException)
             {
@@ -39,12 +39,12 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTalk([FromRoute(Name = "id")] Guid talkId)
+        public async Task<IActionResult> GetTalkById([FromRoute(Name = "id")] Guid talkId)
         {
             try
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return Ok(await service.GetTalk(myId, talkId));
+                return Ok(await service.GetTalkById(myId, talkId));
             }
             catch (HttpResponseException)
             {
@@ -62,9 +62,9 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var talk = (await service.AddTalk(talkDto, myId)).Data;
+                var talk = await service.CreateTalk(myId, talkDto);
                 
-                return Created($"{Request.Path.Value}/{talk.Id}", talk);
+                return Created($"{Request.Path.Value}/{talk.Data.Id}", talk);
             }
             catch (HttpResponseException)
             {
@@ -77,19 +77,15 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid TalkId, [FromBody] MessageDto message)
+        public async Task<IActionResult> PostMessageToTalk([FromRoute(Name = "id")] Guid talkId, [FromBody] MessageDto message)
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var talk = await service.GetTalk(id, TalkId);
+                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var created = await service.PostMessageToTalk(myId, talkId, message);
 
-                if (talk.Data.Sender != id && talk.Data.Receiver != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    return Forbid();
-                }
-                return Created("TODO", await service.AddMessage(message, TalkId));
-
+                var paths = Request.Path.Value.Split('/');
+                return Created($"{string.Join('/', paths.Take(paths.Length - 1))}/{created.Data.Id}", created);
             }
             catch (HttpResponseException)
             {
@@ -102,22 +98,13 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteTalk([FromRoute(Name = "id")] Guid TalkId)
+        public async Task<IActionResult> DeleteTalk([FromRoute(Name = "id")] Guid talkId)
         {
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var talk = await service.GetTalk(id, TalkId);
-
-                if (talk.Data.Sender == id || talk.Data.Receiver == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    await service.DeleteTalk(TalkId);
-                }
-                else
-                {
-                    throw new ForbidenApiException();
-                }
-
+                await service.DeleteTalk(id, talkId);
+                return NoContent();
             }
             catch (HttpResponseException)
             {

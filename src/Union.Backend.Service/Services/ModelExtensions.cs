@@ -236,6 +236,31 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public static MessageDto ConvertToDto(this Message message)
+        {
+            return new MessageDto
+            {
+                Id = message.Id,
+                CreationDate = message.CreationDate,
+                Sender = message.Sender,
+                IsReaded = message.IsReaded,
+                Text = message.Text,
+                Photos = message.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
+            };
+        }
+
+        public static Message ConvertToModel(this MessageDto dto)
+        {
+            return new Message
+            {
+                Id = dto.Id,
+                CreationDate = DateTime.UtcNow,
+                Sender = dto.Sender,
+                IsReaded = dto.IsReaded,
+                Text = dto.Text
+            };
+        }
+
         public static ScoreDto ConvertToDto(this UserNotation notation)
         {
             return new ScoreDto
@@ -256,19 +281,6 @@ namespace Union.Backend.Service.Services
                 Contact = contact.MyContact.ConvertToDto(),
                 Status = contact.Status,
                 FirstMessage = contact.FirstMessage
-            };
-        }
-
-        public static MessageDto ConvertToDto(this Message message)
-        {
-            return new MessageDto
-            {
-                Id = message.Id,
-                CreationDate = message.CreationDate,
-                Sender = message.Sender,
-                IsReaded = message.IsReaded,
-                Text = message.Text,
-                Photos = message.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
             };
         }
     }
