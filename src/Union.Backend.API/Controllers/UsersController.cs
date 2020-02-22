@@ -30,7 +30,7 @@ namespace Union.Backend.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser([FromRoute(Name = "id")] Guid userId)
         {
-            return Ok(await service.GetUser(userId));
+            return Ok(await service.GetUserById(userId));
         }
 
         [HttpGet("{id}/gardens")]
@@ -44,8 +44,8 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return Ok(await service.GetUser(id));
+                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetMe(myId));
             }
             catch (HttpResponseException)
             {
