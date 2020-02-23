@@ -37,16 +37,23 @@ namespace Union.Backend.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddMvc(config =>
-                {
-                    config.Filters.Add(typeof(Service.Auth.AuthorizeAttribute), 255);
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddJsonOptions(opt =>
-                {
-                    opt.JsonSerializerOptions.IgnoreNullValues = true;
-                });
+            services.AddCors(opt => opt.AddPolicy("LeMoulinPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
+            services .AddMvc(config =>
+            {
+                config.Filters.Add(typeof(Service.Auth.AuthorizeAttribute), 255);
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+            .AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.IgnoreNullValues = true;
+            });
+
             services.AddControllers(opt =>
             {
                 opt.Filters.Add(new HttpResponseExceptionFilter());
@@ -96,6 +103,7 @@ namespace Union.Backend.API
             }
 
             app.UseRouting();
+            app.UseCors("LeMoulinPolicy");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
