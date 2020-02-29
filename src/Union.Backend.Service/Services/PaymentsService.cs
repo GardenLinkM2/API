@@ -62,6 +62,7 @@ namespace Union.Backend.Service.Services
             {
                 Data = createdPay.ConvertToDto()
             };*/
+            throw new WorkInProgressApiException();
         }
 
         public async Task<QueryResults<PaymentDto>> ChangePayment(PaymentDto Payment, Guid id)
