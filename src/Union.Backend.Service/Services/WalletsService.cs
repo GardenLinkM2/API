@@ -19,7 +19,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<WalletDto>> GetWalletByUserId(Guid userId)
         {
-            var user = userService.GetUser(userId);
+            var user = userService.GetMe(userId);
 
             return new QueryResults<WalletDto>
             {
