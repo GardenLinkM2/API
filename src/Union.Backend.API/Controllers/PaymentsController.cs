@@ -70,6 +70,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(PermissionType.Admin)]
         public async Task DeletePayment([FromRoute(Name = "id")] Guid PaymentId)
         {
             try

@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
+using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
@@ -17,18 +20,48 @@ namespace Union.Backend.Service.Services
         }
 
 
-        public async Task<QueryResults<PaymentDto>> GetPayment(Guid Id)
+        public async Task<QueryResults<PaymentDto>> GetPayment(Guid paymentId)
         {
-            throw new WorkInProgressApiException();
+            var pay = await db.Payments
+                .Include(u => u.Leasing)
+                .Include(u => u.Payer)
+                .Include(u => u.Collector)
+                .GetByIdAsync(paymentId) ?? throw new NotFoundApiException();
+
+            return new QueryResults<PaymentDto>
+            {
+                Data = pay.ConvertToDto()
+            };
         }
 
-        public async Task<QueryResults<List<PaymentDto>>> GetAllPayments(Guid UserId)
+        public async Task<QueryResults<List<PaymentDto>>> GetAllPayments(Guid userId)
         {
-            throw new WorkInProgressApiException();
+            var pay = db.Payments
+                .Include(u => u.Leasing)
+                .Include(u => u.Payer)
+                .Include(u => u.Collector)
+                .Where(u => u.Payer.Id == userId || u.Collector.Id == userId)
+                .Select(u => u.ConvertToDto());
+
+            return new QueryResults<List<PaymentDto>>
+            {
+                Data = await pay.ToListAsync(),
+                Count = await pay.CountAsync()
+            };
         }
 
-        public async Task<QueryResults<PaymentDto>> AddPayment(PaymentDto Paymentd)
+        public async Task<QueryResults<PaymentDto>> AddPayment(PaymentDto paymentDto)
         {
+            /*
+            var createdPay = paymentDto.ConvertToModel();
+            createdPay.Id = new Guid();
+
+            await db.Payments.AddAsync(createdPay);
+            await db.SaveChangesAsync();
+            return new QueryResults<PaymentDto>
+            {
+                Data = createdPay.ConvertToDto()
+            };*/
             throw new WorkInProgressApiException();
         }
 
@@ -39,7 +72,9 @@ namespace Union.Backend.Service.Services
 
         public async Task DeletePayment(Guid PaymentId)
         {
-            throw new WorkInProgressApiException();
+            var foundPay = db.Payments.GetByIdAsync(PaymentId).Result ?? throw new NotFoundApiException();
+            db.Payments.Remove(foundPay);
+            await db.SaveChangesAsync();
         }
     }
 }
