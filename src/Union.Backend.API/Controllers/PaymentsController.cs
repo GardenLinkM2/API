@@ -35,13 +35,11 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPaymentById([FromRoute(Name = "id")] Guid PaymentId)
         {
-
             try
             {
                 var pay = await service.GetPayment(PaymentId);
@@ -62,7 +60,6 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-
         }
 
         [HttpPost]
@@ -76,8 +73,28 @@ namespace Union.Backend.API.Controllers
         [Authorize(PermissionType.Admin)]
         public async Task DeletePayment([FromRoute(Name = "id")] Guid PaymentId)
         {
-            await service.DeletePayment(PaymentId);
-        }
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var pay = await service.GetPayment(PaymentId);
 
+                if (pay.Data.Leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    await service.DeletePayment(PaymentId);
+                }
+                else
+                {
+                    throw new ForbidenApiException();
+                }
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
     }
 }

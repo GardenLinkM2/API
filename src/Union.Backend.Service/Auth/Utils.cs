@@ -31,7 +31,7 @@ namespace Union.Backend.Service.Auth
                 return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync());
             }
             else
-                throw new BadRequestApiException();
+                throw new BadRequestApiException($"<{host}> respond with the <{result.StatusCode} code>");
         }
 
         public static async Task<HttpResponseMessage> HttpPostAsync(
