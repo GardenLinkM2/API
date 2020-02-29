@@ -44,10 +44,8 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-
-
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var user = userService.GetUser(id);
+                var user = userService.GetUserById(id);
 
                 if (user.Result.Data.Wallet.Id != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
