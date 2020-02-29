@@ -7,10 +7,9 @@ namespace Union.Backend.Service.Dtos
     {
         public Guid Id { get; set; }
         public string Text { get; set; }
-        public DateTime Date { get; set; }
-        public bool Read { get; set; }
-        public TalkDto Conversation { get; set; }
-        public UserDto Sender { get; set; }
+        public DateTime CreationDate { get; set; }
+        public bool IsReaded { get; set; }
+        public Guid Sender { get; set; }
         public List<PhotoDto> Photos { get; set; }
     }
 }

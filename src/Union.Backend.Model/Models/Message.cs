@@ -6,10 +6,10 @@ namespace Union.Backend.Model.Models
     public class Message : UniqueEntity, IPhotographable
     {
         public string Text { get; set; }
-        public DateTime Date { get; set; }
-        public bool Read { get; set; }
-        public Talk Talk{ get; set; }
-        public User Sender { get; set; }
+        public DateTime CreationDate { get; set; } //TODO: transformer en long
+        public bool IsReaded { get; set; }
+        public Guid Sender { get; set; }
+        public Guid OfTalk { get; set; }
         public List<Photo<Message>> Photos { get; set; }
     }
 }
