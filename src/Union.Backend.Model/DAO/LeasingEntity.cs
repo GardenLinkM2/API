@@ -24,8 +24,8 @@ namespace Union.Backend.Model.DAO
             builder.Property(l => l.Time).IsRequired();
 
             //builder.HasOne(l => l.Owner).WithOne().HasForeignKey<User>(u => u.Id);
-            builder.HasOne(l => l.Renter).WithOne().HasForeignKey<User>(u => u.Id);
-            builder.HasOne(l => l.Garden).WithOne().HasForeignKey<Garden>(g => g.Id);
+            //builder.HasOne(l => l.Renter).WithOne().HasForeignKey<User>(u => u.Id);
+            //builder.HasOne(l => l.Garden).WithOne().HasForeignKey<Garden>(g => g.Id);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Union.Backend.API.Controllers
         [HttpGet("{id}/score")]
         public async Task<IActionResult> GetScore([FromRoute(Name = "id")] Guid GardenId)
         {
-            return Ok(await service.GetScore(GardenId));
+            return Ok(await service.GetScoresByGarden(GardenId));
         }
 
 
@@ -67,7 +67,7 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var score = await service.GetScore(ScoreId);
+                var score = await service.GetScoreById(ScoreId);
                 if (score.Data.Rater == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     await service.DeleteScore(ScoreId);

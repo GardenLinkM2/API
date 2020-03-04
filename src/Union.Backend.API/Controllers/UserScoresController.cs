@@ -19,12 +19,17 @@ namespace Union.Backend.API.Controllers
             this.service = service;
         }
 
-        [HttpGet("{id}/score")]
-        public async Task<IActionResult> GetScore([FromRoute(Name = "id")] Guid UserId)
+        [HttpGet("{id}/score/rater")]
+        public async Task<IActionResult> GetScoreUserRater([FromRoute(Name = "id")] Guid UserId)
         {
-            return Ok(await service.GetScore(UserId));
+            return Ok(await service.GetScoresByUserRater(UserId));
         }
 
+        [HttpGet("{id}/score/rated")]
+        public async Task<IActionResult> GetScoreRatedUser([FromRoute(Name = "id")] Guid UserId)
+        {
+            return Ok(await service.GetScoresByUserRated(UserId));
+        }
 
         [HttpPost("{id}/score")]
         public async Task<IActionResult> AddScore([FromRoute(Name = "id")] Guid UserId, [FromBody] ScoreDto Score)
@@ -45,7 +50,7 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var score = await service.GetScore(ScoreId);
+                var score = await service.GetScoreById(ScoreId);
 
                 if (score.Data.Rater == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {

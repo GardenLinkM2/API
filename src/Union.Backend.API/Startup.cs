@@ -44,10 +44,10 @@ namespace Union.Backend.API
                        .AllowAnyHeader();
             }));
 
-            services .AddMvc(config =>
-            {
-                config.Filters.Add(typeof(Service.Auth.AuthorizeAttribute), 255);
-            })
+            services.AddMvc(config =>
+           {
+               config.Filters.Add(typeof(Service.Auth.AuthorizeAttribute), 255);
+           })
             .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
             .AddJsonOptions(opt =>
             {

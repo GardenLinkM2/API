@@ -22,7 +22,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<List<GardenDto>>> GetAllGardens()
         {
-            var gardens = db.Gardens
+            var gardens = db.Score
                 .Include(g => g.Photos)
                 .Include(g => g.Tenant)
                 .Include(g => g.Validation)
@@ -36,7 +36,7 @@ namespace Union.Backend.Service.Services
         }
         public async Task<QueryResults<List<GardenDto>>> GetGardenByParams(Criteria crit)
         {
-            var gardens = db.Gardens
+            var gardens = db.Score
                 .Include(g => g.Photos)
                 .Include(g => g.Tenant)
                 .Include(g => g.Validation)
@@ -62,7 +62,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<GardenDto>> GetGardenById(Guid gardenId)
         {
-            var garden = await db.Gardens
+            var garden = await db.Score
                 .Include(g => g.Photos)
                 .Include(g => g.Tenant)
                 .Include(g => g.Validation)
@@ -77,7 +77,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<List<GardenDto>>> GetGardensByUser(Guid ownerId)
         {
-            var gardens = db.Gardens
+            var gardens = db.Score
                 .Include(g => g.Photos)
                 .Include(g => g.Tenant)
                 .Include(g => g.Validation)
@@ -95,7 +95,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<GardenDto>> AddGarden(GardenDto gardenDto)
         {
             var createdGarden = gardenDto.ConvertToModel();
-            await db.Gardens.AddAsync(createdGarden);
+            await db.Score.AddAsync(createdGarden);
 
             createdGarden.Validation = new Validation
             {
@@ -112,7 +112,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<GardenDto>> ChangeGarden(GardenDto garden, Guid gardenId)
         {
-            var foundGarden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            var foundGarden = db.Score.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
 
             foundGarden.Name = garden.Name;
             foundGarden.Size = garden.Size;
@@ -122,7 +122,7 @@ namespace Union.Backend.Service.Services
             foundGarden.Criteria = garden.Criteria.ConvertToModel(gardenId);
             foundGarden.Photos = garden.Photos.ConvertToModel<Garden>(gardenId);
 
-            db.Gardens.Update(foundGarden);
+            db.Score.Update(foundGarden);
             await db.SaveChangesAsync();
             return new QueryResults<GardenDto>
             {
@@ -137,12 +137,12 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<GardenDto>> ChangeGardenValidation(ValidationDto val, Guid gardenId)
         {
-            var foundGarden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            var foundGarden = db.Score.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
 
             Validation toChange = val.ConvertToModel(gardenId);
             foundGarden.Validation = toChange;
 
-            db.Gardens.Update(foundGarden);
+            db.Score.Update(foundGarden);
             await db.SaveChangesAsync();
             return new QueryResults<GardenDto>
             {
@@ -152,8 +152,8 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteGarden(Guid gardenId)
         {
-            var foundGarden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
-            db.Gardens.Remove(foundGarden);
+            var foundGarden = db.Score.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            db.Score.Remove(foundGarden);
             await db.SaveChangesAsync();
         }
     }

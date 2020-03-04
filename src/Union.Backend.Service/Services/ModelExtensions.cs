@@ -286,15 +286,27 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static ScoreDto ConvertToDto(this UserNotation notation)
+        public static ScoreDto ConvertToDto(this Score score)
         {
             return new ScoreDto
             {
-                Id = notation.Id,
-                Comment = notation.Comment,
-                Note = notation.Note,
-                Rater = notation.Rater.Id,
-                Rated = notation.Rated.Id
+                Id = score.Id,
+                Comment = score.Comment,
+                Note = score.Note,
+                Rater = score.Rater,
+                Rated = score.Rated
+            };
+        }
+
+        public static Score ConvertToModel(this ScoreDto dto)
+        {
+            return new Score
+            {
+                Id = dto.Id,
+                Comment = dto.Comment,
+                Note = dto.Note,
+                Rater = dto.Rater,
+                Rated = dto.Rated
             };
         }
 

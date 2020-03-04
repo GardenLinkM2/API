@@ -18,7 +18,7 @@ namespace Union.Backend.Model.DAO
             builder.Property(p => p.Leasing).IsRequired();
 
 
-            builder.HasOne(p => p.Leasing).WithOne().HasForeignKey<Leasing>(l => l.Id);
+            //builder.HasOne(p => p.Leasing).WithOne().HasForeignKey<Leasing>(l => l.Id);
 
         }
     }
