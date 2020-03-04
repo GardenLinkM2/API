@@ -30,7 +30,7 @@ namespace Union.Backend.Service.Services
                 Me = contact,
                 MyContact = userMe,
                 FirstMessage = demand.FirstMessage,
-                Status = ContactStatus.Pending
+                Status = Status.Pending
             };
             db.Contacts.Add(newContact);
             await db.SaveChangesAsync();
@@ -76,7 +76,7 @@ namespace Union.Backend.Service.Services
                 .Include(c => c.MyContact)
                 .GetByIdAsync(demandId) ?? throw new NotFoundApiException();
 
-            if (!contact.Me.Equals(me) || contact.Status != ContactStatus.Pending)
+            if (!contact.Me.Equals(me) || contact.Status != Status.Pending)
                 throw new UnauthorizeApiException();
 
             contact.Status = demand.Status;
