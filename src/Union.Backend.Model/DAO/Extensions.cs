@@ -49,6 +49,7 @@ namespace Union.Backend.Model.DAO
             modelBuilder.ApplyConfiguration(new GardenEntity());
             modelBuilder.ApplyConfiguration(new ContactEntity());
             modelBuilder.ApplyConfiguration(new LeasingEntity());
+            modelBuilder.ApplyConfiguration(new PaymentEntity());
 
             return modelBuilder;
         }

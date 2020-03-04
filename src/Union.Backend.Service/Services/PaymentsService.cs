@@ -15,8 +15,10 @@ namespace Union.Backend.Service.Services
     {
         private readonly GardenLinkContext db;
         private readonly LeasingsService leasingService;
-        public PaymentsService(GardenLinkContext gardenLinkContext, LeasingsService leasingService)
+        private readonly UsersService usersService;
+        public PaymentsService(GardenLinkContext gardenLinkContext, LeasingsService leasingService, UsersService usersService)
         {
+            this.usersService = usersService;
             this.leasingService = leasingService;
             db = gardenLinkContext;
         }
@@ -36,7 +38,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<PaymentDto>>> GetAllPayments(Guid userId)
         {
             var pay = db.Payments
-                .Where(u => leasingService.GetLeasing(u.Leasing).Result.Data.Owner == userId || leasingService.GetLeasing(u.Leasing).Result.Data.Renter == userId)
+                .Where(u => u.Leasing.Owner.Id == userId || u.Leasing.Renter.Id == userId)
                 .Select(u => u.ConvertToDto());
 
             return new QueryResults<List<PaymentDto>>
@@ -48,8 +50,11 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<PaymentDto>> AddPayment(PaymentDto paymentDto)
         {
+            var leasing = leasingService.GetLeasing(paymentDto.Leasing).Result.Data;
+            var owner = usersService.GetUserById(leasing.Owner).Result.Data.ConvertToModel();
+            var renter = usersService.GetUserById(leasing.Renter).Result.Data.ConvertToModel();
 
-            var createdPay = paymentDto.ConvertToModel();
+            var createdPay = paymentDto.ConvertToModel(leasing, owner, renter);
             createdPay.Id = new Guid();
 
             await db.Payments.AddAsync(createdPay);
@@ -60,14 +65,14 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<PaymentDto>> ChangePayment(PaymentDto Payment, Guid id)
+        public async Task<QueryResults<PaymentDto>> ChangePayment(PaymentDto payment, Guid id)
         {
-
             var foundPayment = db.Payments.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+            var leasing = leasingService.GetLeasing(payment.Leasing).Result.Data;
 
-            foundPayment.Sum = Payment.Sum;
-            foundPayment.State = Payment.State;
-            foundPayment.Leasing = Payment.Leasing;
+            foundPayment.Sum = payment.Sum;
+            foundPayment.State = payment.State;
+            foundPayment.Leasing = leasing.ConvertToModel((await usersService.GetUserById(leasing.Owner)).Data.ConvertToModel(), (await usersService.GetUserById(leasing.Renter)).Data.ConvertToModel());
 
             db.Payments.Update(foundPayment);
             await db.SaveChangesAsync();

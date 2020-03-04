@@ -183,14 +183,14 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static Payment ConvertToModel(this PaymentDto dto)
+        public static Payment ConvertToModel(this PaymentDto dto, LeasingDto leasingDto, User Owner, User Renter)
         {
 
             return new Payment
             {
                 Sum = dto.Sum,
                 State = dto.State,
-                Leasing = dto.Leasing
+                Leasing = leasingDto.ConvertToModel(Owner, Renter)
             };
         }
 
@@ -201,7 +201,7 @@ namespace Union.Backend.Service.Services
                 Id = payment.Id,
                 Sum = payment.Sum,
                 State = payment.State,
-                Leasing = payment.Leasing
+                Leasing = payment.Leasing.Id
             };
         }
 

@@ -80,8 +80,10 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var pay = await service.GetPayment(PaymentId);
+                var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
+                
 
-                if (pay.Data.Leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     await service.DeletePayment(PaymentId);
                 }
