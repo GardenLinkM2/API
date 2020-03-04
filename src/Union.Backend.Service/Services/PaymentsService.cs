@@ -14,8 +14,10 @@ namespace Union.Backend.Service.Services
     public class PaymentsService
     {
         private readonly GardenLinkContext db;
-        public PaymentsService(GardenLinkContext gardenLinkContext)
+        private readonly LeasingsService leasingService;
+        public PaymentsService(GardenLinkContext gardenLinkContext, LeasingsService leasingService)
         {
+            this.leasingService = leasingService;
             db = gardenLinkContext;
         }
 
@@ -23,9 +25,6 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<PaymentDto>> GetPayment(Guid paymentId)
         {
             var pay = await db.Payments
-                .Include(u => u.Leasing)
-                .Include(u => u.Payer)
-                .Include(u => u.Collector)
                 .GetByIdAsync(paymentId) ?? throw new NotFoundApiException();
 
             return new QueryResults<PaymentDto>
@@ -37,10 +36,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<PaymentDto>>> GetAllPayments(Guid userId)
         {
             var pay = db.Payments
-                .Include(u => u.Leasing)
-                .Include(u => u.Payer)
-                .Include(u => u.Collector)
-                .Where(u => u.Payer.Id == userId || u.Collector.Id == userId)
+                .Where(u => leasingService.GetLeasing(u.Leasing).Result.Data.Owner == userId || leasingService.GetLeasing(u.Leasing).Result.Data.Renter == userId)
                 .Select(u => u.ConvertToDto());
 
             return new QueryResults<List<PaymentDto>>
@@ -52,7 +48,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<PaymentDto>> AddPayment(PaymentDto paymentDto)
         {
-            /*
+
             var createdPay = paymentDto.ConvertToModel();
             createdPay.Id = new Guid();
 
@@ -61,13 +57,24 @@ namespace Union.Backend.Service.Services
             return new QueryResults<PaymentDto>
             {
                 Data = createdPay.ConvertToDto()
-            };*/
-            throw new WorkInProgressApiException();
+            };
         }
 
         public async Task<QueryResults<PaymentDto>> ChangePayment(PaymentDto Payment, Guid id)
         {
-            throw new WorkInProgressApiException();
+
+            var foundPayment = db.Payments.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+
+            foundPayment.Sum = Payment.Sum;
+            foundPayment.State = Payment.State;
+            foundPayment.Leasing = Payment.Leasing;
+
+            db.Payments.Update(foundPayment);
+            await db.SaveChangesAsync();
+            return new QueryResults<PaymentDto>
+            {
+                Data = new PaymentDto { Id = foundPayment.Id }
+            };
         }
 
         public async Task DeletePayment(Guid PaymentId)

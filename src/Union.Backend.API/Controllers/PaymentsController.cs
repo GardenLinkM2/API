@@ -14,8 +14,10 @@ namespace Union.Backend.API.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly PaymentsService service;
-        public PaymentsController(PaymentsService service)
+        private readonly LeasingsService leasingService;
+        public PaymentsController(PaymentsService service, LeasingsService leasingService)
         {
+            this.leasingService = leasingService;
             this.service = service;
         }
 
@@ -43,9 +45,10 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var pay = await service.GetPayment(PaymentId);
+                var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
-                if (pay.Data.Leasing.Owner != id || pay.Data.Leasing.Renter != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (leasing.Owner != id || leasing.Renter != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     return Forbid();
                 }

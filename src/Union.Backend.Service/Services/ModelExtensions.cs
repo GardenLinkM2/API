@@ -183,16 +183,25 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public static Payment ConvertToModel(this PaymentDto dto)
+        {
+
+            return new Payment
+            {
+                Sum = dto.Sum,
+                State = dto.State,
+                Leasing = dto.Leasing
+            };
+        }
+
         public static PaymentDto ConvertToDto(this Payment payment)
         {
             return new PaymentDto
             {
                 Id = payment.Id,
-                Collector = payment.Collector.ConvertToDto(),
-                Payer = payment.Payer.ConvertToDto(),
                 Sum = payment.Sum,
                 State = payment.State,
-                Leasing = payment.Leasing.ConvertToDto()
+                Leasing = payment.Leasing
             };
         }
 
