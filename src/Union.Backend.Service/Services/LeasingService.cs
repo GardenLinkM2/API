@@ -14,11 +14,11 @@ namespace Union.Backend.Service.Services
     public class LeasingsService
     {
         private readonly GardenLinkContext db;
-        private readonly UsersService uService;
+        private readonly UsersService userService;
         public LeasingsService(GardenLinkContext gardenLinkContext, UsersService u)
         {
             db = gardenLinkContext;
-            uService = u;
+            userService = u;
         }
 
 
@@ -53,8 +53,8 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<LeasingDto>> AddLeasing(LeasingDto leasing)
         {
-            var renter = (await uService.GetUserById(leasing.Renter)).Data.ConvertToModel();
-            var owner = (await uService.GetUserById(leasing.Owner)).Data.ConvertToModel();
+            var renter = (await userService.GetUserById(leasing.Renter)).Data.ConvertToModel();
+            var owner = (await userService.GetUserById(leasing.Owner)).Data.ConvertToModel();
 
             var createdLeasing = leasing.ConvertToModel(renter, owner);
             await db.Leasings.AddAsync(createdLeasing);
@@ -66,14 +66,33 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<LeasingDto>> ChangeLeasing(LeasingDto Leasing, Guid id)
+        public async Task<QueryResults<LeasingDto>> ChangeLeasing(LeasingDto leasing, Guid id)
         {
-            throw new WorkInProgressApiException();
+            var foundLeasing = db.Leasings.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+
+            foundLeasing.Begin = leasing.Begin;
+            foundLeasing.End = leasing.End;
+            foundLeasing.Price = leasing.Price;
+            foundLeasing.Renew = leasing.Renew;
+            foundLeasing.State = leasing.State;
+            foundLeasing.Time = leasing.Time;
+            foundLeasing.Garden = leasing.Garden.ConvertToModel();
+            foundLeasing.Owner = (await userService.GetUserById(leasing.Owner)).Data.ConvertToModel();
+            foundLeasing.Renter = (await userService.GetUserById(leasing.Renter)).Data.ConvertToModel();
+
+            db.Update(foundLeasing);
+            await db.SaveChangesAsync();
+            return new QueryResults<LeasingDto>
+            {
+                Data = foundLeasing.ConvertToDto()
+            };
         }
 
-        public async Task DeleteLeasing(Guid LeasingId)
+        public async Task DeleteLeasing(Guid leasingId)
         {
-            throw new WorkInProgressApiException();
+            var foundLeasing = db.Leasings.GetByIdAsync(leasingId).Result ?? throw new NotFoundApiException();
+            db.Leasings.Remove(foundLeasing);
+            await db.SaveChangesAsync();
         }
     }
 }
