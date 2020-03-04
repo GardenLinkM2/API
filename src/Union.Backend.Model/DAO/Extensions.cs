@@ -48,6 +48,7 @@ namespace Union.Backend.Model.DAO
             modelBuilder.ApplyConfiguration(new PhotoMessageEntity());
             modelBuilder.ApplyConfiguration(new GardenEntity());
             modelBuilder.ApplyConfiguration(new ContactEntity());
+            modelBuilder.ApplyConfiguration(new LeasingEntity());
 
             return modelBuilder;
         }

@@ -222,6 +222,22 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public static Leasing ConvertToModel(this LeasingDto leasing, User renter, User owner)
+        {
+            return new Leasing
+            {
+                Begin = leasing.Begin,
+                End = leasing.End,
+                Price = leasing.Price,
+                Renew = leasing.Renew,
+                Time = leasing.Time,
+                State = leasing.State,
+                Garden = leasing.Garden.ConvertToModel(),
+                Owner = owner,
+                Renter = renter
+            };
+        }
+
         public static TalkDto ConvertToDto(this Talk talk)
         {
             return new TalkDto

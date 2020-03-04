@@ -25,7 +25,7 @@ namespace Union.Backend.Model.DAO
         public DbSet<User> Users { get; set; }
         public DbSet<Validation> Validations { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
-        public object Leasing { get; set; }
+        public DbSet<Leasing> Leasings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
