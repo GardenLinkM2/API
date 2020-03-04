@@ -53,7 +53,7 @@ namespace Union.Backend.API.Controllers
                 }
                 else
                 {
-                    throw new ForbidenException();
+                    throw new ForbidenApiException();
                 }
 
             }

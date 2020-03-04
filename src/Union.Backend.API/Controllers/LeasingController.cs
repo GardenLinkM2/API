@@ -74,7 +74,7 @@ namespace Union.Backend.API.Controllers
                 var leasing = service.GetLeasing(LeasingId);
                 if (leasing.Result.Data.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
-                    throw new ForbidenException();
+                    throw new ForbidenApiException();
                 }
 
 
