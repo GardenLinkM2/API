@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNet.OData.Query;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,6 @@ using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
-using Union.Backend.Service.Auth;
 
 namespace Union.Backend.Service.Services
 {
@@ -20,13 +20,10 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<QueryResults<List<GardenDto>>> GetAllGardens()
+        public async Task<QueryResults<List<GardenDto>>> GetPendingGardens()
         {
-            var gardens = db.Score
-                .Include(g => g.Photos)
-                .Include(g => g.Tenant)
-                .Include(g => g.Validation)
-                .Include(g => g.Criteria)
+            var gardens = db.Gardens
+                .Where(g => g.Validation.Equals(Status.Pending))
                 .Select(g => g.ConvertToDto());
             return new QueryResults<List<GardenDto>>
             {
@@ -34,23 +31,33 @@ namespace Union.Backend.Service.Services
                 Count = await gardens.CountAsync()
             };
         }
-        public async Task<QueryResults<List<GardenDto>>> GetGardenByParams(Criteria crit)
+
+        public async Task<QueryResults<List<GardenDto>>> SearchGardens(ODataQueryOptions<Garden> options)
+        {
+            var queryable = options.ApplyTo(db.Gardens.Where(g => g.Validation.Equals(Status.Accepted)))
+                                   .OfType<Garden>();
+
+            var gardens = queryable.Include(g => g.Photos)
+                                   .Include(g => g.Tenant)
+                                   .Include(g => g.Criteria)
+                                   .Include(g => g.Location)
+                                   .Select(g => g.ConvertToDto());
+
+            return new QueryResults<List<GardenDto>>
+            {
+                Data = await gardens.ToListAsync(),
+                Count = await gardens.CountAsync()
+            };
+        }
+
+        public async Task<QueryResults<List<GardenDto>>> GetMyGardens(Guid myId)
         {
             var gardens = db.Score
                 .Include(g => g.Photos)
                 .Include(g => g.Tenant)
                 .Include(g => g.Validation)
                 .Include(g => g.Criteria)
-                .Where(g => g.Criteria.Area.Equals(crit.Area)
-                    && g.Criteria.DirectAccess.Equals(crit.DirectAccess)
-                    && g.Criteria.Equipments.Equals(crit.Equipments)
-                    && g.Criteria.Location.Equals(crit.Location)
-                    && g.Criteria.LocationTime.Equals(crit.LocationTime)
-                    && g.Criteria.Orientation.Equals(crit.Orientation)
-                    && g.Criteria.Price.Equals(crit.Price)
-                    && g.Criteria.TypeOfClay.Equals(crit.TypeOfClay)
-                    && g.Criteria.WaterAccess.Equals(crit.WaterAccess)
-                )
+                .Where(g => g.IdOwner.Equals(myId))
                 .Select(g => g.ConvertToDto());
 
             return new QueryResults<List<GardenDto>>
@@ -75,33 +82,14 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<List<GardenDto>>> GetGardensByUser(Guid ownerId)
-        {
-            var gardens = db.Score
-                .Include(g => g.Photos)
-                .Include(g => g.Tenant)
-                .Include(g => g.Validation)
-                .Include(g => g.Criteria)
-                .Where(g => g.IdOwner.Equals(ownerId))
-                .Select(g => g.ConvertToDto());
-
-            return new QueryResults<List<GardenDto>>
-            {
-                Data = await gardens.ToListAsync(),
-                Count = await gardens.CountAsync()
-            };
-        }
-
         public async Task<QueryResults<GardenDto>> AddGarden(GardenDto gardenDto)
         {
+            gardenDto.IsReserved = false;
+
             var createdGarden = gardenDto.ConvertToModel();
             await db.Score.AddAsync(createdGarden);
 
-            createdGarden.Validation = new Validation
-            {
-                ForGarden = createdGarden.Id, //TODO: @Alexis
-                State = 0
-            };
+            createdGarden.Validation = Status.Pending;
 
             await db.SaveChangesAsync();
             return new QueryResults<GardenDto>
@@ -110,37 +98,37 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<GardenDto>> ChangeGarden(GardenDto garden, Guid gardenId)
+        public async Task<QueryResults<GardenDto>> ChangeGarden(Guid me, Guid gardenId, GardenDto dto)
         {
-            var foundGarden = db.Score.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            var garden = db.Gardens
+                .Include(g => g.Location)
+                .Include(g => g.Criteria)
+                .GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            if (!garden.IdOwner.Equals(me))
+                throw new ForbidenApiException();
 
-            foundGarden.Name = garden.Name;
-            foundGarden.Size = garden.Size;
-            foundGarden.Reserve = garden.Reserve;
-            foundGarden.MinUse = garden.MinUse;
-            foundGarden.Validation = garden.Validation.ConvertToModel(gardenId);
-            foundGarden.Criteria = garden.Criteria.ConvertToModel(gardenId);
-            foundGarden.Photos = garden.Photos.ConvertToModel<Garden>(gardenId);
+            garden.Name = dto.Name ?? garden.Name;
+            garden.Size = dto.Size ?? garden.Size;
+            garden.MinUse = dto.MinUse ?? garden.MinUse;
+            garden.Description = dto.Description ?? garden.Description;
+            garden.Location = dto.Location?.ConvertToModel() ?? garden.Location;
+            garden.Criteria = dto.Criteria?.ConvertToModel(gardenId) ?? garden.Criteria;
 
-            db.Score.Update(foundGarden);
+            db.Gardens.Update(garden);
             await db.SaveChangesAsync();
             return new QueryResults<GardenDto>
             {
-                Data = new GardenDto { Id = foundGarden.Id }
+                Data = garden.ConvertToDto()
             };
         }
 
-        public async Task<QueryResults<GardenDto>> ChangeGardenDescription(DescriptionDto desc, Guid GardenId)
+        public async Task<QueryResults<GardenDto>> ChangeGardenValidation(Guid gardenId, ValidationDto val)
         {
-            throw new WorkInProgressApiException();
-        }
+            var foundGarden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            if (!foundGarden.Validation.Equals(Status.Pending))
+                throw new UnauthorizeApiException();
 
-        public async Task<QueryResults<GardenDto>> ChangeGardenValidation(ValidationDto val, Guid gardenId)
-        {
-            var foundGarden = db.Score.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
-
-            Validation toChange = val.ConvertToModel(gardenId);
-            foundGarden.Validation = toChange;
+            foundGarden.Validation = val.Status;
 
             db.Score.Update(foundGarden);
             await db.SaveChangesAsync();
@@ -150,10 +138,13 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task DeleteGarden(Guid gardenId)
+        public async Task DeleteGarden(Guid me, Guid gardenId)
         {
-            var foundGarden = db.Score.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
-            db.Score.Remove(foundGarden);
+            var foundGarden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            if (!foundGarden.IdOwner.Equals(me))
+                throw new ForbidenApiException();
+
+            db.Gardens.Remove(foundGarden);
             await db.SaveChangesAsync();
         }
     }

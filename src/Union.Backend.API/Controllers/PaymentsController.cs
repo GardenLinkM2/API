@@ -22,6 +22,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> GetAllPayments()
         {
             try
@@ -82,7 +83,6 @@ namespace Union.Backend.API.Controllers
                 var pay = await service.GetPayment(PaymentId);
                 var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
                 
-
                 if (leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     await service.DeletePayment(PaymentId);

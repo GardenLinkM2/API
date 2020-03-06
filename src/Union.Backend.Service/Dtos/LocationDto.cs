@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Union.Backend.Service.Dtos
+﻿namespace Union.Backend.Service.Dtos
 {
     public class LocationDto
     {
-        public Guid Id { get; set; }
+        public int StreetNumber { get; set; }
+        public string Street { get; set; }
+        public int PostalCode { get; set; }
+        public string City { get; set; }
     }
 }

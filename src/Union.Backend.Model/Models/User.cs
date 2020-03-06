@@ -9,7 +9,7 @@ namespace Union.Backend.Model.Models
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string PhoneNumber { get; set; }
-        public DateTime Inscription { get; set; } //TODO: changer pour un long (= Timestamp)
+        public DateTime Inscription { get; set; }
         public List<Contact> Contacts { get; set; }
         public Wallet Wallet { get; set; }
         public Photo<User> Photo { get; set; }

@@ -9,7 +9,7 @@ using System.Net;
 
 namespace Union.Backend.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Users")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -34,9 +34,9 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}/gardens")]
-        public async Task<IActionResult> GetGardens([FromRoute(Name = "id")] Guid userId)
+        public async Task<IActionResult> GetMyGardens([FromRoute(Name = "id")] Guid userId)
         {
-            return Ok(await gardensService.GetGardensByUser(userId));
+            return Ok(await gardensService.GetMyGardens(userId));
         }
 
         [HttpGet("me")]
@@ -55,11 +55,10 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-
         }
 
         [HttpPost]
-        //[Authorize(PermissionType.Admin)] //TEMP
+        [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
             var result = await service.AddUser(user, Guid.NewGuid());

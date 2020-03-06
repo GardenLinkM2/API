@@ -25,8 +25,7 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                //await service.Contact(myId, contactId, contact);
-                var result = await service.Contact(contactId, myId, demand); //TEMP
+                var result = await service.Contact(myId, contactId, demand);
                 return Created($"/api/contacts/{result.Data.Id}", result);
             }
             catch (HttpResponseException)

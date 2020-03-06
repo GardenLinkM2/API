@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Union.Backend.Model.Models;
 
 namespace Union.Backend.Model.DAO
@@ -13,12 +10,10 @@ namespace Union.Backend.Model.DAO
         {
             builder.HasKey(s => s.Id);
 
-            builder.Property(s => s.Note).IsRequired();
+            builder.Property(s => s.Mark).IsRequired();
             builder.Property(s => s.Comment).IsRequired();
             builder.Property(s => s.Rater).IsRequired();
             builder.Property(s => s.Rated).IsRequired();
-
-
         }
     }
 }

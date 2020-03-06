@@ -13,6 +13,7 @@ namespace Union.Backend.Model.DAO
         public DbSet<Criteria> Characteristics { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Talk> Conversations { get; set; }
+        public DbSet<Garden> Gardens { get; set; }
         public DbSet<Garden> Score { get; set; }
         public DbSet<Leasing> Locations { get; set; }
         public DbSet<Photo<Message>> MessagePhotos { get; set; }

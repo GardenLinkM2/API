@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Union.Backend.Model.Models;
 
 namespace Union.Backend.Service.Dtos
 {
     public class ValidationDto
     {
-        public Guid Id { get; set; }
-        public int State { get; set; }
+        public Status Status { get; set; }
     }
 }

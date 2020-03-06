@@ -7,7 +7,7 @@ namespace Union.Backend.Service.Dtos
     {
         public Guid Id { get; set; }
         public UserDto Contact { get; set; }
-        public ContactStatus Status { get; set; }
+        public Status Status { get; set; }
         public string FirstMessage { get; set; }
     }
 }

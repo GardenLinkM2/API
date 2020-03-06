@@ -90,12 +90,13 @@ namespace Union.Backend.Service.Services
                 Id = garden.Id,
                 Name = garden.Name,
                 Size = garden.Size,
-                Reserve = garden.Reserve,
-                Type = garden.Type,
+                IsReserved = garden.IsReserved,
                 MinUse = garden.MinUse,
+                Description = garden.Description,
+                Location = garden.Location?.ConvertToDto(),
                 Owner = garden.IdOwner,
-                Criteria = garden.Criteria.ConvertToDto(),
-                Validation = garden.Validation.ConvertToDto(),
+                Criteria = garden.Criteria?.ConvertToDto(),
+                Validation = garden.Validation,
                 Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
             };
         }
@@ -105,64 +106,51 @@ namespace Union.Backend.Service.Services
             return new Garden
             {
                 Name = dto.Name,
-                Size = dto.Size,
-                Reserve = dto.Reserve,
-                Type = dto.Type,
-                MinUse = dto.MinUse,
+                Size = dto.Size ?? 1,
+                IsReserved = dto.IsReserved ?? false,
+                MinUse = dto.MinUse ?? 1,
+                Description = dto.Description,
+                Location = dto.Location.ConvertToModel(),
                 IdOwner = dto.Owner,
                 Criteria = dto.Criteria.ConvertToModel(dto.Id),
-                Validation = dto.Validation.ConvertToModel(dto.Id)
+                Validation = dto.Validation
             };
         }
 
-        public static ValidationDto ConvertToDto(this Validation validation)
-        {
-            return new ValidationDto
-            {
-                Id = validation.Id,
-                State = validation.State
-            };
-        }
+        private static long ToSecond(this TimeSpan timeSpan) =>
+            timeSpan.Ticks / 10000000;
 
-        public static Validation ConvertToModel(this ValidationDto dto, Guid id)
-        {
-            return new Validation
-            {
-                State = dto.State,
-                ForGarden = id
-            };
-        }
+        private static TimeSpan ToTimeSpan(this long seconds) =>
+            new TimeSpan(seconds * 10000000);
 
         public static CriteriaDto ConvertToDto(this Criteria criteria)
         {
             return new CriteriaDto
             {
-                Id = criteria.Id,
                 Area = criteria.Area,
                 DirectAccess = criteria.DirectAccess,
                 Equipments = criteria.Equipments,
-                Orientation = criteria.Orientation,
+                Orientation = criteria.Orientation.ToString(),
                 Price = criteria.Price,
                 TypeOfClay = criteria.TypeOfClay,
                 WaterAccess = criteria.WaterAccess,
-                LocationTime = criteria.LocationTime,
-                Location = criteria.Location.ConvertToDto()
+                LocationTime = criteria.LocationTime.ToSecond(),
             };
         }
 
-        public static Criteria ConvertToModel(this CriteriaDto dto, Guid id)
+        public static Criteria ConvertToModel(this CriteriaDto dto, Guid relatedTo)
         {
             return new Criteria
             {
                 Area = dto.Area,
                 DirectAccess = dto.DirectAccess,
                 Equipments = dto.Equipments,
-                Orientation = dto.Orientation,
+                Orientation = (Orientation)Enum.Parse(typeof(Orientation), dto.Orientation),
                 Price = dto.Price,
                 TypeOfClay = dto.TypeOfClay,
                 WaterAccess = dto.WaterAccess,
-                LocationTime = dto.LocationTime,
-                Location = dto.Location.ConvertToModel()
+                LocationTime = dto.LocationTime.ToTimeSpan(),
+                ForGarden = relatedTo
             };
         }
 
@@ -170,8 +158,10 @@ namespace Union.Backend.Service.Services
         {
             return new LocationDto
             {
-                Id = location.Id
-                //TODO
+                StreetNumber = location.StreetNumber,
+                Street = location.Street,
+                PostalCode = location.PostalCode,
+                City = location.City
             };
         }
 
@@ -179,7 +169,10 @@ namespace Union.Backend.Service.Services
         {
             return new Location
             {
-                //TODO
+                StreetNumber = dto.StreetNumber,
+                Street = dto.Street,
+                PostalCode = dto.PostalCode,
+                City = dto.City
             };
         }
 
@@ -292,8 +285,8 @@ namespace Union.Backend.Service.Services
             {
                 Id = score.Id,
                 Comment = score.Comment,
-                Note = score.Note,
-                Rater = score.Rater,
+                Mark = score.Mark,
+                Rater = score.Rater.Id,
                 Rated = score.Rated
             };
         }
@@ -302,11 +295,8 @@ namespace Union.Backend.Service.Services
         {
             return new Score
             {
-                Id = dto.Id,
                 Comment = dto.Comment,
-                Note = dto.Note,
-                Rater = dto.Rater,
-                Rated = dto.Rated
+                Mark = dto.Mark
             };
         }
 
