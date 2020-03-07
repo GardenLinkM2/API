@@ -12,14 +12,11 @@ namespace Union.Backend.Model.DAO
 
             builder.Property(l => l.Begin).IsRequired();
             builder.Property(l => l.End).IsRequired();
-            builder.Property(l => l.Price).IsRequired();
             builder.Property(l => l.Renew).IsRequired();
             builder.Property(l => l.State).IsRequired();
             builder.Property(l => l.Time).IsRequired();
-
-            builder.HasOne(l => l.Owner).WithOne().HasForeignKey<User>(u => u.Id);
-            builder.HasOne(l => l.Renter).WithOne().HasForeignKey<User>(u => u.Id);
-            builder.HasOne(l => l.Garden).WithOne().HasForeignKey<Garden>(g => g.Id);
+            builder.Property(l => l.Renter).IsRequired();
+            builder.Property(l => l.Garden).IsRequired();
         }
     }
 }

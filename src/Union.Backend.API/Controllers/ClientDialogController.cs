@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Union.Backend.Service.Auth;
 using Union.Backend.Service.Dtos;
@@ -19,6 +20,7 @@ namespace Union.Backend.API.Controllers
 
         [HttpPost]
         [Authorize(PermissionType.All)]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TokenDto))]
         public async Task<IActionResult> Syn([FromBody] TokenDto tokenDto)
         {
             return Ok(await service.Syn(tokenDto));

@@ -49,11 +49,10 @@ namespace Union.Backend.Service.Services
             };
             return new TokenDto
             {
-                Token = JWT.Encode(
-                    payload, 
-                    Convert.FromBase64String(auth.Value.BackSecret),
-                    JwtConfigForBack.JwsAlgorithm,
-                    extraHeaders: header)
+                Token = JWT.Encode(payload, 
+                                   Convert.FromBase64String(auth.Value.BackSecret),
+                                   JwtConfigForBack.JwsAlgorithm,
+                                   extraHeaders: header)
             };
         }
 

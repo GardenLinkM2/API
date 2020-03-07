@@ -7,7 +7,7 @@ namespace Union.Backend.Model.Models
     {
         public string Text { get; set; }
         public DateTime CreationDate { get; set; } //TODO: transformer en long
-        public bool IsReaded { get; set; }
+        public bool IsRead { get; set; }
         public Guid Sender { get; set; }
         public Guid OfTalk { get; set; }
         public List<Photo<Message>> Photos { get; set; }

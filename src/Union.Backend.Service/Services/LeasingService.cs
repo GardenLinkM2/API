@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
+using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
@@ -13,19 +14,14 @@ namespace Union.Backend.Service.Services
     public class LeasingsService
     {
         private readonly GardenLinkContext db;
-        private readonly UsersService userService;
-        public LeasingsService(GardenLinkContext gardenLinkContext, UsersService userService)
+        public LeasingsService(GardenLinkContext gardenLinkContext)
         {
             db = gardenLinkContext;
-            this.userService = userService;
         }
 
         public async Task<QueryResults<LeasingDto>> GetLeasing(Guid leasingId)
         {
-            var leasing = await db.Leasings.Include(l => l.Garden)
-                                           .Include(l => l.Owner)
-                                           .Include(l => l.Renter)
-                                           .GetByIdAsync(leasingId) ?? throw new NotFoundApiException();
+            var leasing = await db.Leasings.GetByIdAsync(leasingId) ?? throw new NotFoundApiException();
 
             return new QueryResults<LeasingDto>
             {
@@ -35,10 +31,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<List<LeasingDto>>> GetAllLeasings()
         {
-            var leasings = db.Leasings.Include(l => l.Garden)
-                                      .Include(l => l.Owner)
-                                      .Include(l => l.Renter)
-                                      .Select(l => l.ConvertToDto());
+            var leasings = db.Leasings.Select(l => l.ConvertToDto());
 
             return new QueryResults<List<LeasingDto>>
             {
@@ -47,40 +40,43 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<LeasingDto>> AddLeasing(LeasingDto dto)
+        public async Task<QueryResults<LeasingDto>> AddLeasing(Guid me, LeasingDto dto)
         {
-            var renter = await db.Users.GetByIdAsync(dto.Renter) ?? throw new NotFoundApiException();
-            var owner = await db.Users.GetByIdAsync(dto.Owner) ?? throw new NotFoundApiException();
+            var renter = await db.Users.GetByIdAsync(me) ?? throw new NotFoundApiException();
+            var garden = await db.Gardens.GetByIdAsync(dto.Garden) ?? throw new NotFoundApiException();
 
-            var leasing = dto.ConvertToModel(renter, owner);
+            dto.State = LeasingStatus.InDemand;
+            dto.Renew = false;
+            dto.Renter = renter.Id;
+            dto.Owner = garden.Owner;
+
+            var leasing = dto.ConvertToModel();
             await db.Leasings.AddAsync(leasing);
 
             await db.SaveChangesAsync();
+
             return new QueryResults<LeasingDto>
             {
                 Data = leasing.ConvertToDto()
             };
         }
 
-        public async Task<QueryResults<LeasingDto>> ChangeLeasing(Guid id, LeasingDto leasing)
+        public async Task<QueryResults<LeasingDto>> ChangeLeasing(Guid id, LeasingDto dto)
         {
-            var foundLeasing = db.Leasings.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+            var leasing = db.Leasings.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
-            foundLeasing.Begin = leasing.Begin;
-            foundLeasing.End = leasing.End;
-            foundLeasing.Price = leasing.Price;
-            foundLeasing.Renew = leasing.Renew;
-            foundLeasing.State = leasing.State;
-            foundLeasing.Time = leasing.Time;
-            foundLeasing.Garden = leasing.Garden.ConvertToModel();
-            foundLeasing.Owner = (await userService.GetUserById(leasing.Owner)).Data.ConvertToModel();
-            foundLeasing.Renter = (await userService.GetUserById(leasing.Renter)).Data.ConvertToModel();
+            leasing.Begin = dto.Begin ?? leasing.Begin;
+            leasing.End = dto.End ?? leasing.End;
+            leasing.Renew = dto.Renew ?? leasing.Renew;
+            leasing.State = dto.State ?? leasing.State;
+            leasing.Time = (dto.Time?.ToTimeSpan() ?? leasing.Time);
 
-            db.Update(foundLeasing);
+            db.Update(leasing);
             await db.SaveChangesAsync();
+
             return new QueryResults<LeasingDto>
             {
-                Data = foundLeasing.ConvertToDto()
+                Data = leasing.ConvertToDto()
             };
         }
 

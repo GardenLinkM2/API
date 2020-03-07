@@ -57,7 +57,7 @@ namespace Union.Backend.Service.Services
                 .Include(g => g.Tenant)
                 .Include(g => g.Validation)
                 .Include(g => g.Criteria)
-                .Where(g => g.IdOwner.Equals(myId))
+                .Where(g => g.Owner.Equals(myId))
                 .Select(g => g.ConvertToDto());
 
             return new QueryResults<List<GardenDto>>
@@ -104,7 +104,7 @@ namespace Union.Backend.Service.Services
                 .Include(g => g.Location)
                 .Include(g => g.Criteria)
                 .GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
-            if (!garden.IdOwner.Equals(me))
+            if (!garden.Owner.Equals(me))
                 throw new ForbidenApiException();
 
             garden.Name = dto.Name ?? garden.Name;
@@ -141,7 +141,7 @@ namespace Union.Backend.Service.Services
         public async Task DeleteGarden(Guid me, Guid gardenId)
         {
             var foundGarden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
-            if (!foundGarden.IdOwner.Equals(me))
+            if (!foundGarden.Owner.Equals(me))
                 throw new ForbidenApiException();
 
             db.Gardens.Remove(foundGarden);

@@ -15,6 +15,6 @@ namespace Union.Backend.Model.Models
         public Status Validation { get; set; }
         public Criteria Criteria { get; set; }
         public List<Photo<Garden>> Photos { get; set; }
-        public Guid IdOwner { get; set; }
+        public Guid Owner { get; set; }
     }
 }

@@ -94,7 +94,7 @@ namespace Union.Backend.Service.Services
                 MinUse = garden.MinUse,
                 Description = garden.Description,
                 Location = garden.Location?.ConvertToDto(),
-                Owner = garden.IdOwner,
+                Owner = garden.Owner,
                 Criteria = garden.Criteria?.ConvertToDto(),
                 Validation = garden.Validation,
                 Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
@@ -111,16 +111,16 @@ namespace Union.Backend.Service.Services
                 MinUse = dto.MinUse ?? 1,
                 Description = dto.Description,
                 Location = dto.Location.ConvertToModel(),
-                IdOwner = dto.Owner,
+                Owner = dto.Owner,
                 Criteria = dto.Criteria.ConvertToModel(dto.Id),
                 Validation = dto.Validation
             };
         }
 
-        private static long ToSecond(this TimeSpan timeSpan) =>
+        public static long ToSecond(this TimeSpan timeSpan) =>
             timeSpan.Ticks / 10000000;
 
-        private static TimeSpan ToTimeSpan(this long seconds) =>
+        public static TimeSpan ToTimeSpan(this long seconds) =>
             new TimeSpan(seconds * 10000000);
 
         public static CriteriaDto ConvertToDto(this Criteria criteria)
@@ -176,14 +176,13 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static Payment ConvertToModel(this PaymentDto dto, LeasingDto leasingDto, User Owner, User Renter)
+        public static Payment ConvertToModel(this PaymentDto paymentDto, Leasing leasing)
         {
-
             return new Payment
             {
-                Sum = dto.Sum,
-                State = dto.State,
-                Leasing = leasingDto.ConvertToModel(Owner, Renter)
+                Sum = paymentDto.Sum,
+                State = paymentDto.State,
+                Leasing = leasing
             };
         }
 
@@ -206,28 +205,26 @@ namespace Union.Backend.Service.Services
                 Begin = leasing.Begin,
                 State = leasing.State,
                 End = leasing.End,
-                Garden = leasing.Garden.ConvertToDto(),
-                Owner = leasing.Owner.Id,
-                Price = leasing.Price,
                 Renew = leasing.Renew,
-                Renter = leasing.Renter.Id,
-                Time = leasing.Time
+                Time = leasing.Time.ToSecond(),
+                Garden = leasing.Garden,
+                Renter = leasing.Renter,
+                Owner = leasing.Owner
             };
         }
 
-        public static Leasing ConvertToModel(this LeasingDto leasing, User renter, User owner)
+        public static Leasing ConvertToModel(this LeasingDto dto)
         {
             return new Leasing
             {
-                Begin = leasing.Begin,
-                End = leasing.End,
-                Price = leasing.Price,
-                Renew = leasing.Renew,
-                Time = leasing.Time,
-                State = leasing.State,
-                Garden = leasing.Garden.ConvertToModel(),
-                Owner = owner,
-                Renter = renter
+                Begin = dto.Begin.Value,
+                End = dto.End.Value,
+                Renew = dto.Renew.Value,
+                State = dto.State.Value,
+                Time = dto.Time.Value.ToTimeSpan(),
+                Garden = dto.Garden,
+                Renter = dto.Renter,
+                Owner = dto.Owner
             };
         }
 
@@ -261,7 +258,7 @@ namespace Union.Backend.Service.Services
                 Id = message.Id,
                 CreationDate = message.CreationDate,
                 Sender = message.Sender,
-                IsReaded = message.IsReaded,
+                IsRead = message.IsRead,
                 Text = message.Text,
                 Photos = message.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
             };
@@ -274,7 +271,7 @@ namespace Union.Backend.Service.Services
                 Id = dto.Id,
                 CreationDate = DateTime.UtcNow,
                 Sender = dto.Sender,
-                IsReaded = dto.IsReaded,
+                IsRead = dto.IsRead,
                 Text = dto.Text
             };
         }

@@ -10,14 +10,14 @@ namespace Union.Backend.Model.DAO
         {
             builder.HasKey(g => g.Id);
 
-            builder.Property(g => g.IdOwner).IsRequired();
+            builder.Property(g => g.Owner).IsRequired();
             builder.Property(g => g.Name).IsRequired();
             builder.Property(g => g.Size).IsRequired();
             builder.Property(g => g.MinUse).IsRequired();
             builder.Property(g => g.Validation).IsRequired();
 
             builder.HasOne(g => g.Criteria).WithOne().HasForeignKey<Criteria>(c => c.ForGarden);
-            builder.HasOne<User>().WithMany().HasForeignKey(g => g.IdOwner);
+            builder.HasOne<User>().WithMany().HasForeignKey(g => g.Owner);
 
             builder.HasMany(g => g.Photos).WithOne().HasForeignKey(p => p.RelatedTo);
 

@@ -77,7 +77,7 @@ namespace Union.Backend.Service.Services
                 throw new ForbidenApiException();
 
             messageDto.Sender = me;
-            messageDto.IsReaded = false;
+            messageDto.IsRead = false;
             var message = messageDto.ConvertToModel();
 
             talk.Messages.Add(message);

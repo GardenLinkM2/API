@@ -75,11 +75,12 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPost("Gardens/score/{id}/report")]
-        [HttpPost("Users/score/{id}/report")]
+        [HttpPost("score/{id}/report")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> ReportScore([FromRoute(Name = "id")] Guid scoreId)
         {
-            return Ok(await service.ReportScore(scoreId));
+            await service.ReportScore(scoreId);
+            return NoContent();
         }
 
         [HttpDelete("Score/{id}")]

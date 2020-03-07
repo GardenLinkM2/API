@@ -62,7 +62,11 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<ScoreDto>> AddScore(Guid myId, Guid ratedId, ScoreDto scoreDto)
         {
+            if (!db.Users.Any(u => u.Id.Equals(ratedId)) && !db.Gardens.Any(g => g.Id.Equals(ratedId)))
+                throw new NotFoundApiException();
+
             var me = await db.Users.GetByIdAsync(myId) ?? throw new NotFoundApiException();
+
             var createdScore = scoreDto.ConvertToModel();
             createdScore.Rater = me;
             createdScore.Rated = ratedId;

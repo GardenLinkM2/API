@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Union.Backend.Model.Models
+﻿namespace Union.Backend.Model.Models
 {
     public class Payment : UniqueEntity
     {

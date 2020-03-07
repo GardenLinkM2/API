@@ -17,7 +17,7 @@ namespace Union.Backend.Service.Dtos
         public LocationDto Location { get; set; }
         public Guid Owner { get; set; }
         public Status Validation { get; set; }
-        public CriteriaDto Criteria { get; set; } // TODO : changer le type dans la liste
+        public CriteriaDto Criteria { get; set; }
         public List<PhotoDto> Photos { get; set; }
     }
 }

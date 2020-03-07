@@ -8,6 +8,6 @@ namespace Union.Backend.Service.Dtos
         public int Mark { get; set; }
         public string Comment { get; set; }
         public Guid Rater { get; set; }
-        public Guid Rated { get; set; } //Garden ou User
+        public Guid Rated { get; set; }
     }
 }
