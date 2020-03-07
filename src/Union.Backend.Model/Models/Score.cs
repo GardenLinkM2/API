@@ -6,7 +6,7 @@ namespace Union.Backend.Model.Models
     {
         public int Mark { get; set; }
         public string Comment { get; set; }
-        public User Rater { get; set; }
+        public Guid Rater { get; set; }
         public Guid Rated { get; set; }
         public Boolean Reported { get; set; }
     }

@@ -20,7 +20,6 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-
         public async Task<IActionResult> GetAllLeasings()
         {
             return Ok(await service.GetAllLeasings());

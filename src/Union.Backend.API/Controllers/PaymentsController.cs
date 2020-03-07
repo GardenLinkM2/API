@@ -41,7 +41,13 @@ namespace Union.Backend.API.Controllers
 
         [HttpGet("{id}/user")]
         [Authorize(PermissionType.Admin)]
-        public async Task<IActionResult> GetAllPaymentsByUserId()
+        public async Task<IActionResult> GetAllPaymentsByUserId([FromRoute(Name = "id")] Guid userId)
+        {
+            return Ok(await service.GetAllPayments(userId));
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetAllPaymentsByMe()
         {
             try
             {

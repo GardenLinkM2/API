@@ -20,7 +20,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<ScoreDto>> GetScoreById(Guid scoreId)
         {
-            var score = await db.Scores.Include(s => s.Rater)
+            var score = await db.Scores
                                        .GetByIdAsync(scoreId)
                         ?? throw new NotFoundApiException();
 
@@ -34,7 +34,7 @@ namespace Union.Backend.Service.Services
         {
             _ = await db.Users.GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
-            var scores = db.Scores.Include(s => s.Rater)
+            var scores = db.Scores
                                   .Where(s => s.Rated == userId)
                                   .Select(s => s.ConvertToDto());
 
@@ -49,7 +49,7 @@ namespace Union.Backend.Service.Services
         {
             _ = await db.Gardens.GetByIdAsync(gardenId) ?? throw new NotFoundApiException();
 
-            var scores = db.Scores.Include(s => s.Rater)
+            var scores = db.Scores
                                   .Where(s => s.Rated == gardenId)
                                   .Select(s => s.ConvertToDto());
 
@@ -62,10 +62,10 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<ScoreDto>> AddScore(Guid myId, Guid ratedId, ScoreDto scoreDto)
         {
-            var me = await db.Users.GetByIdAsync(myId) ?? throw new NotFoundApiException();
             var createdScore = scoreDto.ConvertToModel();
-            createdScore.Rater = me;
+            createdScore.Rater = myId;
             createdScore.Rated = ratedId;
+            createdScore.Id = new Guid();
 
             await db.Scores.AddAsync(createdScore);
             await db.SaveChangesAsync();

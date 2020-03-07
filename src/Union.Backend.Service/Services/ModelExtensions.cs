@@ -286,7 +286,7 @@ namespace Union.Backend.Service.Services
                 Id = score.Id,
                 Comment = score.Comment,
                 Mark = score.Mark,
-                Rater = score.Rater.Id,
+                Rater = score.Rater,
                 Rated = score.Rated,
                 Reported = score.Reported
             };
