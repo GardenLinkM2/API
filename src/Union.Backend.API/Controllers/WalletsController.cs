@@ -22,6 +22,7 @@ namespace Union.Backend.API.Controllers
             this.userService = userService;
         }
 
+
         [HttpGet("me")]
         public async Task<IActionResult> GetWallet()
         {
@@ -40,8 +41,26 @@ namespace Union.Backend.API.Controllers
             }
         }
 
+        [HttpGet("{id}/user")]
+        [Authorize(PermissionType.Admin)]
+        public async Task<IActionResult> GetWalletByUserId([FromRoute(Name = "id")] Guid UserId)
+        {
+            try
+            {
+                return Ok(await service.GetWalletByUserId(UserId));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> AddMessage([FromRoute(Name = "id")] Guid walletId, [FromBody] WalletDto Wallet)
+        public async Task<IActionResult> changeWallet([FromRoute(Name = "id")] Guid walletId, [FromBody] WalletDto Wallet)
         {
             try
             {

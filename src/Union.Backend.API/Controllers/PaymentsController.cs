@@ -22,13 +22,32 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(PermissionType.Admin)]
         public async Task<IActionResult> GetAllPayments()
         {
             try
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetAllPayments(id));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
+
+        [HttpGet("{id}/user")]
+        [Authorize(PermissionType.Admin)]
+        public async Task<IActionResult> GetAllPaymentsByUserId()
+        {
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetAllPayments(id));
+
             }
             catch (HttpResponseException)
             {
@@ -82,7 +101,7 @@ namespace Union.Backend.API.Controllers
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var pay = await service.GetPayment(PaymentId);
                 var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
-                
+
                 if (leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     await service.DeletePayment(PaymentId);

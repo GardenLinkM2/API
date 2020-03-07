@@ -8,5 +8,6 @@ namespace Union.Backend.Model.Models
         public string Comment { get; set; }
         public User Rater { get; set; }
         public Guid Rated { get; set; }
+        public Boolean Reported { get; set; }
     }
 }

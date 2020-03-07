@@ -47,6 +47,21 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public async Task<QueryResults<List<LeasingDto>>> GetAllLeasingsByUserId(Guid userId)
+        {
+            var leasings = db.Leasings.Include(l => l.Garden)
+                                      .Include(l => l.Owner)
+                                      .Include(l => l.Renter)
+                                      .Where(l => l.Owner.Id == userId || l.Renter.Id == userId)
+                                      .Select(l => l.ConvertToDto());
+
+            return new QueryResults<List<LeasingDto>>
+            {
+                Data = await leasings.ToListAsync(),
+                Count = await leasings.CountAsync()
+            };
+        }
+
         public async Task<QueryResults<LeasingDto>> AddLeasing(LeasingDto dto)
         {
             var renter = await db.Users.GetByIdAsync(dto.Renter) ?? throw new NotFoundApiException();
@@ -87,7 +102,7 @@ namespace Union.Backend.Service.Services
         public async Task DeleteLeasing(Guid leasingId)
         {
             var foundLeasing = db.Leasings.GetByIdAsync(leasingId).Result ?? throw new NotFoundApiException();
-            
+
             db.Leasings.Remove(foundLeasing);
             await db.SaveChangesAsync();
         }

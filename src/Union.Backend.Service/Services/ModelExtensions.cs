@@ -287,7 +287,8 @@ namespace Union.Backend.Service.Services
                 Comment = score.Comment,
                 Mark = score.Mark,
                 Rater = score.Rater.Id,
-                Rated = score.Rated
+                Rated = score.Rated,
+                Reported = score.Reported
             };
         }
 
@@ -296,7 +297,8 @@ namespace Union.Backend.Service.Services
             return new Score
             {
                 Comment = dto.Comment,
-                Mark = dto.Mark
+                Mark = dto.Mark,
+                Reported = dto.Reported
             };
         }
 

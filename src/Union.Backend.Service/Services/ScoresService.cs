@@ -21,7 +21,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<ScoreDto>> GetScoreById(Guid scoreId)
         {
             var score = await db.Scores.Include(s => s.Rater)
-                                       .GetByIdAsync(scoreId) 
+                                       .GetByIdAsync(scoreId)
                         ?? throw new NotFoundApiException();
 
             return new QueryResults<ScoreDto>
@@ -75,9 +75,17 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<ScoreDto>> ReportScore(Guid id)
+        public async Task<QueryResults<ScoreDto>> ReportScore(Guid scoreId)
         {
-            throw new WorkInProgressApiException();
+            var score = await db.Scores.GetByIdAsync(scoreId) ?? throw new NotFoundApiException();
+            score.Reported = true;
+
+            db.Scores.Update(score);
+            await db.SaveChangesAsync();
+            return new QueryResults<ScoreDto>
+            {
+                Data = score.ConvertToDto()
+            };
         }
 
         public async Task DeleteScore(Guid scoreId)
