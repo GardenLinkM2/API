@@ -60,6 +60,19 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public async Task<QueryResults<List<ScoreDto>>> GetReportedScores()
+        {
+            var scores = db.Scores
+                                  .Where(s => s.Reported == true)
+                                  .Select(s => s.ConvertToDto());
+
+            return new QueryResults<List<ScoreDto>>
+            {
+                Data = await scores.ToListAsync(),
+                Count = await scores.CountAsync()
+            };
+        }
+
         public async Task<QueryResults<ScoreDto>> AddScore(Guid myId, Guid ratedId, ScoreDto scoreDto)
         {
             var createdScore = scoreDto.ConvertToModel();

@@ -28,7 +28,7 @@ namespace Union.Backend.API.Controllers
             try
             {
                 var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return await GetScores(me);
+                return Ok(await service.GetUserScores(me));
             }
             catch (HttpResponseException)
             {
@@ -40,11 +40,19 @@ namespace Union.Backend.API.Controllers
             }
         }
 
+        [HttpGet("Score/reported")]
+        [Authorize(PermissionType.Admin)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ScoreDto>))]
+        public async Task<IActionResult> GetAllReportedScores()
+        {
+            return Ok(await service.GetReportedScores());
+        }
+
         [HttpGet("Gardens/{id}/score")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ScoreDto>))]
         public async Task<IActionResult> GetScores([FromRoute(Name = "id")] Guid ratedId)
         {
-            return Ok(await service.GetUserScores(ratedId));
+            return Ok(await service.GetGardenScores(ratedId));
         }
 
         [HttpGet("Users/{id}/score")]
