@@ -94,7 +94,7 @@ namespace Union.Backend.Service.Services
                 MinUse = garden.MinUse,
                 Description = garden.Description,
                 Location = garden.Location?.ConvertToDto(),
-                Owner = garden.IdOwner,
+                Owner = garden.Owner.Id,
                 Criteria = garden.Criteria?.ConvertToDto(),
                 Validation = garden.Validation,
                 Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
@@ -111,16 +111,15 @@ namespace Union.Backend.Service.Services
                 MinUse = dto.MinUse ?? 1,
                 Description = dto.Description,
                 Location = dto.Location.ConvertToModel(),
-                IdOwner = dto.Owner,
-                Criteria = dto.Criteria.ConvertToModel(dto.Id),
+                Criteria = dto.Criteria.ConvertToModel(),
                 Validation = dto.Validation
             };
         }
 
-        private static long ToSecond(this TimeSpan timeSpan) =>
+        public static long ToSecond(this TimeSpan timeSpan) =>
             timeSpan.Ticks / 10000000;
 
-        private static TimeSpan ToTimeSpan(this long seconds) =>
+        public static TimeSpan ToTimeSpan(this long seconds) =>
             new TimeSpan(seconds * 10000000);
 
         public static CriteriaDto ConvertToDto(this Criteria criteria)
@@ -138,7 +137,7 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static Criteria ConvertToModel(this CriteriaDto dto, Guid relatedTo)
+        public static Criteria ConvertToModel(this CriteriaDto dto)
         {
             return new Criteria
             {
@@ -149,8 +148,7 @@ namespace Union.Backend.Service.Services
                 Price = dto.Price,
                 TypeOfClay = dto.TypeOfClay,
                 WaterAccess = dto.WaterAccess,
-                LocationTime = dto.LocationTime.ToTimeSpan(),
-                ForGarden = relatedTo
+                LocationTime = dto.LocationTime.ToTimeSpan()
             };
         }
 
@@ -176,16 +174,23 @@ namespace Union.Backend.Service.Services
             };
         }
 
+        public static Payment ConvertToModel(this PaymentDto dto)
+        {
+            return new Payment
+            {
+                Sum = dto.Sum,
+                Date = dto.Date
+            };
+        }
+
         public static PaymentDto ConvertToDto(this Payment payment)
         {
             return new PaymentDto
             {
                 Id = payment.Id,
-                Collector = payment.Collector.ConvertToDto(),
-                Payer = payment.Payer.ConvertToDto(),
                 Sum = payment.Sum,
-                State = payment.State,
-                Leasing = payment.Leasing.ConvertToDto()
+                Date = payment.Date,
+                Leasing = payment.OfLeasing
             };
         }
 
@@ -197,12 +202,23 @@ namespace Union.Backend.Service.Services
                 Begin = leasing.Begin,
                 State = leasing.State,
                 End = leasing.End,
-                Garden = leasing.Garden.ConvertToDto(),
-                Owner = leasing.Owner.Id,
-                Price = leasing.Price,
                 Renew = leasing.Renew,
+                Time = leasing.Time.ToSecond(),
+                Garden = leasing.Garden.Id,
                 Renter = leasing.Renter.Id,
-                Time = leasing.Time
+                Owner = leasing.Garden.Owner.Id
+            };
+        }
+
+        public static Leasing ConvertToModel(this LeasingDto dto)
+        {
+            return new Leasing
+            {
+                Begin = dto.Begin.Value,
+                End = dto.End.Value,
+                Renew = dto.Renew.Value,
+                State = dto.State.Value,
+                Time = dto.Time.Value.ToTimeSpan()
             };
         }
 
@@ -236,7 +252,7 @@ namespace Union.Backend.Service.Services
                 Id = message.Id,
                 CreationDate = message.CreationDate,
                 Sender = message.Sender,
-                IsReaded = message.IsReaded,
+                IsRead = message.IsRead,
                 Text = message.Text,
                 Photos = message.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
             };
@@ -249,20 +265,31 @@ namespace Union.Backend.Service.Services
                 Id = dto.Id,
                 CreationDate = DateTime.UtcNow,
                 Sender = dto.Sender,
-                IsReaded = dto.IsReaded,
+                IsRead = dto.IsRead,
                 Text = dto.Text
             };
         }
 
-        public static ScoreDto ConvertToDto(this UserNotation notation)
+        public static ScoreDto ConvertToDto(this Score score)
         {
             return new ScoreDto
             {
-                Id = notation.Id,
-                Comment = notation.Comment,
-                Note = notation.Note,
-                Rater = notation.Rater.Id,
-                Rated = notation.Rated.Id
+                Id = score.Id,
+                Comment = score.Comment,
+                Mark = score.Mark,
+                Rater = score.Rater.Id,
+                Rated = score.Rated,
+                IsReported = score.IsReported
+            };
+        }
+
+        public static Score ConvertToModel(this ScoreDto dto)
+        {
+            return new Score
+            {
+                Comment = dto.Comment,
+                Mark = dto.Mark,
+                IsReported = dto.IsReported
             };
         }
 

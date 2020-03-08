@@ -13,7 +13,7 @@ using Union.Backend.Model.Models;
 
 namespace Union.Backend.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Gardens")]
     [ApiController]
     public class GardensController : ControllerBase
     {
@@ -31,14 +31,6 @@ namespace Union.Backend.API.Controllers
             return Ok(await service.SearchGardens(options));
         }
 
-        [HttpGet("pendings")]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
-        public async Task<IActionResult> GetPendingGardens()
-        {
-            return Ok(await service.GetPendingGardens());
-        }
-
         [HttpGet("{id}")]
         [Authorize(PermissionType.All)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GardenDto))]
@@ -53,8 +45,8 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                garden.Owner = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var result = await service.AddGarden(garden);
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var result = await service.AddGarden(me, garden);
                 return Created($"/api/Gardens/{result.Data.Id}", result);
             }
             catch (HttpResponseException)
@@ -86,22 +78,18 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPut("{id}/validation")]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GardenDto))]
-        public async Task<IActionResult> UpdateGardenValidation([FromRoute(Name = "id")] Guid gardenId, [FromBody] ValidationDto valid)
-        {
-            return Ok(await service.ChangeGardenValidation(gardenId, valid));
-        }
-
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteGarden([FromRoute(Name = "id")] Guid gardenId)
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                await service.DeleteGarden(id, gardenId);
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var garden = await service.GetGardenById(gardenId);
+                if (!garden.Data.Owner.Equals(me) && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                    throw new ForbidenApiException();
+                
+                await service.DeleteGarden(gardenId);
                 return NoContent();
             }
             catch (HttpResponseException)

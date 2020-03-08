@@ -14,19 +14,16 @@ namespace Union.Backend.Service.Services
     public class PaymentsService
     {
         private readonly GardenLinkContext db;
+
         public PaymentsService(GardenLinkContext gardenLinkContext)
         {
             db = gardenLinkContext;
         }
 
-
         public async Task<QueryResults<PaymentDto>> GetPayment(Guid paymentId)
         {
-            var pay = await db.Payments
-                .Include(u => u.Leasing)
-                .Include(u => u.Payer)
-                .Include(u => u.Collector)
-                .GetByIdAsync(paymentId) ?? throw new NotFoundApiException();
+            var pay = await db.Payments.Include(p => p.OfLeasing)
+                                       .GetByIdAsync(paymentId) ?? throw new NotFoundApiException();
 
             return new QueryResults<PaymentDto>
             {
@@ -34,46 +31,70 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<List<PaymentDto>>> GetAllPayments(Guid userId)
+        public async Task<QueryResults<List<PaymentDto>>> GetAllPayments()
         {
-            var pay = db.Payments
-                .Include(u => u.Leasing)
-                .Include(u => u.Payer)
-                .Include(u => u.Collector)
-                .Where(u => u.Payer.Id == userId || u.Collector.Id == userId)
-                .Select(u => u.ConvertToDto());
+            var pays = db.Payments.Include(p => p.Leasing)
+                                  .Select(u => u.ConvertToDto());
 
             return new QueryResults<List<PaymentDto>>
             {
-                Data = await pay.ToListAsync(),
-                Count = await pay.CountAsync()
+                Data = await pays.ToListAsync(),
+                Count = await pays.CountAsync()
             };
         }
 
-        public async Task<QueryResults<PaymentDto>> AddPayment(PaymentDto paymentDto)
+        public async Task<QueryResults<List<PaymentDto>>> GetMyPayments(Guid myId)
         {
-            /*
-            var createdPay = paymentDto.ConvertToModel();
-            createdPay.Id = new Guid();
+            var pays = db.Payments.Include(p => p.Leasing)
+                                  .Where(p => p.Leasing.Garden.Owner.Id.Equals(myId) || p.Leasing.Renter.Id.Equals(myId))
+                                  .Select(p => p.ConvertToDto());
 
-            await db.Payments.AddAsync(createdPay);
+            return new QueryResults<List<PaymentDto>>
+            {
+                Data = await pays.ToListAsync(),
+                Count = await pays.CountAsync()
+            };
+        }
+
+        public async Task<QueryResults<PaymentDto>> AddPayment(PaymentDto dto)
+        {
+            var leasing = await db.Leasings.GetByIdAsync(dto.Leasing) ?? throw new NotFoundApiException();
+            if (leasing.State.Equals(LeasingStatus.Refused) || leasing.State.Equals(LeasingStatus.Finished))
+                throw new BadRequestApiException("It is no longer possible to pay for this contract.");
+
+            dto.Date = DateTime.UtcNow;
+            leasing.Payment = dto.ConvertToModel();
+
             await db.SaveChangesAsync();
+
             return new QueryResults<PaymentDto>
             {
-                Data = createdPay.ConvertToDto()
-            };*/
-            throw new WorkInProgressApiException();
+                Data = leasing.Payment.ConvertToDto()
+            };
         }
 
-        public async Task<QueryResults<PaymentDto>> ChangePayment(PaymentDto Payment, Guid id)
+        public async Task<QueryResults<PaymentDto>> ChangePayment(Guid id, PaymentDto dto)
         {
-            throw new WorkInProgressApiException();
+            _ = await db.Leasings.GetByIdAsync(dto.Leasing) ?? throw new NotFoundApiException();
+            var pay = db.Payments.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+
+            pay.Sum = dto.Sum;
+
+            db.Payments.Update(pay);
+            await db.SaveChangesAsync();
+
+            return new QueryResults<PaymentDto>
+            {
+                Data = pay.ConvertToDto()
+            };
         }
 
-        public async Task DeletePayment(Guid PaymentId)
+        public async Task DeletePayment(Guid paymentId)
         {
-            var foundPay = db.Payments.GetByIdAsync(PaymentId).Result ?? throw new NotFoundApiException();
-            db.Payments.Remove(foundPay);
+            var pay = await db.Payments.GetByIdAsync(paymentId) ?? throw new NotFoundApiException();
+
+            db.Payments.Remove(pay);
+
             await db.SaveChangesAsync();
         }
     }

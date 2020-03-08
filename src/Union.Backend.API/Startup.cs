@@ -4,6 +4,7 @@ using Microsoft.AspNet.OData.Formatter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -151,9 +152,6 @@ namespace Union.Backend.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenLink v1");
             });
-
-            using var serviceScope = app.ApplicationServices.CreateScope();
-            serviceScope.ServiceProvider.GetService<GardenLinkContext>().Migrate();
         }
     }
 }

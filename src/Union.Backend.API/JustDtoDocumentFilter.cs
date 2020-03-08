@@ -1,6 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
+using Union.Backend.Model.Models;
 
 namespace Union.Backend.API
 {
@@ -8,7 +9,8 @@ namespace Union.Backend.API
     {
         private readonly List<string> necessarySchemas = new List<string>
         {
-            "Status"
+            nameof(Status),
+            nameof(LeasingStatus),
         };
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)

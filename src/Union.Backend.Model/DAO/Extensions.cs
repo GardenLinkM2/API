@@ -43,11 +43,16 @@ namespace Union.Backend.Model.DAO
 
         public static ModelBuilder MapProduct(this ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new UserEntity());
+            modelBuilder.ApplyConfiguration(new ContactEntity());
+            modelBuilder.ApplyConfiguration(new GardenEntity());
+            modelBuilder.ApplyConfiguration(new LeasingEntity());
+            modelBuilder.ApplyConfiguration(new PaymentEntity());
             modelBuilder.ApplyConfiguration(new PhotoUserEntity());
             modelBuilder.ApplyConfiguration(new PhotoMessageEntity());
-            modelBuilder.ApplyConfiguration(new GardenEntity());
-            modelBuilder.ApplyConfiguration(new ContactEntity());
+            modelBuilder.ApplyConfiguration(new ScoreEntity());
+            modelBuilder.ApplyConfiguration(new TalkEntity());
+            modelBuilder.ApplyConfiguration(new UserEntity());
+            modelBuilder.ApplyConfiguration(new WalletEntity());
 
             return modelBuilder;
         }

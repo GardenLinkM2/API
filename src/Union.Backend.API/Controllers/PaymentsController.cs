@@ -6,6 +6,8 @@ using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Auth;
 using System.Net;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace Union.Backend.API.Controllers
 {
@@ -13,19 +15,22 @@ namespace Union.Backend.API.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private readonly PaymentsService service;
-        public PaymentsController(PaymentsService service)
+        private readonly PaymentsService paymentService;
+        private readonly LeasingsService leasingService;
+        public PaymentsController(PaymentsService paymentService, LeasingsService leasingService)
         {
-            this.service = service;
+            this.leasingService = leasingService;
+            this.paymentService = paymentService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllPayments()
+        [HttpGet("me")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PaymentDto>))]
+        public async Task<IActionResult> GetMyPayments()
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return Ok(await service.GetAllPayments(id));
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await paymentService.GetMyPayments(me));
             }
             catch (HttpResponseException)
             {
@@ -38,17 +43,17 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetPaymentById([FromRoute(Name = "id")] Guid PaymentId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaymentDto))]
+        public async Task<IActionResult> GetPaymentById([FromRoute(Name = "id")] Guid paymentId)
         {
             try
             {
-                var pay = await service.GetPayment(PaymentId);
+                var pay = await paymentService.GetPayment(paymentId);
+                var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
-                if (pay.Data.Leasing.Owner != id || pay.Data.Leasing.Renter != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    return Forbid();
-                }
+                if (leasing.Owner != id && leasing.Renter != id && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                    throw new ForbidenApiException();
 
                 return Ok(pay);
             }
@@ -63,38 +68,11 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PaymentDto))]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentDto Payment)
         {
-            var result = await service.AddPayment(Payment);
+            var result = await paymentService.AddPayment(Payment);
             return Created($"api/Payments/{result.Data.Id}", result);
-        }
-
-        [HttpDelete("{id}")]
-        [Authorize(PermissionType.Admin)]
-        public async Task DeletePayment([FromRoute(Name = "id")] Guid PaymentId)
-        {
-            try
-            {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var pay = await service.GetPayment(PaymentId);
-
-                if (pay.Data.Leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    await service.DeletePayment(PaymentId);
-                }
-                else
-                {
-                    throw new ForbidenApiException();
-                }
-            }
-            catch (HttpResponseException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException();
-            }
         }
     }
 }

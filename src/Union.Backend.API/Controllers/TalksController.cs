@@ -7,6 +7,8 @@ using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Auth;
 using System.Net;
 using System.Linq;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace Union.Backend.API.Controllers
 {
@@ -21,6 +23,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TalkDto>))]
         public async Task<IActionResult> GetMyTalks()
         {
             try
@@ -39,6 +42,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TalkDto))]
         public async Task<IActionResult> GetTalkById([FromRoute(Name = "id")] Guid talkId)
         {
             try
@@ -57,6 +61,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TalkDto))]
         public async Task<IActionResult> CreateTalk([FromBody] TalkDto talkDto)
         {
             try
@@ -77,6 +82,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost("{id}")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(MessageDto))]
         public async Task<IActionResult> PostMessageToTalk([FromRoute(Name = "id")] Guid talkId, [FromBody] MessageDto message)
         {
             try
@@ -98,6 +104,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteTalk([FromRoute(Name = "id")] Guid talkId)
         {
             try
