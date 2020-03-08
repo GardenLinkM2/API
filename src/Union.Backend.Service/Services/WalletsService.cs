@@ -29,14 +29,16 @@ namespace Union.Backend.Service.Services
         }
 
 
-        public async Task<QueryResults<WalletDto>> ChangeWallet(Guid me, Guid my, WalletDto walletDto)
+        public async Task<QueryResults<WalletDto>> ChangeWallet(Guid me, Guid walletId, WalletDto walletDto, bool isAdmin)
         {
-            var wallet = await db.Wallets.GetByIdAsync(my) ?? throw new NotFoundApiException();
-            if (!wallet.OfUser.Equals(me))
-                throw new UnauthorizedAccessException();
+            var wallet = await db.Wallets.GetByIdAsync(walletId) ?? throw new NotFoundApiException();
+            if (!wallet.OfUser.Equals(me) && !isAdmin)
+                throw new ForbidenApiException();
 
             wallet.Balance = walletDto.Balance;
+
             await db.SaveChangesAsync();
+
             return new QueryResults<WalletDto>
             {
                 Data = wallet.ConvertToDto()

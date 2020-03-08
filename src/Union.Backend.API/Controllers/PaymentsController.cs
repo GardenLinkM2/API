@@ -23,14 +23,6 @@ namespace Union.Backend.API.Controllers
             this.paymentService = paymentService;
         }
 
-        [HttpGet]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PaymentDto>))]
-        public async Task<IActionResult> GetAllPayments()
-        {
-            return Ok(await paymentService.GetAllPayments());
-        }
-
         [HttpGet("me")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PaymentDto>))]
         public async Task<IActionResult> GetMyPayments()
@@ -39,32 +31,6 @@ namespace Union.Backend.API.Controllers
             {
                 var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await paymentService.GetMyPayments(me));
-            }
-            catch (HttpResponseException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException();
-            }
-        }
-
-        [HttpGet("{id}/user")]
-        [Authorize(PermissionType.Admin)]
-        public async Task<IActionResult> GetAllPaymentsByUserId([FromRoute(Name = "id")] Guid userId)
-        {
-            return Ok(await paymentService.GetMyPayments(userId));
-        }
-
-        [HttpGet("me")]
-        public async Task<IActionResult> GetAllPaymentsByMe()
-        {
-            try
-            {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                return Ok(await paymentService.GetMyPayments(id));
-
             }
             catch (HttpResponseException)
             {
@@ -86,7 +52,7 @@ namespace Union.Backend.API.Controllers
                 var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
-                if (leasing.Owner != id && leasing.Renter != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (leasing.Owner != id && leasing.Renter != id && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     throw new ForbidenApiException();
 
                 return Ok(pay);
@@ -107,37 +73,6 @@ namespace Union.Backend.API.Controllers
         {
             var result = await paymentService.AddPayment(Payment);
             return Created($"api/Payments/{result.Data.Id}", result);
-        }
-
-        [HttpDelete("{id}")]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeletePayment([FromRoute(Name = "id")] Guid paymentId)
-        {
-            try
-            {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var pay = await paymentService.GetPayment(paymentId);
-                var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
-
-                if (leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    await paymentService.DeletePayment(paymentId);
-                    return NoContent();
-                }
-                else
-                {
-                    throw new ForbidenApiException();
-                }
-            }
-            catch (HttpResponseException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException();
-            }
         }
     }
 }

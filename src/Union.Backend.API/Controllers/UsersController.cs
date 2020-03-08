@@ -63,15 +63,6 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPost]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UserDto))]
-        public async Task<IActionResult> AddUser([FromBody] UserDto user)
-        {
-            var result = await service.AddUser(user, Guid.NewGuid());
-            return Created($"/api/users/{result.Data.Id}", result);
-        }
-
         [HttpPut("me")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<IActionResult> ChangeMe([FromBody] UserDto user)
@@ -89,23 +80,6 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-        }
-
-        [HttpPut("{id}")]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
-        public async Task<IActionResult> ChangeUser([FromRoute(Name = "id")] Guid userId, [FromBody] UserDto user)
-        {
-            return Ok(await service.ChangeUser(userId, user));
-        }
-
-        [HttpDelete("{id}")]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeleteUser([FromRoute(Name = "id")] Guid userId)
-        {
-            await service.DeleteUser(userId);
-            return NoContent();
         }
 
         [HttpDelete("me")]
@@ -132,7 +106,7 @@ namespace Union.Backend.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PhotoDto))]
         public async Task<IActionResult> Photograph([FromRoute(Name = "id")] Guid id, [FromBody] PhotoDto photo)
         {
-            return Created("NIK", await service.Photograph(id, photo));
+            return Created("TODO", await service.Photograph(id, photo)); //TODO
         }
     }
 }

@@ -84,7 +84,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<ScoreDto>>> GetReportedScores()
         {
             var scores = db.Scores
-                                  .Where(s => s.Reported == true)
+                                  .Where(s => s.IsReported == true)
                                   .Select(s => s.ConvertToDto());
 
             return new QueryResults<List<ScoreDto>>
@@ -97,7 +97,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<ScoreDto>> ReportScore(Guid scoreId)
         {
             var score = await db.Scores.GetByIdAsync(scoreId) ?? throw new NotFoundApiException();
-            score.Reported = true;
+            score.IsReported = true;
 
             db.Scores.Update(score);
             await db.SaveChangesAsync();

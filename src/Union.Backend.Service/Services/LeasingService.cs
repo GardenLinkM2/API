@@ -48,7 +48,7 @@ namespace Union.Backend.Service.Services
         {
             var leasings = db.Leasings.Include(l => l.Garden)
                                       .Include(l => l.Renter)
-                                      .Where(l => l.Garden.Owner.Id == userId || l.Renter.Id == userId)
+                                      .Where(l => l.Garden.Owner.Id.Equals(userId) || l.Renter.Id.Equals(userId))
                                       .Select(l => l.ConvertToDto());
 
             return new QueryResults<List<LeasingDto>>
@@ -110,8 +110,10 @@ namespace Union.Backend.Service.Services
                                            .GetByIdAsync(leasingId) ?? throw new NotFoundApiException();
 
             db.Leasings.Remove(leasing);
-            db.Payments.Remove(leasing.Payment);
+            if(leasing.Payment != null)
+                db.Payments.Remove(leasing.Payment);
 
+            await db.SaveChangesAsync();
         }
     }
 }

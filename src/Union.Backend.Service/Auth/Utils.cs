@@ -76,7 +76,7 @@ namespace Union.Backend.Service.Auth
             return new Guid(accessToken.Uuid);
         }
 
-        public static bool IsAdminRoleFromToken(string token)
+        public static bool IsAdmin(string token)
         {
             var accessToken = JWT.Payload<TokenDto>(SanitizeToken(token));
             return accessToken.IsAdmin ?? false;

@@ -40,14 +40,6 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpGet("Score/reported")]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ScoreDto>))]
-        public async Task<IActionResult> GetAllReportedScores()
-        {
-            return Ok(await service.GetReportedScores());
-        }
-
         [HttpGet("Gardens/{id}/score")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ScoreDto>))]
         public async Task<IActionResult> GetScores([FromRoute(Name = "id")] Guid ratedId)
@@ -99,7 +91,7 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var score = await service.GetScoreById(scoreId);
-                if (score.Data.Rater == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (score.Data.Rater == id || Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     await service.DeleteScore(scoreId);
                 else
                     throw new ForbidenApiException();

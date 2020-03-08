@@ -91,9 +91,10 @@ namespace Union.Backend.Service.Services
 
         public async Task DeletePayment(Guid paymentId)
         {
-            var pay = db.Payments.GetByIdAsync(paymentId).Result ?? throw new NotFoundApiException();
+            var pay = await db.Payments.GetByIdAsync(paymentId) ?? throw new NotFoundApiException();
 
             db.Payments.Remove(pay);
+
             await db.SaveChangesAsync();
         }
     }

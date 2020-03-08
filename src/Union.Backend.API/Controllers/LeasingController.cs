@@ -21,15 +21,8 @@ namespace Union.Backend.API.Controllers
             this.service = service;
         }
 
-        [HttpGet]
-        [Authorize(PermissionType.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<LeasingDto>))]
-        public async Task<IActionResult> GetAllLeasings()
-        {
-            return Ok(await service.GetAllLeasings());
-        }
-
         [HttpGet("me")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<LeasingDto>))]
         public async Task<IActionResult> GetAllMyLeasings()
         {
             try
@@ -46,13 +39,6 @@ namespace Union.Backend.API.Controllers
                 throw new BadRequestApiException();
             }
 
-        }
-
-        [HttpGet("{id}/user")]
-        [Authorize(PermissionType.Admin)]
-        public async Task<IActionResult> GetAllUserLeasings([FromRoute(Name = "id")] Guid userId)
-        {
-            return Ok(await service.GetAllLeasingsByUserId(userId));
         }
 
         [HttpGet("{id}")]
@@ -90,7 +76,7 @@ namespace Union.Backend.API.Controllers
             {
                 var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var leasing = await service.GetLeasing(leasingId);
-                if (leasing.Data.Owner != me && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (leasing.Data.Owner != me && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
                     throw new ForbidenApiException();
                 }
@@ -115,10 +101,9 @@ namespace Union.Backend.API.Controllers
             {
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var leasing = service.GetLeasing(leasingId);
-                if (leasing.Result.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
+                if (leasing.Result.Data.Owner != id && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     throw new ForbidenApiException();
-                }
+
                 await service.DeleteLeasing(leasingId);
 
                 return NoContent();

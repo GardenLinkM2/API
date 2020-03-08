@@ -279,7 +279,7 @@ namespace Union.Backend.Service.Services
                 Mark = score.Mark,
                 Rater = score.Rater.Id,
                 Rated = score.Rated,
-                Reported = score.Reported
+                IsReported = score.IsReported
             };
         }
 
@@ -289,7 +289,7 @@ namespace Union.Backend.Service.Services
             {
                 Comment = dto.Comment,
                 Mark = dto.Mark,
-                Reported = dto.Reported
+                IsReported = dto.IsReported
             };
         }
 
