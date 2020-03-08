@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using System;
@@ -69,28 +70,31 @@ namespace Union.Backend.Service.Auth
                 context.HttpContext.Request.Headers.TryGetValue(HttpRequestHeader.Authorization.ToString(), out var token);
                 if(string.IsNullOrEmpty(token))
                 {
-                    context.Result = new StatusCodeResult(401);
+                    context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
                     return;
                 }
 
                 var accessToken = ValidateAndGetToken<TokenDto>(token, auth.Value.BackSecret);
                 if (!db.Users.Any(u => u.Id.Equals(new Guid(accessToken.Uuid))))
                 {
-                    context.Result = new UnauthorizedResult();
+                    context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
                     return;
                 }
 
                 var granted = (accessToken.IsAdmin ?? false) ? PermissionType.Admin : PermissionType.User;
                 if ((int)granted > (int)necessary)
-                    context.Result = new StatusCodeResult(403);
+                    context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             }
             catch (ArgumentException)
             {
-                context.Result = new UnauthorizedResult();
+                context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                context.Result = new StatusCodeResult(500);
+                context.Result = new ObjectResult(new { cause = ex.Message })
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
             }
         }
     }
