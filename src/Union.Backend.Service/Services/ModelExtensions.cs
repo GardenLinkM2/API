@@ -94,7 +94,7 @@ namespace Union.Backend.Service.Services
                 MinUse = garden.MinUse,
                 Description = garden.Description,
                 Location = garden.Location?.ConvertToDto(),
-                Owner = garden.Owner,
+                Owner = garden.Owner.Id,
                 Criteria = garden.Criteria?.ConvertToDto(),
                 Validation = garden.Validation,
                 Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
@@ -111,8 +111,7 @@ namespace Union.Backend.Service.Services
                 MinUse = dto.MinUse ?? 1,
                 Description = dto.Description,
                 Location = dto.Location.ConvertToModel(),
-                Owner = dto.Owner,
-                Criteria = dto.Criteria.ConvertToModel(dto.Id),
+                Criteria = dto.Criteria.ConvertToModel(),
                 Validation = dto.Validation
             };
         }
@@ -138,7 +137,7 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static Criteria ConvertToModel(this CriteriaDto dto, Guid relatedTo)
+        public static Criteria ConvertToModel(this CriteriaDto dto)
         {
             return new Criteria
             {
@@ -149,8 +148,7 @@ namespace Union.Backend.Service.Services
                 Price = dto.Price,
                 TypeOfClay = dto.TypeOfClay,
                 WaterAccess = dto.WaterAccess,
-                LocationTime = dto.LocationTime.ToTimeSpan(),
-                ForGarden = relatedTo
+                LocationTime = dto.LocationTime.ToTimeSpan()
             };
         }
 
@@ -176,13 +174,12 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static Payment ConvertToModel(this PaymentDto paymentDto, Leasing leasing)
+        public static Payment ConvertToModel(this PaymentDto dto)
         {
             return new Payment
             {
-                Sum = paymentDto.Sum,
-                State = paymentDto.State,
-                Leasing = leasing
+                Sum = dto.Sum,
+                Date = dto.Date
             };
         }
 
@@ -192,8 +189,8 @@ namespace Union.Backend.Service.Services
             {
                 Id = payment.Id,
                 Sum = payment.Sum,
-                State = payment.State,
-                Leasing = payment.Leasing.Id
+                Date = payment.Date,
+                Leasing = payment.OfLeasing
             };
         }
 
@@ -207,9 +204,9 @@ namespace Union.Backend.Service.Services
                 End = leasing.End,
                 Renew = leasing.Renew,
                 Time = leasing.Time.ToSecond(),
-                Garden = leasing.Garden,
-                Renter = leasing.Renter,
-                Owner = leasing.Owner
+                Garden = leasing.Garden.Id,
+                Renter = leasing.Renter.Id,
+                Owner = leasing.Garden.Owner.Id
             };
         }
 
@@ -221,10 +218,7 @@ namespace Union.Backend.Service.Services
                 End = dto.End.Value,
                 Renew = dto.Renew.Value,
                 State = dto.State.Value,
-                Time = dto.Time.Value.ToTimeSpan(),
-                Garden = dto.Garden,
-                Renter = dto.Renter,
-                Owner = dto.Owner
+                Time = dto.Time.Value.ToTimeSpan()
             };
         }
 

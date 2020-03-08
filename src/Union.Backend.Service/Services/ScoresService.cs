@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
+using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
@@ -60,22 +61,24 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<ScoreDto>> AddScore(Guid myId, Guid ratedId, ScoreDto scoreDto)
+        public async Task<QueryResults<ScoreDto>> AddScore(Guid myId, Guid ratedId, ScoreDto dto)
         {
             if (!db.Users.Any(u => u.Id.Equals(ratedId)) && !db.Gardens.Any(g => g.Id.Equals(ratedId)))
                 throw new NotFoundApiException();
 
             var me = await db.Users.GetByIdAsync(myId) ?? throw new NotFoundApiException();
 
-            var createdScore = scoreDto.ConvertToModel();
-            createdScore.Rater = me;
-            createdScore.Rated = ratedId;
+            var score = dto.ConvertToModel();
+            score.Rated = ratedId;
 
-            await db.Scores.AddAsync(createdScore);
+            me.AsRater = me.AsRater ?? new List<Score>();
+            me.AsRater.Add(score);
+
             await db.SaveChangesAsync();
+
             return new QueryResults<ScoreDto>
             {
-                Data = createdScore.ConvertToDto()
+                Data = score.ConvertToDto()
             };
         }
 

@@ -6,7 +6,7 @@ namespace Union.Backend.Service.Dtos
     {
         public Guid Id { get; set; }
         public int Sum { get; set; }
-        public int State { get; set; }
+        public DateTime Date { get; set; }
         public Guid Leasing { get; set; }
     }
 }

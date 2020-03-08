@@ -15,8 +15,8 @@ namespace Union.Backend.Model.DAO
             builder.Property(l => l.Renew).IsRequired();
             builder.Property(l => l.State).IsRequired();
             builder.Property(l => l.Time).IsRequired();
-            builder.Property(l => l.Renter).IsRequired();
-            builder.Property(l => l.Garden).IsRequired();
+
+            builder.HasOne(l => l.Payment).WithOne(p => p.Leasing).HasForeignKey<Payment>(p => p.OfLeasing);
         }
     }
 }

@@ -86,28 +86,10 @@ namespace Union.Backend.API.Controllers
         [HttpDelete("{id}")]
         [Authorize(PermissionType.Admin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeletePayment([FromRoute(Name = "id")] Guid PaymentId)
+        public async Task<IActionResult> DeletePayment([FromRoute(Name = "id")] Guid paymentId)
         {
-            try
-            {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var pay = await paymentService.GetPayment(PaymentId);
-                var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
-                
-                if (leasing.Owner == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                    await paymentService.DeletePayment(PaymentId);
-                else
-                    throw new ForbidenApiException();
-                return NoContent();
-            }
-            catch (HttpResponseException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException();
-            }
+            await paymentService.DeletePayment(paymentId);
+            return NoContent();
         }
     }
 }

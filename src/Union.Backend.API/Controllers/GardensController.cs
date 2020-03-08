@@ -53,8 +53,8 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                garden.Owner = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var result = await service.AddGarden(garden);
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var result = await service.AddGarden(me, garden);
                 return Created($"/api/Gardens/{result.Data.Id}", result);
             }
             catch (HttpResponseException)
@@ -100,8 +100,12 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                await service.DeleteGarden(id, gardenId);
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var garden = await service.GetGardenById(gardenId);
+                if (!garden.Data.Owner.Equals(me) && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                    throw new ForbidenApiException();
+                
+                await service.DeleteGarden(gardenId);
                 return NoContent();
             }
             catch (HttpResponseException)

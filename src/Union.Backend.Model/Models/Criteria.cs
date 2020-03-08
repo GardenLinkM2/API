@@ -24,6 +24,5 @@ namespace Union.Backend.Model.Models
         public bool Equipments { get; set; }
         public bool WaterAccess { get; set; }
         public bool DirectAccess { get; set; }
-        public Guid ForGarden { get; set; }
     }
 }
