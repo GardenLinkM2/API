@@ -21,8 +21,8 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<ScoreDto>> GetScoreById(Guid scoreId)
         {
-            var score = await db.Scores.Include(s => s.Rater)
-                                       .GetByIdAsync(scoreId) 
+            var score = await db.Scores
+                                       .GetByIdAsync(scoreId)
                         ?? throw new NotFoundApiException();
 
             return new QueryResults<ScoreDto>
@@ -35,7 +35,7 @@ namespace Union.Backend.Service.Services
         {
             _ = await db.Users.GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
-            var scores = db.Scores.Include(s => s.Rater)
+            var scores = db.Scores
                                   .Where(s => s.Rated == userId)
                                   .Select(s => s.ConvertToDto());
 
@@ -50,7 +50,7 @@ namespace Union.Backend.Service.Services
         {
             _ = await db.Gardens.GetByIdAsync(gardenId) ?? throw new NotFoundApiException();
 
-            var scores = db.Scores.Include(s => s.Rater)
+            var scores = db.Scores
                                   .Where(s => s.Rated == gardenId)
                                   .Select(s => s.ConvertToDto());
 
@@ -67,7 +67,6 @@ namespace Union.Backend.Service.Services
                 throw new NotFoundApiException();
 
             var me = await db.Users.GetByIdAsync(myId) ?? throw new NotFoundApiException();
-
             var score = dto.ConvertToModel();
             score.Rated = ratedId;
 
@@ -82,9 +81,30 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<ScoreDto>> ReportScore(Guid id)
+        public async Task<QueryResults<List<ScoreDto>>> GetReportedScores()
         {
-            throw new WorkInProgressApiException();
+            var scores = db.Scores
+                                  .Where(s => s.Reported == true)
+                                  .Select(s => s.ConvertToDto());
+
+            return new QueryResults<List<ScoreDto>>
+            {
+                Data = await scores.ToListAsync(),
+                Count = await scores.CountAsync()
+            };
+        }
+
+        public async Task<QueryResults<ScoreDto>> ReportScore(Guid scoreId)
+        {
+            var score = await db.Scores.GetByIdAsync(scoreId) ?? throw new NotFoundApiException();
+            score.Reported = true;
+
+            db.Scores.Update(score);
+            await db.SaveChangesAsync();
+            return new QueryResults<ScoreDto>
+            {
+                Data = score.ConvertToDto()
+            };
         }
 
         public async Task DeleteScore(Guid scoreId)

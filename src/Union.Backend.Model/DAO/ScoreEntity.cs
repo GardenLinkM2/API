@@ -12,6 +12,7 @@ namespace Union.Backend.Model.DAO
 
             builder.Property(s => s.Mark).IsRequired();
             builder.Property(s => s.Comment).IsRequired();
+            builder.Property(s => s.Reported).IsRequired();
             builder.Property(s => s.Rated).IsRequired();
             
             builder.HasOne(s => s.Rater).WithMany(u => u.AsRater);

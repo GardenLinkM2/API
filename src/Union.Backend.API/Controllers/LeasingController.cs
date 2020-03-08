@@ -29,6 +29,32 @@ namespace Union.Backend.API.Controllers
             return Ok(await service.GetAllLeasings());
         }
 
+        [HttpGet("me")]
+        public async Task<IActionResult> GetAllMyLeasings()
+        {
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.GetAllLeasingsByUserId(id));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+
+        }
+
+        [HttpGet("{id}/user")]
+        [Authorize(PermissionType.Admin)]
+        public async Task<IActionResult> GetAllUserLeasings([FromRoute(Name = "id")] Guid userId)
+        {
+            return Ok(await service.GetAllLeasingsByUserId(userId));
+        }
+
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LeasingDto))]
         public async Task<IActionResult> GetLeasingById([FromRoute(Name = "id")] Guid leasingId)

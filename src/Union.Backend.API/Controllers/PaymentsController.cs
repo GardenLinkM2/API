@@ -50,6 +50,32 @@ namespace Union.Backend.API.Controllers
             }
         }
 
+        [HttpGet("{id}/user")]
+        [Authorize(PermissionType.Admin)]
+        public async Task<IActionResult> GetAllPaymentsByUserId([FromRoute(Name = "id")] Guid userId)
+        {
+            return Ok(await paymentService.GetMyPayments(userId));
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetAllPaymentsByMe()
+        {
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await paymentService.GetMyPayments(id));
+
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
+
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaymentDto))]
         public async Task<IActionResult> GetPaymentById([FromRoute(Name = "id")] Guid paymentId)
@@ -88,8 +114,30 @@ namespace Union.Backend.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeletePayment([FromRoute(Name = "id")] Guid paymentId)
         {
-            await paymentService.DeletePayment(paymentId);
-            return NoContent();
+            try
+            {
+                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var pay = await paymentService.GetPayment(paymentId);
+                var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
+
+                if (leasing.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                {
+                    await paymentService.DeletePayment(paymentId);
+                    return NoContent();
+                }
+                else
+                {
+                    throw new ForbidenApiException();
+                }
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
     }
 }

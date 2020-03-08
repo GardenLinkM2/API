@@ -9,5 +9,7 @@ namespace Union.Backend.Service.Dtos
         public string Comment { get; set; }
         public Guid Rater { get; set; }
         public Guid Rated { get; set; }
+        public Boolean Reported { get; set; }
+
     }
 }

@@ -12,18 +12,19 @@ namespace Union.Backend.Service.Services
     {
         private readonly GardenLinkContext db;
         private readonly UsersService userService;
-        public WalletsService(GardenLinkContext gardenLinkContext)
+        public WalletsService(GardenLinkContext gardenLinkContext, UsersService userService)
         {
             db = gardenLinkContext;
+            this.userService = userService;
         }
 
         public async Task<QueryResults<WalletDto>> GetWalletByUserId(Guid userId)
         {
-            var user = userService.GetMe(userId);
+            var user = await userService.GetMe(userId) ?? throw new NotFoundApiException();
 
             return new QueryResults<WalletDto>
             {
-                Data = user.Result.Data.Wallet
+                Data = user.Data.Wallet
             };
         }
 
