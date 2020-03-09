@@ -1,4 +1,6 @@
-﻿namespace Union.Backend.Model.Models
+﻿using System;
+
+namespace Union.Backend.Model.Models
 {
     public class Location : UniqueEntity
     {
@@ -6,5 +8,7 @@
         public string Street { get; set; }
         public int PostalCode { get; set; }
         public string City { get; set; }
+
+        public Tuple<double, double> Coord { get; set; }
     }
 }

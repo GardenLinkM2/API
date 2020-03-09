@@ -112,6 +112,8 @@ namespace Union.Backend.Service.Services
             if (!garden.Owner.Equals(me))
                 throw new ForbidenApiException();
 
+
+
             garden.Name = dto.Name ?? garden.Name;
             garden.Size = dto.Size ?? garden.Size;
             garden.MinUse = dto.MinUse ?? garden.MinUse;
@@ -155,5 +157,24 @@ namespace Union.Backend.Service.Services
 
             await db.SaveChangesAsync();
         }
+
+
+        private double calcDist(Location locationA, Location locationB)
+        {
+            double Alongitude = locationA.Coord.Item1;
+            double Alatitude = locationA.Coord.Item2;
+
+            double Blongitude = locationB.Coord.Item1;
+            double Blatitude = locationB.Coord.Item2;
+
+            double x = (Blongitude - Alongitude) * Math.Cos(((Alatitude + Blatitude) / 2) * (Math.PI / 180.0));
+            double y = Blatitude - Alatitude;
+            double z = Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+
+
+            return 1.852 * 60 * z * 1.05;
+
+        }
+
     }
 }
