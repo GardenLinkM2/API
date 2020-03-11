@@ -19,7 +19,6 @@ namespace Union.Backend.Model.DAO
         public DbSet<Message> Messages { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Talk> Talks { get; set; }
-        public DbSet<Photo<User>> UserPhotos { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Validation> Validations { get; set; }
         public DbSet<Wallet> Wallets { get; set; }

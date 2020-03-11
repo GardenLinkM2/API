@@ -4,13 +4,13 @@ namespace Union.Backend.Service.Dtos
 {
     public class CriteriaDto
     {
-        public long LocationTime { get; set; }
-        public int Area { get; set; }
-        public double Price { get; set; }
+        public long? LocationTime { get; set; }
+        public int? Area { get; set; }
+        public double? Price { get; set; }
         public string Orientation { get; set; }
         public string TypeOfClay { get; set; }
-        public bool Equipments { get; set; }
-        public bool WaterAccess { get; set; }
-        public bool DirectAccess { get; set; }
+        public bool? Equipments { get; set; }
+        public bool? WaterAccess { get; set; }
+        public bool? DirectAccess { get; set; }
     }
 }

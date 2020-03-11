@@ -102,11 +102,27 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPost("{id}/photograph")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PhotoDto))]
+        [HttpPut("{id}/photo")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PhotoDto))]
         public async Task<IActionResult> Photograph([FromRoute(Name = "id")] Guid id, [FromBody] PhotoDto photo)
         {
-            return Created("TODO", await service.Photograph(id, photo)); //TODO
+            try
+            {
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                if (!me.Equals(id))
+                    throw new ForbiddenApiException();
+
+                return Ok(await service.Photograph(id, photo));
+
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
     }
 }

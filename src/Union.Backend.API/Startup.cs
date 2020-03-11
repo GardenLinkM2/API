@@ -129,8 +129,8 @@ namespace Union.Backend.API
                 Console.WriteLine($"Environment is Prod mode");
             }
 
-            var BITE = new ODataConventionModelBuilder(app.ApplicationServices);
-            BITE.EntitySet<Garden>("Gardens");
+            //var BITE = new ODataConventionModelBuilder(app.ApplicationServices);
+            //BITE.EntitySet<Garden>("Gardens");
 
             app.UseRouting();
             app.UseCors("LeMoulinPolicy");
@@ -142,7 +142,7 @@ namespace Union.Backend.API
             {
                 builder.Select().Expand().Filter().OrderBy().Count();
                 builder.EnableDependencyInjection();
-                builder.MapODataServiceRoute("gardens", "api", BITE.GetEdmModel());
+                //builder.MapODataServiceRoute("gardens", "api", BITE.GetEdmModel());
             });
 
             app.UseHttpsRedirection();

@@ -37,28 +37,24 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static Photo<T> ConvertToModel<T>(this PhotoDto dto, Guid id)
+        public static Photo<T> ConvertToModel<T>(this PhotoDto dto)
             where T : IPhotographable
         {
             return new Photo<T>
             {
                 FileName = dto.FileName,
-                RelatedTo = id
+                Path = dto.Path
             };
         }
-
-        public static List<Photo<T>> ConvertToModel<T>(this List<PhotoDto> dto, Guid id)
+        
+        public static List<Photo<T>> ConvertToModel<T>(this List<PhotoDto> dtos)
             where T : IPhotographable
         {
             List<Photo<T>> photos = new List<Photo<T>>();
 
-            foreach (PhotoDto p in dto)
+            foreach (PhotoDto dto in dtos)
             {
-                photos.Add(new Photo<T>
-                {
-                    FileName = p.FileName,
-                    RelatedTo = id
-                });
+                photos.Add(dto.ConvertToModel<T>());
             }
 
             return photos;
@@ -69,8 +65,8 @@ namespace Union.Backend.Service.Services
         {
             return new PhotoDto
             {
-                Id = photo.Id,
-                FileName = photo.FileName
+                FileName = photo.FileName,
+                Path = photo.Path
             };
         }
 
@@ -89,7 +85,6 @@ namespace Union.Backend.Service.Services
             {
                 Id = garden.Id,
                 Name = garden.Name,
-                Size = garden.Size,
                 IsReserved = garden.IsReserved,
                 MinUse = garden.MinUse,
                 Description = garden.Description,
@@ -106,17 +101,17 @@ namespace Union.Backend.Service.Services
             return new Garden
             {
                 Name = dto.Name,
-                Size = dto.Size ?? 1,
                 IsReserved = dto.IsReserved ?? false,
                 MinUse = dto.MinUse ?? 1,
                 Description = dto.Description,
-                Location = dto.Location.ConvertToModel(),
-                Criteria = dto.Criteria.ConvertToModel(),
-                Validation = dto.Validation
+                Location = dto.Location?.ConvertToModel(),
+                Criteria = dto.Criteria?.ConvertToModel(),
+                Validation = dto.Validation,
+                Photos = dto.Photos?.ConvertToModel<Garden>()
             };
         }
 
-        public static long ToSecond(this TimeSpan timeSpan) =>
+        public static long ToSeconds(this TimeSpan timeSpan) =>
             timeSpan.Ticks / 10000000;
 
         public static TimeSpan ToTimeSpan(this long seconds) =>
@@ -129,12 +124,20 @@ namespace Union.Backend.Service.Services
                 Area = criteria.Area,
                 DirectAccess = criteria.DirectAccess,
                 Equipments = criteria.Equipments,
-                Orientation = criteria.Orientation.ToString(),
+                Orientation = criteria.Orientation?.ToString(),
                 Price = criteria.Price,
                 TypeOfClay = criteria.TypeOfClay,
                 WaterAccess = criteria.WaterAccess,
-                LocationTime = criteria.LocationTime.ToSecond(),
+                LocationTime = criteria.LocationTime?.ToSeconds(),
             };
+        }
+
+        private static T? ToEnum<T>(this string value)
+            where T : struct
+        {
+            if(!Enum.TryParse(value, out T result))
+                return null;
+            return result;
         }
 
         public static Criteria ConvertToModel(this CriteriaDto dto)
@@ -144,11 +147,11 @@ namespace Union.Backend.Service.Services
                 Area = dto.Area,
                 DirectAccess = dto.DirectAccess,
                 Equipments = dto.Equipments,
-                Orientation = (Orientation)Enum.Parse(typeof(Orientation), dto.Orientation),
+                Orientation = dto.Orientation?.ToEnum<Orientation>(),
                 Price = dto.Price,
                 TypeOfClay = dto.TypeOfClay,
                 WaterAccess = dto.WaterAccess,
-                LocationTime = dto.LocationTime.ToTimeSpan()
+                LocationTime = dto.LocationTime?.ToTimeSpan()
             };
         }
 
@@ -199,11 +202,12 @@ namespace Union.Backend.Service.Services
             return new LeasingDto
             {
                 Id = leasing.Id,
+                Creation = leasing.Creation,
                 Begin = leasing.Begin,
                 State = leasing.State,
                 End = leasing.End,
                 Renew = leasing.Renew,
-                Time = leasing.Time.ToSecond(),
+                Time = leasing.Time.ToSeconds(),
                 Garden = leasing.Garden.Id,
                 Renter = leasing.Renter.Id,
                 Owner = leasing.Garden.Owner.Id
@@ -214,6 +218,7 @@ namespace Union.Backend.Service.Services
         {
             return new Leasing
             {
+                Creation = dto.Creation,
                 Begin = dto.Begin.Value,
                 End = dto.End.Value,
                 Renew = dto.Renew.Value,
@@ -279,7 +284,6 @@ namespace Union.Backend.Service.Services
                 Mark = score.Mark,
                 Rater = score.Rater.Id,
                 Rated = score.Rated,
-                IsReported = score.IsReported
             };
         }
 
@@ -289,7 +293,6 @@ namespace Union.Backend.Service.Services
             {
                 Comment = dto.Comment,
                 Mark = dto.Mark,
-                IsReported = dto.IsReported
             };
         }
 

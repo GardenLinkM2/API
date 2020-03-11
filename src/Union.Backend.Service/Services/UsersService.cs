@@ -72,19 +72,20 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<UserDto>> ChangeUser(Guid id, UserDto user)
+        public async Task<QueryResults<UserDto>> ChangeUser(Guid id, UserDto dto)
         {
-            var foundUser = db.Users.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+            var user = db.Users.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
-            foundUser.LastName = user.LastName;
-            foundUser.FirstName = user.FirstName;
-            foundUser.Photo = user.Photo.ConvertToModel<User>(id);
+            user.LastName = dto.LastName;
+            user.FirstName = dto.FirstName;
+            user.Photo = dto.Photo?.ConvertToModel<User>();
             
-            db.Users.Update(foundUser);
+            db.Users.Update(user);
             await db.SaveChangesAsync();
+
             return new QueryResults<UserDto>
             {
-                Data = new UserDto { Id = foundUser.Id }
+                Data = new UserDto { Id = user.Id }
             };
         }
 
@@ -95,12 +96,16 @@ namespace Union.Backend.Service.Services
             await db.SaveChangesAsync();
         }
 
-        public async Task<PhotoDto> Photograph(Guid id, PhotoDto dto)
+        public async Task<QueryResults<UserDto>> Photograph(Guid id, PhotoDto dto)
         {
-            var photo = dto.ConvertToModel<User>(id);
-            db.UserPhotos.Add(photo);
+            var user = await db.Users.GetByIdAsync(id) ?? throw new NotFoundApiException();
+            user.Photo = dto.ConvertToModel<User>();
+            
             await db.SaveChangesAsync();
-            return photo.ConvertToDto();
+            return new QueryResults<UserDto>
+            {
+                Data = user.ConvertToDto()
+            };
         }
     }
 }

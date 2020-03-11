@@ -1,8 +1,8 @@
 ﻿namespace Union.Backend.Service.Exceptions
 {
-    public class ForbidenApiException : HttpResponseException
+    public class ForbiddenApiException : HttpResponseException
     {
-        public ForbidenApiException(string message = "Forbiden request")
+        public ForbiddenApiException(string message = "Forbidden request")
             : base(message)
         {
         }

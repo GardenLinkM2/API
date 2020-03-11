@@ -78,6 +78,14 @@ namespace Union.Backend.API.Controllers
             }
         }
 
+        [HttpPost("{id}/report")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> ReportGarden([FromRoute(Name = "id")] Guid gardenId)
+        {
+            await service.ReportGarden(gardenId);
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteGarden([FromRoute(Name = "id")] Guid gardenId)
@@ -87,7 +95,7 @@ namespace Union.Backend.API.Controllers
                 var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var garden = await service.GetGardenById(gardenId);
                 if (!garden.Data.Owner.Equals(me) && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                    throw new ForbidenApiException();
+                    throw new ForbiddenApiException();
                 
                 await service.DeleteGarden(gardenId);
                 return NoContent();

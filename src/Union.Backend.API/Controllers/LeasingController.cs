@@ -78,7 +78,7 @@ namespace Union.Backend.API.Controllers
                 var leasing = await service.GetLeasing(leasingId);
                 if (leasing.Data.Owner != me && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
-                    throw new ForbidenApiException();
+                    throw new ForbiddenApiException();
                 }
 
                 return Ok(await service.ChangeLeasing(leasingId, leasingDto));
@@ -102,7 +102,7 @@ namespace Union.Backend.API.Controllers
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var leasing = service.GetLeasing(leasingId);
                 if (leasing.Result.Data.Owner != id && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                    throw new ForbidenApiException();
+                    throw new ForbiddenApiException();
 
                 await service.DeleteLeasing(leasingId);
 

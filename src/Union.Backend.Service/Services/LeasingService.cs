@@ -61,11 +61,16 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<LeasingDto>> AddLeasing(Guid me, LeasingDto dto)
         {
             var renter = await db.Users.GetByIdAsync(me) ?? throw new NotFoundApiException();
-            var garden = await db.Gardens.GetByIdAsync(dto.Garden) ?? throw new NotFoundApiException();
+            var garden = await db.Gardens.Include(g => g.Owner)
+                                         .GetByIdAsync(dto.Garden) ?? throw new NotFoundApiException();
 
             if (!garden.Validation.Equals(Status.Accepted))
                 throw new BadRequestApiException("The garden must be validated to be able to rent it.");
 
+            if (garden.Owner.Id.Equals(me))
+                throw new BadRequestApiException("You are not authorize to rent your own garden.");
+
+            dto.Creation = DateTime.UtcNow;
             dto.State = LeasingStatus.InDemand;
             dto.Renew = false;
             dto.Renter = renter.Id;
@@ -87,13 +92,17 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<LeasingDto>> ChangeLeasing(Guid id, LeasingDto dto)
         {
-            var leasing = db.Leasings.GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+            var leasing = db.Leasings.Include(l => l.Garden)
+                                     .GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
             leasing.Begin = dto.Begin ?? leasing.Begin;
             leasing.End = dto.End ?? leasing.End;
             leasing.Renew = dto.Renew ?? leasing.Renew;
             leasing.State = dto.State ?? leasing.State;
             leasing.Time = (dto.Time?.ToTimeSpan() ?? leasing.Time);
+
+            if((dto.State ?? LeasingStatus.Refused).Equals(LeasingStatus.InProgress))
+                leasing.Garden.IsReserved = true;
 
             db.Update(leasing);
             await db.SaveChangesAsync();
