@@ -2,11 +2,11 @@
 
 namespace Union.Backend.Service.Dtos
 {
-    public class LocationDto
+    public class NullableLocationDto
     {
-        public int StreetNumber { get; set; }
+        public int? StreetNumber { get; set; }
         public string Street { get; set; }
-        public int PostalCode { get; set; }
+        public int? PostalCode { get; set; }
         public string City { get; set; }
 
         public Tuple<double, double> Coord { get; set; }

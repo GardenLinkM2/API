@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNet.OData.Query;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
@@ -15,6 +18,7 @@ namespace Union.Backend.Service.Services
     public class GardensService
     {
         private readonly GardenLinkContext db;
+        public const string GEOCAL_API_URL = "https://api-adresse.data.gouv.fr/search/?q=";
         public GardensService(GardenLinkContext gardenLinkContext)
         {
             db = gardenLinkContext;
@@ -159,20 +163,60 @@ namespace Union.Backend.Service.Services
         }
 
 
-        private double calcDist(Location locationA, Location locationB)
+        public Tuple<double, double> getCoordinates(NullableLocationDto location)
         {
-            double Alongitude = locationA.Coord.Item1;
-            double Alatitude = locationA.Coord.Item2;
+            Tuple<double, double> coord;
+            if (!String.IsNullOrEmpty(location.Street) && location.StreetNumber.HasValue && location.PostalCode.HasValue)
+            {
 
-            double Blongitude = locationB.Coord.Item1;
-            double Blatitude = locationB.Coord.Item2;
+                string rue = location.Street.Trim().Replace("  ", " ").Replace(" ", "+");
+                string addresse = location.Street + "+" + rue + "+" + "&postcode=" + location.PostalCode;
+                coord = getCoordinatesWithUrl(GEOCAL_API_URL + addresse);
+            }
+            else if (!String.IsNullOrEmpty(location.City) && location.PostalCode.HasValue)
+            {
+                String addresse = location.City.Trim() + "&postcode=" + location.PostalCode;
+                coord = getCoordinatesWithUrl(GEOCAL_API_URL + addresse);
+            }
+            else
+            {
+                throw new BadRequestApiException();
+            }
+
+            return coord;
+        }
+
+
+        private Tuple<double, double> getCoordinatesWithUrl(String url)
+        {
+            WebRequest request = HttpWebRequest.Create(url);
+            WebResponse response = request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            string urlText = reader.ReadToEnd(); // it takes the response from your url 
+            dynamic result = JObject.Parse(urlText);
+
+            double longitude = result.features[0].geometry.coordinates[0];
+            double latitude = result.features[0].geometry.coordinates[1];
+
+            return new Tuple<double, double>(longitude, latitude);
+        }
+
+
+        private int calcDist(Tuple<double, double> locationA, Tuple<double, double> locationB)
+        {
+            double Alongitude = locationA.Item1;
+            double Alatitude = locationA.Item2;
+
+            double Blongitude = locationB.Item1;
+            double Blatitude = locationB.Item2;
 
             double x = (Blongitude - Alongitude) * Math.Cos(((Alatitude + Blatitude) / 2) * (Math.PI / 180.0));
             double y = Blatitude - Alatitude;
             double z = Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
 
 
-            return 1.852 * 60 * z * 1.05;
+            int distance = Convert.ToInt32(Math.Floor(1.852 * 60 * z));
+            return distance;
 
         }
 

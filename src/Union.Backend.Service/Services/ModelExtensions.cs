@@ -164,7 +164,8 @@ namespace Union.Backend.Service.Services
                 StreetNumber = location.StreetNumber,
                 Street = location.Street,
                 PostalCode = location.PostalCode,
-                City = location.City
+                City = location.City,
+                Coord = location.Coord
             };
         }
 
@@ -176,7 +177,7 @@ namespace Union.Backend.Service.Services
                 Street = dto.Street,
                 PostalCode = dto.PostalCode,
                 City = dto.City,
-                Coord= getCoordinates(dto)
+                Coord = getCoordinates(dto)
             };
         }
 

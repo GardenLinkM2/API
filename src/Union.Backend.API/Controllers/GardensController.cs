@@ -59,6 +59,17 @@ namespace Union.Backend.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Authorize(PermissionType.All)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Tuple<double, double>))]
+        public IActionResult getCoordinates([FromBody] NullableLocationDto location)
+        {
+
+            return Ok(service.getCoordinates(location));
+
+        }
+
+
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GardenDto))]
         public async Task<IActionResult> UpdateGarden([FromRoute(Name = "id")] Guid gardenId, [FromBody] GardenDto dto)
@@ -88,7 +99,7 @@ namespace Union.Backend.API.Controllers
                 var garden = await service.GetGardenById(gardenId);
                 if (!garden.Data.Owner.Equals(me) && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     throw new ForbidenApiException();
-                
+
                 await service.DeleteGarden(gardenId);
                 return NoContent();
             }
