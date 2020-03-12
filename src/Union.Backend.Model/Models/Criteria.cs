@@ -17,7 +17,12 @@ namespace Union.Backend.Model.Models
 
     public class Criteria : UniqueEntity
     {
-        public TimeSpan? LocationTime { get; set; }
+        private TimeSpan? RealLocationTime { get; set; }
+        public long? LocationTime 
+        { 
+            get => RealLocationTime?.ToSeconds(); 
+            set => RealLocationTime = value?.ToTimeSpan(); 
+        }
         public int? Area { get; set; }
         public double? Price { get; set; }
         public Orientation? Orientation { get; set; }

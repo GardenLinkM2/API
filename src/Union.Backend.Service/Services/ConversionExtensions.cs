@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
+using static Union.Backend.Model.Models.ModelExtensions;
 
 namespace Union.Backend.Service.Services
 {
-    static class ModelExtensions
+    static class ConversionExtensions
     {
-        public static List<T> ToListIfNotEmpty<T>(this IEnumerable<T> enumerable)
-        {
-            return enumerable.Count() == 0 ? null : enumerable.ToList();
-        }
-
         public static User ConvertToModel(this UserDto dto)
         {
             return new User
@@ -111,12 +107,6 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static long ToSeconds(this TimeSpan timeSpan) =>
-            timeSpan.Ticks / 10000000;
-
-        public static TimeSpan ToTimeSpan(this long seconds) =>
-            new TimeSpan(seconds * 10000000);
-
         public static CriteriaDto ConvertToDto(this Criteria criteria)
         {
             return new CriteriaDto
@@ -128,16 +118,8 @@ namespace Union.Backend.Service.Services
                 Price = criteria.Price,
                 TypeOfClay = criteria.TypeOfClay,
                 WaterAccess = criteria.WaterAccess,
-                LocationTime = criteria.LocationTime?.ToSeconds(),
+                LocationTime = criteria.LocationTime,
             };
-        }
-
-        private static T? ToEnum<T>(this string value)
-            where T : struct
-        {
-            if(!Enum.TryParse(value, out T result))
-                return null;
-            return result;
         }
 
         public static Criteria ConvertToModel(this CriteriaDto dto)
@@ -151,7 +133,7 @@ namespace Union.Backend.Service.Services
                 Price = dto.Price,
                 TypeOfClay = dto.TypeOfClay,
                 WaterAccess = dto.WaterAccess,
-                LocationTime = dto.LocationTime?.ToTimeSpan()
+                LocationTime = dto.LocationTime
             };
         }
 

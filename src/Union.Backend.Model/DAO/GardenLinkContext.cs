@@ -10,7 +10,7 @@ namespace Union.Backend.Model.DAO
         {
         }
 
-        public DbSet<Criteria> Characteristics { get; set; }
+        public DbSet<Criteria> Criterias { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Talk> Conversations { get; set; }
         public DbSet<Garden> Gardens { get; set; }
