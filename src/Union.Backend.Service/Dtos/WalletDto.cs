@@ -6,6 +6,6 @@ namespace Union.Backend.Service.Dtos
     {
         [SwaggerExclude]
         public Guid Id { get; set; }
-        public int Balance { get; set; }
+        public float Balance { get; set; }
     }
 }

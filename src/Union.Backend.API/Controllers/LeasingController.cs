@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Union.Backend.Service.Auth;
@@ -19,39 +21,67 @@ namespace Union.Backend.API.Controllers
             this.service = service;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllLeasings()
-        {
-            return Ok(await service.GetAllLeasings());
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetLeasingById([FromRoute(Name = "id")] Guid LeasingId)
-        {
-            return Ok(await service.GetLeasing(LeasingId));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateLeasing([FromBody] LeasingDto Leasing)
-        {
-            var result = await service.AddLeasing(Leasing);
-            return Created($"/api/Leasing/{result.Data.Id}", result);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ChangeLeasing([FromRoute(Name = "id")] Guid LeasingId, [FromBody] LeasingDto Leasing)
+        [HttpGet("me")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<LeasingDto>))]
+        public async Task<IActionResult> GetAllMyLeasings()
         {
             try
             {
-
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var leasing = service.GetLeasing(LeasingId);
-                if (leasing.Result.Data.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                return Ok(await service.GetAllLeasingsByUserId(id));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LeasingDto))]
+        public async Task<IActionResult> GetLeasingById([FromRoute(Name = "id")] Guid leasingId)
+        {
+            return Ok(await service.GetLeasing(leasingId));
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(LeasingDto))]
+        public async Task<IActionResult> CreateLeasing([FromBody] LeasingDto leasingDto)
+        {
+            try
+            {
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var result = await service.AddLeasing(me, leasingDto);
+                return Created($"/api/Leasing/{result.Data.Id}", result);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LeasingDto))]
+        public async Task<IActionResult> ChangeLeasing([FromRoute(Name = "id")] Guid leasingId, [FromBody] LeasingDto leasingDto)
+        {
+            try
+            {
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var leasing = await service.GetLeasing(leasingId);
+                if (leasing.Data.Owner != me && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                 {
-                    return Forbid();
+                    throw new ForbiddenApiException();
                 }
 
-                return Ok(await service.ChangeLeasing(Leasing, LeasingId));
+                return Ok(await service.ChangeLeasing(leasingId, leasingDto));
             }
             catch (HttpResponseException)
             {
@@ -64,22 +94,19 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteLeasing([FromRoute(Name = "id")] Guid LeasingId)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteLeasing([FromRoute(Name = "id")] Guid leasingId)
         {
             try
             {
-
-
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var leasing = service.GetLeasing(LeasingId);
-                if (leasing.Result.Data.Owner != id || !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    throw new ForbidenException();
-                }
+                var leasing = service.GetLeasing(leasingId);
+                if (leasing.Result.Data.Owner != id && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                    throw new ForbiddenApiException();
 
+                await service.DeleteLeasing(leasingId);
 
-                await service.DeleteLeasing(LeasingId);
-
+                return NoContent();
             }
             catch (HttpResponseException)
             {
@@ -90,6 +117,5 @@ namespace Union.Backend.API.Controllers
                 throw new BadRequestApiException();
             }
         }
-
     }
 }

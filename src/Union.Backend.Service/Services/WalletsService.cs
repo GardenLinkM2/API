@@ -11,25 +11,34 @@ namespace Union.Backend.Service.Services
     public class WalletsService
     {
         private readonly GardenLinkContext db;
-        public WalletsService(GardenLinkContext gardenLinkContext)
+        private readonly UsersService userService;
+        public WalletsService(GardenLinkContext gardenLinkContext, UsersService userService)
         {
             db = gardenLinkContext;
+            this.userService = userService;
         }
 
         public async Task<QueryResults<WalletDto>> GetWalletByUserId(Guid userId)
         {
-            throw new WorkInProgressApiException();
+            var user = await userService.GetMe(userId) ?? throw new NotFoundApiException();
+
+            return new QueryResults<WalletDto>
+            {
+                Data = user.Data.Wallet
+            };
         }
 
 
-        public async Task<QueryResults<WalletDto>> ChangeWallet(Guid me, Guid my, WalletDto walletDto)
+        public async Task<QueryResults<WalletDto>> ChangeWallet(Guid me, Guid walletId, WalletDto walletDto, bool isAdmin)
         {
-            var wallet = await db.Wallets.GetByIdAsync(my) ?? throw new NotFoundApiException();
-            if (!wallet.OfUser.Equals(me))
-                throw new UnauthorizedAccessException();
+            var wallet = await db.Wallets.GetByIdAsync(walletId) ?? throw new NotFoundApiException();
+            if (!wallet.OfUser.Equals(me) && !isAdmin)
+                throw new ForbiddenApiException();
 
             wallet.Balance = walletDto.Balance;
+
             await db.SaveChangesAsync();
+
             return new QueryResults<WalletDto>
             {
                 Data = wallet.ConvertToDto()

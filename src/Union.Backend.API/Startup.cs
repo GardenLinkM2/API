@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Formatter;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Linq;
+using System.Text.Json.Serialization;
 using Union.Backend.Model;
 using Union.Backend.Model.DAO;
 using Union.Backend.Service;
@@ -44,14 +49,33 @@ namespace Union.Backend.API
                        .AllowAnyHeader();
             }));
 
-            services .AddMvc(config =>
+            services.AddMvc(options =>
             {
-                config.Filters.Add(typeof(Service.Auth.AuthorizeAttribute), 255);
+                options.Filters.Add(typeof(Service.Auth.AuthorizeAttribute), 255);
+                options.EnableEndpointRouting = false;
+
+                foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+                {
+                    outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
+                }
+                foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+                {
+                    inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
+                }
             })
             .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
             .AddJsonOptions(opt =>
             {
                 opt.JsonSerializerOptions.IgnoreNullValues = true;
+                opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+
+            services.AddOData();
+
+            services.AddMvcCore(options => 
+            {
+                options.OutputFormatters.OfType<ODataOutputFormatter>().ToList().ForEach(o => options.OutputFormatters.Remove(o));
+                options.InputFormatters.OfType<ODataInputFormatter>().ToList().ForEach(i => options.InputFormatters.Remove(i));
             });
 
             services.AddControllers(opt =>
@@ -59,21 +83,22 @@ namespace Union.Backend.API
                 opt.Filters.Add(new HttpResponseExceptionFilter());
             });
 
+
             services.AddDbContext<GardenLinkContext>(opt =>
+            {
+                switch (dbContextConfig)
                 {
-                    switch (dbContextConfig)
-                    {
-                        case DbContextConfig.Local: opt.UseInMemoryDatabase("LocalList"); break;
-                        default: opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext")); break;
-                    }
+                    case DbContextConfig.Local: opt.UseInMemoryDatabase("LocalList"); break;
+                    default: opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext")); break;
                 }
-            );
+            });
 
             services.AddSwaggerGen(sd =>
             {
                 sd.SwaggerDoc("v1", new OpenApiInfo { Title = "GardenLink", Version = "v1" });
                 sd.SchemaFilter<SwaggerExcludeSchemaFilter>();
                 sd.OperationFilter<AdditionalHeaderFilter>();
+                sd.DocumentFilter<JustDtoDocumentFilter>();
             });
 
             services.AddTransient<ClientDialogService, ClientDialogService>();
@@ -108,6 +133,11 @@ namespace Union.Backend.API
             {
                 endpoints.MapControllers();
             });
+            app.UseMvc(builder =>
+            {
+                builder.Expand().Filter().OrderBy().Count();
+                builder.EnableDependencyInjection();
+            });
 
             app.UseHttpsRedirection();
 
@@ -116,9 +146,6 @@ namespace Union.Backend.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenLink v1");
             });
-
-            using var serviceScope = app.ApplicationServices.CreateScope();
-            serviceScope.ServiceProvider.GetService<GardenLinkContext>().Migrate();
         }
     }
 }

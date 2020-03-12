@@ -6,6 +6,8 @@ using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Auth;
 using System.Net;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace Union.Backend.API.Controllers
 {
@@ -20,13 +22,14 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost("{id}")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ContactDto))]
+
         public async Task<IActionResult> Contact([FromRoute(Name = "id")] Guid contactId, [FromBody] DemandDto demand)
         {
             try
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                //await service.Contact(myId, contactId, contact);
-                var result = await service.Contact(contactId, myId, demand); //TEMP
+                var result = await service.Contact(myId, contactId, demand);
                 return Created($"/api/contacts/{result.Data.Id}", result);
             }
             catch (HttpResponseException)
@@ -40,6 +43,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ContactDto>))]
         public async Task<IActionResult> GetMyContacts()
         {
             try
@@ -58,6 +62,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ContactDto))]
         public async Task<IActionResult> GetContactbyId([FromRoute(Name = "id")] Guid demandId)
         {
             try
@@ -76,6 +81,7 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ContactDto))]
         public async Task<IActionResult> AcceptOrDenyContact([FromRoute(Name = "id")] Guid demandId, [FromBody] DemandDto demand)
         {
             try
@@ -94,12 +100,14 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteContact([FromRoute(Name = "id")] Guid friendId)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteContact([FromRoute(Name = "id")] Guid friendId)
         {
             try
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 await service.DeleteContact(myId, friendId);
+                return NoContent();
             }
             catch (HttpResponseException)
             {

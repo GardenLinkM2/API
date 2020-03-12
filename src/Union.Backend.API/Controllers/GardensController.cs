@@ -6,10 +6,14 @@ using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Auth;
 using System.Net;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNet.OData.Query;
+using Union.Backend.Model.Models;
 
 namespace Union.Backend.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Gardens")]
     [ApiController]
     public class GardensController : ControllerBase
     {
@@ -21,47 +25,48 @@ namespace Union.Backend.API.Controllers
 
         [HttpGet]
         [Authorize(PermissionType.All)]
-        public async Task<IActionResult> GetAllGardens()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
+        public async Task<IActionResult> SearchGardens(ODataQueryOptions<Garden> options)
         {
-            return Ok(await service.GetAllGardens());
-        }
-
-        [HttpGet("search/{params}")]
-        [Authorize(PermissionType.All)]
-        public async Task<IActionResult> GetGardensByParam([FromRoute(Name = "params")] Guid GardenId)
-        {
-            //return Ok(await service.GetGardensByParams());
-            throw new NotImplementedException();
+            return Ok(await service.SearchGardens(options));
         }
 
         [HttpGet("{id}")]
         [Authorize(PermissionType.All)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GardenDto))]
         public async Task<IActionResult> GetGardenById([FromRoute(Name = "id")] Guid GardenId)
         {
             return Ok(await service.GetGardenById(GardenId));
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateGarden([FromBody] GardenDto Garden)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(GardenDto))]
+        public async Task<IActionResult> CreateGarden([FromBody] GardenDto garden)
         {
-            var result = await service.AddGarden(Garden);
-            return Created($"/api/Gardens/{result.Data.Id}", result);
+            try
+            {
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var result = await service.AddGarden(me, garden);
+                return Created($"/api/Gardens/{result.Data.Id}", result);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGarden([FromRoute(Name = "id")] Guid GardenId, [FromBody] GardenDto garden)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GardenDto))]
+        public async Task<IActionResult> UpdateGarden([FromRoute(Name = "id")] Guid gardenId, [FromBody] GardenDto dto)
         {
-
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var jardin = await service.GetGardenById(GardenId);
-
-                if (jardin.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    return Forbid();
-                }
-                return Ok(await service.ChangeGarden(garden, GardenId));
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.ChangeGarden(me, gardenId, dto));
             }
             catch (HttpResponseException)
             {
@@ -71,78 +76,29 @@ namespace Union.Backend.API.Controllers
             {
                 throw new BadRequestApiException();
             }
-
         }
 
-        [HttpPut("{id}/description")]
-        public async Task<IActionResult> UpdateGardenDescription([FromRoute(Name = "id")] Guid GardenId, [FromBody] DescriptionDto desc)
+        [HttpPost("{id}/report")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> ReportGarden([FromRoute(Name = "id")] Guid gardenId)
         {
-
-            try
-            {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var jardin = await service.GetGardenById(GardenId);
-
-                if (jardin.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    return Forbid();
-                }
-                return Ok(await service.ChangeGardenDescription(desc, GardenId));
-            }
-            catch (HttpResponseException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException();
-            }
-
-        }
-
-        [HttpPut("{id}/validation")]
-        public async Task<IActionResult> UpdateGardenValidation([FromRoute(Name = "id")] Guid GardenId, [FromBody] ValidationDto valid)
-        {
-
-            try
-            {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var jardin = await service.GetGardenById(GardenId);
-
-                if (jardin.Data.Owner != id && !Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    return Forbid();
-                }
-                return Ok(await service.ChangeGardenValidation(valid, GardenId));
-            }
-            catch (HttpResponseException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException();
-            }
-
-
+            await service.ReportGarden(gardenId);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteGarden([FromRoute(Name = "id")] Guid GardenId)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteGarden([FromRoute(Name = "id")] Guid gardenId)
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                var jardin = await service.GetGardenById(GardenId);
-
-                if (jardin.Data.Owner == id || Utils.IsAdminRoleFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                {
-                    await service.DeleteGarden(GardenId);
-                }
-                else
-                {
-                    throw new ForbidenException();
-                }
+                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var garden = await service.GetGardenById(gardenId);
+                if (!garden.Data.Owner.Equals(me) && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                    throw new ForbiddenApiException();
+                
+                await service.DeleteGarden(gardenId);
+                return NoContent();
             }
             catch (HttpResponseException)
             {

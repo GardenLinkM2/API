@@ -49,15 +49,14 @@ namespace Union.Backend.Service.Services
             };
             return new TokenDto
             {
-                Token = JWT.Encode(
-                    payload, 
-                    Convert.FromBase64String(auth.Value.BackSecret),
-                    JwtConfigForBack.JwsAlgorithm,
-                    extraHeaders: header)
+                Token = JWT.Encode(payload, 
+                                   Convert.FromBase64String(auth.Value.BackSecret),
+                                   JwtConfigForBack.JwsAlgorithm,
+                                   extraHeaders: header)
             };
         }
 
-        private async Task<User> GenereateNewUser(Guid id, TokenDto token)
+        private async Task<User> GenerateNewUser(Guid id, TokenDto token)
         {
             var authUser = await RequestUserInfo(auth.Value.Host, id, token.Token);
             var userDto = new UserDto
@@ -77,9 +76,8 @@ namespace Union.Backend.Service.Services
                 var accessToken = ValidateAndGetToken<TokenDto>(tokenDto.Token, auth.Value.ClientSecret);
                 accessToken.Token = tokenDto.Token;
                 var userId = new Guid(accessToken.Uuid);
-                var user = await db.Users.GetByIdAsync(userId) ?? await GenereateNewUser(userId, accessToken);
-                //return GenerateUserToken(user, accessToken.IsAdmin ?? false);
-                return GenerateUserToken(user, true); //TEMP
+                var user = await db.Users.GetByIdAsync(userId) ?? await GenerateNewUser(userId, accessToken);
+                return GenerateUserToken(user, accessToken.IsAdmin ?? false);
             }
             catch (HttpResponseException)
             {

@@ -2,20 +2,33 @@
 
 namespace Union.Backend.Model.Models
 {
-    public class Criteria : UniqueEntity
-    //TODO: Une Table (id, nom, type (visuel) <-probablement la même chose-> type (valeur), valuePossible)
-    //valuePossible (table générique ?) T ou T[]
-    //-> probablement une Table de jointure avec Jardin
+    public enum Orientation
     {
-        public TimeSpan LocationTime { get; set; } //TODO: utiliser des long (= Timestamp)
-        public int Area { get; set; }
-        public double Price { get; set; }
-        public Location Location { get; set; }
-        public string Orientation { get; set; }
+        Unset = 0,
+        North = 1,
+        East = 2,
+        South = 4,
+        West = 8,
+        NorthEast = North | East,
+        NorthWest = North | West,
+        SouthEast = South | East,
+        SouthWest = South | West,
+    }
+
+    public class Criteria : UniqueEntity
+    {
+        private TimeSpan? RealLocationTime { get; set; }
+        public long? LocationTime 
+        { 
+            get => RealLocationTime?.ToSeconds(); 
+            set => RealLocationTime = value?.ToTimeSpan(); 
+        }
+        public int? Area { get; set; }
+        public double? Price { get; set; }
+        public Orientation? Orientation { get; set; }
         public string TypeOfClay { get; set; }
-        public bool Equipments { get; set; }
-        public bool WaterAccess { get; set; }
-        public bool DirectAccess { get; set; }
-        public Guid ForGarden { get; set; }
+        public bool? Equipments { get; set; }
+        public bool? WaterAccess { get; set; }
+        public bool? DirectAccess { get; set; }
     }
 }

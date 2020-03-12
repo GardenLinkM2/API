@@ -14,14 +14,14 @@ namespace Union.Backend.API
             if (context.Exception == null) return;
             if (context.Exception is HttpResponseException exception)
             {
-                context.Result = new ObjectResult(exception.Message)
+                context.Result = new ObjectResult(new { message = exception.Message })
                 {
                     StatusCode = exception.Status,
                 };
             }
             else
             {
-                context.Result = new ObjectResult(context.Exception.ConvertToString())
+                context.Result = new ObjectResult(new { message = context.Exception.ConvertToString() })
                 {
                     StatusCode = 500,
                 };

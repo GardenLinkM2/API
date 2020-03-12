@@ -13,7 +13,6 @@ namespace Union.Backend.Model.DAO
                 .HasOne<User>()
                 .WithMany(u => u.Contacts)
                 .HasForeignKey(c => c.Me);
-            builder.Property(c => c.MyContact).IsRequired();
             builder.Property(c => c.FirstMessage).IsRequired();
             builder.Property(c => c.Status).IsRequired();
         }
