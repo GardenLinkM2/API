@@ -185,9 +185,9 @@ namespace Union.Backend.Service.Services
             {
                 Id = leasing.Id,
                 Creation = leasing.Creation,
-                Begin = leasing.Begin,
+                Begin = new TimeSpan(leasing.Begin.Ticks / 10000000),
                 State = leasing.State,
-                End = leasing.End,
+                End = new TimeSpan(leasing.End.Ticks / 10000000),
                 Renew = leasing.Renew,
                 Time = leasing.Time.ToSeconds(),
                 Garden = leasing.Garden.Id,
@@ -201,8 +201,8 @@ namespace Union.Backend.Service.Services
             return new Leasing
             {
                 Creation = dto.Creation,
-                Begin = dto.Begin.Value,
-                End = dto.End.Value,
+                Begin = Convert.ToDateTime(dto.Begin.ToString()),
+                End = Convert.ToDateTime(dto.End.ToString()),
                 Renew = dto.Renew.Value,
                 State = dto.State.Value,
                 Time = dto.Time.Value.ToTimeSpan()
