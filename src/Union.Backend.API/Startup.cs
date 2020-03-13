@@ -89,7 +89,13 @@ namespace Union.Backend.API
                 switch (dbContextConfig)
                 {
                     case DbContextConfig.Local: opt.UseInMemoryDatabase("LocalList"); break;
-                    default: opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext")); break;
+                    default: 
+                        opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext"), 
+                                     mySqlOptions =>
+                                     {
+                                         mySqlOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+                                     });
+                        break;
                 }
             });
 
@@ -146,6 +152,9 @@ namespace Union.Backend.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenLink v1");
             });
+
+            using var serviceScope = app.ApplicationServices.CreateScope();
+            serviceScope.ServiceProvider.GetService<GardenLinkContext>().Create();
         }
     }
 }

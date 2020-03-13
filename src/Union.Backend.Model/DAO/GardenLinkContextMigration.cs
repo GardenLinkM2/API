@@ -6,6 +6,11 @@
         public static void Migrate(this GardenLinkContext context)
         {
             context.Database.EnsureDeleted(); //Tout cramer et repartir sur des bases saines
+            context.Create();
+        }
+
+        public static void Create(this GardenLinkContext context)
+        {
             context.Database.EnsureCreated();
         }
     }
