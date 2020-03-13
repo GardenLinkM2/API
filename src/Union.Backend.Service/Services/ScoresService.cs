@@ -35,7 +35,7 @@ namespace Union.Backend.Service.Services
         {
             _ = await db.Users.GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
-            var scores = db.Scores
+            var scores = db.Scores.Include(s => s.Rater)
                                   .Where(s => s.Rated == userId)
                                   .Select(s => s.ConvertToDto());
 
@@ -50,7 +50,7 @@ namespace Union.Backend.Service.Services
         {
             _ = await db.Gardens.GetByIdAsync(gardenId) ?? throw new NotFoundApiException();
 
-            var scores = db.Scores
+            var scores = db.Scores.Include(s => s.Rater)
                                   .Where(s => s.Rated == gardenId)
                                   .Select(s => s.ConvertToDto());
 
@@ -83,7 +83,7 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<List<ScoreDto>>> GetReportedScores()
         {
-            var scores = db.Scores
+            var scores = db.Scores.Include(s => s.Rater)
                                   .Where(s => s.IsReported == true)
                                   .Select(s => s.ConvertToDto());
 
