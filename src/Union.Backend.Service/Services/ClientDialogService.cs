@@ -10,17 +10,17 @@ using Union.Backend.Model.Models;
 using Union.Backend.Service.Auth;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
-using static Union.Backend.Service.Auth.Utils;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.Service.Services
 {
     public class ClientDialogService
     {
-        private readonly IOptions<AuthSettings> auth;
+        private readonly IOptions<AppSettings> auth;
         private readonly GardenLinkContext db;
         private readonly UsersService usersService;
         public ClientDialogService(
-            IOptions<AuthSettings> auth,
+            IOptions<AppSettings> auth,
             GardenLinkContext gardenLinkContext,
             UsersService usersService)
         {

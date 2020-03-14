@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNet.OData.Query;
 using Union.Backend.Model.Models;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.API.Controllers
 {
@@ -28,7 +29,7 @@ namespace Union.Backend.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
         public async Task<IActionResult> SearchGardens(ODataQueryOptions<Garden> options, double? longi, double? lati, int? dist)
         {
-            return Ok(await service.SearchGardens(options,longi,lati,dist));
+            return Ok(await service.SearchGardens(options, longi, lati, dist));
         }
 
         [HttpGet("{id}")]
@@ -45,7 +46,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var result = await service.AddGarden(me, garden);
                 return Created($"/api/Gardens/{result.Data.Id}", result);
             }
@@ -59,13 +60,13 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPost("cordoonates")]
+        [HttpPost("coordinates")]
         [Authorize(PermissionType.All)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NullableLocationDto))]
-        public IActionResult getCoordinates([FromBody] NullableLocationDto location)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Coordinates))]
+        public IActionResult GetCoordinates([FromBody] NullableLocationDto location)
         {
-            location.LongitudeAndLatitude = service.getCoordinates(location);
-            return Ok(location);
+            var (longitude, latitude) = service.GetCoordinates(location);
+            return Ok(new { longitude, latitude });
         }
 
         [HttpPut("{id}")]
@@ -74,7 +75,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.ChangeGarden(me, gardenId, dto));
             }
             catch (HttpResponseException)
@@ -101,9 +102,9 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var garden = await service.GetGardenById(gardenId);
-                if (!garden.Data.Owner.Equals(me) && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (!garden.Data.Owner.Equals(me) && !IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     throw new ForbiddenApiException();
 
                 await service.DeleteGarden(gardenId);

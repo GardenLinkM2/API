@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Union.Backend.Service.Dtos
+﻿namespace Union.Backend.Service.Dtos
 {
     public class NullableLocationDto
     {
@@ -8,7 +6,5 @@ namespace Union.Backend.Service.Dtos
         public string Street { get; set; }
         public int? PostalCode { get; set; }
         public string City { get; set; }
-
-        public Tuple<double, double> LongitudeAndLatitude { get; set; }
     }
 }

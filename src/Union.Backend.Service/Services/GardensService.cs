@@ -1,24 +1,24 @@
 ﻿using Microsoft.AspNet.OData.Query;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Union.Backend.Model;
 using Union.Backend.Model.DAO;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Results;
+using static Union.Backend.Model.Models.ModelExtensions;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.Service.Services
 {
     public class GardensService
     {
         private readonly GardenLinkContext db;
-        public const string GEOCAL_API_URL = "https://api-adresse.data.gouv.fr/search/?q=";
         public GardensService(GardenLinkContext gardenLinkContext)
         {
             db = gardenLinkContext;
@@ -40,21 +40,24 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<List<GardenDto>>> SearchGardens(ODataQueryOptions<Garden> options,double? longi, double? lati, int? dist)
+        public async Task<QueryResults<List<GardenDto>>> SearchGardens(ODataQueryOptions<Garden> options, 
+                                                                       double? longi, 
+                                                                       double? lati, 
+                                                                       int? dist)
         {
             var queryable = options.ApplyTo(db.Gardens.Where(g => g.Validation.Equals(Status.Accepted)
                                                                   && !g.IsReserved))
                                    .OfType<Garden>();
-            IQueryable<GardenDto> gardens;
 
+            IQueryable<GardenDto> gardens;
             if (longi.HasValue && lati.HasValue && dist.HasValue)
             {
-                Tuple<double, double> coord = new Tuple<double, double>(longi.Value,lati.Value);
+                var coord = (longi.Value, lati.Value);
                 gardens = queryable.Include(g => g.Photos)
                                    .Include(g => g.Criteria)
                                    .Include(g => g.Location)
                                    .Include(g => g.Owner)
-                                   .Where(g => calcDist(g.Location.LongitudeAndLatitude, coord) <= dist.Value)
+                                   .Where(g => g.Location.Coordinates.ComputeDistance(coord) <= dist.Value)
                                    .Select(g => g.ConvertToDto());
             }
             else
@@ -67,8 +70,8 @@ namespace Union.Backend.Service.Services
             }
             return new QueryResults<List<GardenDto>>
             {
-                Data = await gardens.ToListAsync(),
-                Count = await gardens.CountAsync()
+                Data = await gardens?.ToListAsync(),
+                Count = await gardens?.CountAsync()
             };
         }
 
@@ -200,68 +203,20 @@ namespace Union.Backend.Service.Services
             await db.SaveChangesAsync();
         }
 
-
-        public Tuple<double, double> getCoordinates(NullableLocationDto location)
+        public (double longitude, double latitude) GetCoordinates(NullableLocationDto location)
         {
-            Tuple<double, double> coord;
-            if (!String.IsNullOrEmpty(location.Street) && location.StreetNumber.HasValue && location.PostalCode.HasValue)
+            if (!string.IsNullOrEmpty(location.Street) && location.StreetNumber.HasValue && location.PostalCode.HasValue)
             {
-
-                string rue = location.Street.Trim().Replace("  ", " ").Replace(" ", "+");
-                string addresse = location.Street + "+" + rue + "+" + "&postcode=" + location.PostalCode;
-                coord = getCoordinatesWithUrl(GEOCAL_API_URL + addresse);
+                var queryString = $"?q={ location.StreetNumber }+{ Regex.Replace(location.Street.Trim(), @"\s+", "+") }+&postcode={ location.PostalCode }";
+                return GetCoordinatesFromUrl(AppSettings.GEOCAL_API_URL + queryString);
             }
-            else if (!String.IsNullOrEmpty(location.City) && location.PostalCode.HasValue)
+            else if (!string.IsNullOrEmpty(location.City) && location.PostalCode.HasValue)
             {
-                String addresse = location.City.Trim() + "&postcode=" + location.PostalCode;
-                coord = getCoordinatesWithUrl(GEOCAL_API_URL + addresse);
+                string queryString = $"?q={location.City.Trim()}&postcode={location.PostalCode}";
+                return GetCoordinatesFromUrl(AppSettings.GEOCAL_API_URL + queryString);
             }
             else
-            {
-                throw new BadRequestApiException("not enough fields completed in the NullableDLocationTO");
-            }
-
-            return coord;
-        }
-
-
-        private Tuple<double, double> getCoordinatesWithUrl(String url)
-        {
-            try { 
-            WebRequest request = HttpWebRequest.Create(url);
-            WebResponse response = request.GetResponse();
-            StreamReader reader = new StreamReader(response.GetResponseStream());
-            string urlText = reader.ReadToEnd(); // it takes the response from your url 
-            dynamic result = JObject.Parse(urlText);
-
-            double longitude = result.features[0].geometry.coordinates[0];
-            double latitude = result.features[0].geometry.coordinates[1];
-            return new Tuple<double, double>(longitude, latitude);
-            }
-            catch (Exception)
-            {
-                throw new BadRequestApiException("wrong syntax of location");
-            }
-            
-        }
-
-
-        private int calcDist(Tuple<double, double> locationA, Tuple<double, double> locationB)
-        {
-            double Alongitude = locationA.Item1;
-            double Alatitude = locationA.Item2;
-
-            double Blongitude = locationB.Item1;
-            double Blatitude = locationB.Item2;
-
-            double x = (Blongitude - Alongitude) * Math.Cos(((Alatitude + Blatitude) / 2) * (Math.PI / 180.0));
-            double y = Blatitude - Alatitude;
-            double z = Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
-
-
-            int distance = Convert.ToInt32(Math.Floor(1.852 * 60 * z));
-            return distance;
-
+                throw new BadRequestApiException($"Not enough fields completed in the {nameof(NullableLocationDto)} object.");
         }
     }
 }

@@ -1,7 +1,11 @@
-﻿using System;
-
-namespace Union.Backend.Service.Dtos
+﻿namespace Union.Backend.Service.Dtos
 {
+    public struct Coordinates
+    {
+        public double Longitude { get; set; }
+        public double Latitude { get; set; }
+    }
+
     public class LocationDto
     {
         public int StreetNumber { get; set; }
@@ -9,6 +13,6 @@ namespace Union.Backend.Service.Dtos
         public int PostalCode { get; set; }
         public string City { get; set; }
 
-        public Tuple<double, double> LongitudeAndLatitude { get; set; }
+        public Coordinates LongitudeAndLatitude { get; set; }
     }
 }

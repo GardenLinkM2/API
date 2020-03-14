@@ -28,5 +28,22 @@ namespace Union.Backend.Model.Models
                 return null;
             return result;
         }
+
+        public static int ComputeDistance(this (double longitude, double latitude) from, 
+                                               (double longitude, double latitude) to)
+        {
+            double Alongitude = from.longitude;
+            double Alatitude = from.latitude;
+
+            double Blongitude = to.longitude;
+            double Blatitude = to.latitude;
+
+            double x = (Blongitude - Alongitude) * Math.Cos(((Alatitude + Blatitude) / 2) * (Math.PI / 180.0));
+            double y = Blatitude - Alatitude;
+            double z = Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+
+            int distance = Convert.ToInt32(Math.Floor(1.852 * 60 * z));
+            return distance;
+        }
     }
 }

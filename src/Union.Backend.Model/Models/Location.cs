@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Union.Backend.Model.Models
 {
@@ -9,6 +9,13 @@ namespace Union.Backend.Model.Models
         public int PostalCode { get; set; }
         public string City { get; set; }
 
-        public Tuple<double, double> LongitudeAndLatitude { get; set; }
+        private double Longitude { get; set; }
+        private double Latitude { get; set; }
+        [NotMapped]
+        public (double longitude, double latitude) Coordinates 
+        { 
+            get => (Longitude, Latitude);
+            set { Longitude = value.longitude; Latitude = value.latitude; }
+        }
     }
 }

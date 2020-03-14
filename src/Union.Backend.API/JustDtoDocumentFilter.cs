@@ -2,6 +2,7 @@
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
 using Union.Backend.Model.Models;
+using Union.Backend.Service.Dtos;
 
 namespace Union.Backend.API
 {
@@ -12,6 +13,7 @@ namespace Union.Backend.API
             nameof(Status),
             nameof(LeasingStatus),
             nameof(Orientation),
+            nameof(Coordinates)
         };
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)

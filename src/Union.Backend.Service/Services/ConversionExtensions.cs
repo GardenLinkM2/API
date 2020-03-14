@@ -1,19 +1,17 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
+using System.Text.RegularExpressions;
+using Union.Backend.Model;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using static Union.Backend.Model.Models.ModelExtensions;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.Service.Services
 {
     static class ConversionExtensions
     {
-        public const string GEOCAL_API_URL = "https://api-adresse.data.gouv.fr/search/?q=";
-
         public static List<T> ToListIfNotEmpty<T>(this IEnumerable<T> enumerable)
         {
             return enumerable.Count() == 0 ? null : enumerable.ToList();
@@ -156,7 +154,16 @@ namespace Union.Backend.Service.Services
                 Street = location.Street,
                 PostalCode = location.PostalCode,
                 City = location.City,
-                LongitudeAndLatitude = location.LongitudeAndLatitude
+                LongitudeAndLatitude = location.Coordinates.ConvertToCoordinates()
+            };
+        }
+
+        public static Coordinates ConvertToCoordinates(this (double longitude, double latitude) tuple)
+        {
+            return new Coordinates
+            {
+                Longitude = tuple.longitude,
+                Latitude = tuple.latitude
             };
         }
 
@@ -168,8 +175,14 @@ namespace Union.Backend.Service.Services
                 Street = dto.Street,
                 PostalCode = dto.PostalCode,
                 City = dto.City,
-                LongitudeAndLatitude = getCoordinates(dto)
+                Coordinates = dto.ConvertToCoordinates()
             };
+        }
+
+        public static (double longitude, double latitude) ConvertToCoordinates(this LocationDto dto)
+        {
+            var queryString = $"?q={ dto.StreetNumber }+{ Regex.Replace(dto.Street.Trim(), @"\s+", "+") }+&postcode={ dto.PostalCode }";
+            return GetCoordinatesFromUrl(AppSettings.GEOCAL_API_URL + queryString);
         }
 
         public static Payment ConvertToModel(this PaymentDto dto)
@@ -301,23 +314,5 @@ namespace Union.Backend.Service.Services
                 FirstMessage = contact.FirstMessage
             };
         }
-
-        public static Tuple<double, double> getCoordinates(LocationDto dto)
-        {
-            String rue = dto.Street.Trim().Replace("  ", " ").Replace(" ", "+");
-            String addresse = dto.Street + "+" + rue + "+" + "&postcode=" + dto.PostalCode;
-
-            WebRequest request = HttpWebRequest.Create(GEOCAL_API_URL + addresse);
-            WebResponse response = request.GetResponse();
-            StreamReader reader = new StreamReader(response.GetResponseStream());
-            string urlText = reader.ReadToEnd(); // it takes the response from your url 
-            dynamic result = JObject.Parse(urlText);
-
-            double longitude = result.features[0].geometry.coordinates[0];
-            double latitude = result.features[0].geometry.coordinates[1];
-
-            return new Tuple<double, double>(longitude, latitude);
-        }
-
     }
 }
