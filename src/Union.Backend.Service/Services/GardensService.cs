@@ -55,12 +55,12 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<List<GardenDto>>> GetMyGardens(Guid myId)
+        public async Task<QueryResults<List<GardenDto>>> GetGardensByUserId(Guid myId)
         {
             var gardens = db.Gardens.Include(g => g.Photos)
                                     .Include(g => g.Criteria)
                                     .Include(g => g.Owner)
-                                    .Where(g => g.Owner.Equals(myId))
+                                    .Where(g => g.Owner.Id.Equals(myId))
                                     .Select(g => g.ConvertToDto());
 
             return new QueryResults<List<GardenDto>>

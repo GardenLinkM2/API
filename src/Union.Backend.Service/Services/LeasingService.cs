@@ -70,7 +70,7 @@ namespace Union.Backend.Service.Services
             if (garden.Owner.Id.Equals(me))
                 throw new BadRequestApiException("You are not authorize to rent your own garden.");
 
-            dto.Creation = DateTime.UtcNow;
+            dto.Creation = DateTime.UtcNow.ToTimestamp();
             dto.State = LeasingStatus.InDemand;
             dto.Renew = false;
             dto.Renter = renter.Id;
@@ -95,8 +95,8 @@ namespace Union.Backend.Service.Services
             var leasing = db.Leasings.Include(l => l.Garden)
                                      .GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
-            leasing.Begin = dto.Begin ?? leasing.Begin;
-            leasing.End = dto.End ?? leasing.End;
+            leasing.Begin = dto.Begin?.ToDateTime() ?? leasing.Begin;
+            leasing.End = dto.End?.ToDateTime() ?? leasing.End;
             leasing.Renew = dto.Renew ?? leasing.Renew;
             leasing.State = dto.State ?? leasing.State;
             leasing.Time = (dto.Time?.ToTimeSpan() ?? leasing.Time);

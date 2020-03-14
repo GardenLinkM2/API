@@ -21,9 +21,8 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<UserDto>> GetUserById(Guid userId)
         {
-            var user = await db.Users
-                .Include(u => u.Photo)
-                .GetByIdAsync(userId) ?? throw new NotFoundApiException();
+            var user = await db.Users.Include(u => u.Photo)
+                                     .GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
             return new QueryResults<UserDto>
             {
@@ -33,10 +32,9 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<UserDto>> GetMe(Guid userId)
         {
-            var user = await db.Users
-                .Include(u => u.Photo)
-                .Include(u => u.Wallet)
-                .GetByIdAsync(userId) ?? throw new NotFoundApiException();
+            var user = await db.Users.Include(u => u.Photo)
+                                     .Include(u => u.Wallet)
+                                     .GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
             return new QueryResults<UserDto>
             {
@@ -46,9 +44,8 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<List<UserDto>>> GetAllUsers()
         {
-            var users = db.Users
-                .Include(u => u.Photo)
-                .Select(u => u.ConvertToDto());
+            var users = db.Users.Include(u => u.Photo)
+                                .Select(u => u.ConvertToDto());
             return new QueryResults<List<UserDto>>
             {
                 Data = await users.ToListAsync(),
@@ -62,10 +59,11 @@ namespace Union.Backend.Service.Services
 
             var createdUser = userDto.ConvertToModel();
             createdUser.Wallet = new Wallet();
-            createdUser.Inscription = DateTime.Now;
+            createdUser.Inscription = DateTime.UtcNow;
 
             await db.Users.AddAsync(createdUser);
             await db.SaveChangesAsync();
+
             return new QueryResults<UserDto>
             {
                 Data = createdUser.ConvertToDto()
@@ -98,7 +96,8 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<UserDto>> Photograph(Guid id, PhotoDto dto)
         {
-            var user = await db.Users.GetByIdAsync(id) ?? throw new NotFoundApiException();
+            var user = await db.Users.Include(u => u.Wallet)
+                                     .GetByIdAsync(id) ?? throw new NotFoundApiException();
             user.Photo = dto.ConvertToModel<User>();
             
             await db.SaveChangesAsync();

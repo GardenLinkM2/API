@@ -15,6 +15,12 @@ namespace Union.Backend.Model.Models
         public static TimeSpan ToTimeSpan(this long seconds) =>
             new TimeSpan(seconds * 10000000);
 
+        public static double ToTimestamp(this DateTime dateTime) =>
+            dateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+
+        public static DateTime ToDateTime(this double timestamp) =>
+            new DateTime(1970, 1, 1).AddSeconds(timestamp);
+
         public static T? ToEnum<T>(this string value)
             where T : struct
         {

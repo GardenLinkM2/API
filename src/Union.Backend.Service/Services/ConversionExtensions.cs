@@ -16,7 +16,8 @@ namespace Union.Backend.Service.Services
                 Id = dto.Id, //Necessary
                 Mail = dto.Email,
                 LastName = dto.LastName,
-                FirstName = dto.FirstName
+                FirstName = dto.FirstName,
+                Photo = dto.Photo?.ConvertToModel<User>()
             };
         }
 
@@ -184,10 +185,10 @@ namespace Union.Backend.Service.Services
             return new LeasingDto
             {
                 Id = leasing.Id,
-                Creation = leasing.Creation,
-                Begin = new TimeSpan(leasing.Begin.Ticks / 10000000),
+                Creation = leasing.Creation.ToTimestamp(),
+                Begin = leasing.Begin.ToTimestamp(),
+                End = leasing.End.ToTimestamp(),
                 State = leasing.State,
-                End = new TimeSpan(leasing.End.Ticks / 10000000),
                 Renew = leasing.Renew,
                 Time = leasing.Time.ToSeconds(),
                 Garden = leasing.Garden.Id,
@@ -200,12 +201,12 @@ namespace Union.Backend.Service.Services
         {
             return new Leasing
             {
-                Creation = dto.Creation,
-                Begin = Convert.ToDateTime(dto.Begin.ToString()),
-                End = Convert.ToDateTime(dto.End.ToString()),
+                Creation = dto.Creation.ToDateTime(),
+                Begin = dto.Begin?.ToDateTime() ?? DateTime.UtcNow,
+                End = dto.End?.ToDateTime() ?? DateTime.UtcNow.AddYears(1),
                 Renew = dto.Renew.Value,
                 State = dto.State.Value,
-                Time = dto.Time.Value.ToTimeSpan()
+                Time = dto.Time?.ToTimeSpan() ?? new TimeSpan(365, 0, 0, 0)
             };
         }
 

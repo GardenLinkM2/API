@@ -37,13 +37,6 @@ namespace Union.Backend.API.Controllers
             return Ok(await service.GetUserById(userId));
         }
 
-        [HttpGet("{id}/gardens")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
-        public async Task<IActionResult> GetMyGardens([FromRoute(Name = "id")] Guid userId)
-        {
-            return Ok(await gardensService.GetMyGardens(userId));
-        }
-
         [HttpGet("me")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<IActionResult> GetMe()
@@ -52,6 +45,32 @@ namespace Union.Backend.API.Controllers
             {
                 var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetMe(myId));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
+
+        [HttpGet("{id}/gardens")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
+        public async Task<IActionResult> GetGardensByUserId([FromRoute(Name = "id")] Guid userId)
+        {
+            return Ok(await gardensService.GetGardensByUserId(userId));
+        }
+
+        [HttpGet("me/gardens")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
+        public async Task<IActionResult> GetMyGardens()
+        {
+            try
+            {
+                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return await GetGardensByUserId(myId);
             }
             catch (HttpResponseException)
             {
@@ -102,18 +121,14 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPut("{id}/photo")]
+        [HttpPut("me/photo")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PhotoDto))]
-        public async Task<IActionResult> Photograph([FromRoute(Name = "id")] Guid id, [FromBody] PhotoDto photo)
+        public async Task<IActionResult> Photograph([FromBody] PhotoDto photo)
         {
             try
             {
                 var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                if (!me.Equals(id))
-                    throw new ForbiddenApiException();
-
-                return Ok(await service.Photograph(id, photo));
-
+                return Ok(await service.Photograph(me, photo));
             }
             catch (HttpResponseException)
             {
