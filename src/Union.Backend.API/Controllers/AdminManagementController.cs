@@ -67,7 +67,7 @@ namespace Union.Backend.API.Controllers
             return Ok(await gardensService.ChangeGardenValidation(gardenId, valid));
         }
 
-        [HttpGet("gardens")]
+        [HttpGet("leasings")]
         [Authorize(PermissionType.Admin)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<LeasingDto>))]
         public async Task<IActionResult> GetAllLeasings()
