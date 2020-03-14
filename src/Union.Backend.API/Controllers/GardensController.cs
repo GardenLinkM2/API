@@ -26,9 +26,9 @@ namespace Union.Backend.API.Controllers
         [HttpGet]
         [Authorize(PermissionType.All)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
-        public async Task<IActionResult> SearchGardens(ODataQueryOptions<Garden> options)
+        public async Task<IActionResult> SearchGardens(ODataQueryOptions<Garden> options, double? longi, double? lati, int? dist)
         {
-            return Ok(await service.SearchGardens(options));
+            return Ok(await service.SearchGardens(options,longi,lati,dist));
         }
 
         [HttpGet("{id}")]
@@ -59,16 +59,14 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("cordoonates")]
         [Authorize(PermissionType.All)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Tuple<double, double>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NullableLocationDto))]
         public IActionResult getCoordinates([FromBody] NullableLocationDto location)
         {
-
-            return Ok(service.getCoordinates(location));
-
+            location.LongitudeAndLatitude = service.getCoordinates(location);
+            return Ok(location);
         }
-
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GardenDto))]

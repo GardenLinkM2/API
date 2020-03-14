@@ -40,17 +40,30 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<List<GardenDto>>> SearchGardens(ODataQueryOptions<Garden> options)
+        public async Task<QueryResults<List<GardenDto>>> SearchGardens(ODataQueryOptions<Garden> options,double? longi, double? lati, int? dist)
         {
             var queryable = options.ApplyTo(db.Gardens.Where(g => g.Validation.Equals(Status.Accepted)))
                                    .OfType<Garden>();
+            IQueryable<GardenDto> gardens;
 
-            var gardens = queryable.Include(g => g.Photos)
+            if (longi.HasValue && lati.HasValue && dist.HasValue)
+            {
+                Tuple<double, double> coord = new Tuple<double, double>(longi.Value,lati.Value);
+                gardens = queryable.Include(g => g.Photos)
+                                   .Include(g => g.Criteria)
+                                   .Include(g => g.Location)
+                                   .Include(g => g.Owner)
+                                   .Where(g => calcDist(g.Location.LongitudeAndLatitude, coord) <= dist.Value)
+                                   .Select(g => g.ConvertToDto());
+            }
+            else
+            {
+                gardens = queryable.Include(g => g.Photos)
                                    .Include(g => g.Criteria)
                                    .Include(g => g.Location)
                                    .Include(g => g.Owner)
                                    .Select(g => g.ConvertToDto());
-
+            }
             return new QueryResults<List<GardenDto>>
             {
                 Data = await gardens.ToListAsync(),
@@ -180,7 +193,7 @@ namespace Union.Backend.Service.Services
             }
             else
             {
-                throw new BadRequestApiException();
+                throw new BadRequestApiException("not enough fields completed in the NullableDLocationTO");
             }
 
             return coord;
@@ -189,6 +202,7 @@ namespace Union.Backend.Service.Services
 
         private Tuple<double, double> getCoordinatesWithUrl(String url)
         {
+            try { 
             WebRequest request = HttpWebRequest.Create(url);
             WebResponse response = request.GetResponse();
             StreamReader reader = new StreamReader(response.GetResponseStream());
@@ -197,8 +211,13 @@ namespace Union.Backend.Service.Services
 
             double longitude = result.features[0].geometry.coordinates[0];
             double latitude = result.features[0].geometry.coordinates[1];
-
             return new Tuple<double, double>(longitude, latitude);
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException("wrong syntax of location");
+            }
+            
         }
 
 

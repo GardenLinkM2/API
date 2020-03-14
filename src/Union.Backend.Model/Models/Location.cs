@@ -9,6 +9,6 @@ namespace Union.Backend.Model.Models
         public int PostalCode { get; set; }
         public string City { get; set; }
 
-        public Tuple<double, double> Coord { get; set; }
+        public Tuple<double, double> LongitudeAndLatitude { get; set; }
     }
 }
