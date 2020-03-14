@@ -42,7 +42,7 @@ namespace Union.Backend.Service.Services
                 .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
 
             if (talk.Sender.Id != me && talk.Receiver.Id != me)
-                throw new ForbidenApiException();
+                throw new ForbiddenApiException();
 
             return new QueryResults<TalkDto>
             {
@@ -74,7 +74,7 @@ namespace Union.Backend.Service.Services
                 .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
 
             if (talk.Sender.Id != me && talk.Receiver.Id != me)
-                throw new ForbidenApiException();
+                throw new ForbiddenApiException();
 
             messageDto.Sender = me;
             messageDto.IsRead = false;
@@ -96,7 +96,7 @@ namespace Union.Backend.Service.Services
                 .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
 
             if (talk.Sender.Id != me)
-                throw new ForbidenApiException();
+                throw new ForbiddenApiException();
 
             db.Talks.Remove(talk);
             await db.SaveChangesAsync();

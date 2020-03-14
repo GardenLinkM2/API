@@ -94,7 +94,7 @@ namespace Union.Backend.API.Controllers
                 if (score.Data.Rater == id || Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     await service.DeleteScore(scoreId);
                 else
-                    throw new ForbidenApiException();
+                    throw new ForbiddenApiException();
 
                 return NoContent();
             }

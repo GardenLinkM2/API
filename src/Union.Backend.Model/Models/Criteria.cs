@@ -4,6 +4,7 @@ namespace Union.Backend.Model.Models
 {
     public enum Orientation
     {
+        Unset = 0,
         North = 1,
         East = 2,
         South = 4,
@@ -16,13 +17,18 @@ namespace Union.Backend.Model.Models
 
     public class Criteria : UniqueEntity
     {
-        public TimeSpan LocationTime { get; set; }
-        public int Area { get; set; }
-        public double Price { get; set; }
-        public Orientation Orientation { get; set; }
+        private TimeSpan? RealLocationTime { get; set; }
+        public long? LocationTime 
+        { 
+            get => RealLocationTime?.ToSeconds(); 
+            set => RealLocationTime = value?.ToTimeSpan(); 
+        }
+        public int? Area { get; set; }
+        public double? Price { get; set; }
+        public Orientation? Orientation { get; set; }
         public string TypeOfClay { get; set; }
-        public bool Equipments { get; set; }
-        public bool WaterAccess { get; set; }
-        public bool DirectAccess { get; set; }
+        public bool? Equipments { get; set; }
+        public bool? WaterAccess { get; set; }
+        public bool? DirectAccess { get; set; }
     }
 }

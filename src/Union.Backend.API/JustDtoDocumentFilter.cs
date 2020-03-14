@@ -11,6 +11,7 @@ namespace Union.Backend.API
         {
             nameof(Status),
             nameof(LeasingStatus),
+            nameof(Orientation),
         };
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)

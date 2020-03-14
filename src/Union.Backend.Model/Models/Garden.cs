@@ -6,7 +6,6 @@ namespace Union.Backend.Model.Models
     public class Garden : UniqueEntity, IPhotographable
     {
         public string Name { get; set; }
-        public int Size { get; set; }
         public bool IsReserved { get; set; }
         public int MinUse { get; set; }
         public string Description { get; set; }
@@ -16,5 +15,6 @@ namespace Union.Backend.Model.Models
         public List<Photo<Garden>> Photos { get; set; }
         public User Owner { get; set; }
         public ICollection<Leasing> Leasings { get; set; }
+        public bool IsReported { get; set; }
     }
 }

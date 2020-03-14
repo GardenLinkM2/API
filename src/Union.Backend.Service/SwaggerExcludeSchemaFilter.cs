@@ -8,8 +8,7 @@ using System.Reflection;
 namespace Union.Backend.Service
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class SwaggerExcludeAttribute : Attribute
-    { }
+    public class SwaggerExcludeAttribute : Attribute { }
 
     public class SwaggerExcludeSchemaFilter : ISchemaFilter
     {

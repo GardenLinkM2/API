@@ -33,7 +33,7 @@ namespace Union.Backend.Service.Services
         {
             var wallet = await db.Wallets.GetByIdAsync(walletId) ?? throw new NotFoundApiException();
             if (!wallet.OfUser.Equals(me) && !isAdmin)
-                throw new ForbidenApiException();
+                throw new ForbiddenApiException();
 
             wallet.Balance = walletDto.Balance;
 

@@ -11,11 +11,11 @@ namespace Union.Backend.Model.DAO
             builder.HasKey(g => g.Id);
 
             builder.Property(g => g.Name).IsRequired();
-            builder.Property(g => g.Size).IsRequired();
             builder.Property(g => g.MinUse).IsRequired();
             builder.Property(g => g.Validation).IsRequired();
-
-            builder.HasMany(g => g.Photos).WithOne().HasForeignKey(p => p.RelatedTo);
+            
+            builder.HasOne(g => g.Owner).WithMany();
+            builder.HasMany(g => g.Photos).WithOne();
             builder.HasMany(g => g.Leasings).WithOne(l => l.Garden);
         }
     }

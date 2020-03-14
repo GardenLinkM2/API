@@ -53,7 +53,7 @@ namespace Union.Backend.API.Controllers
                 var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
                 if (leasing.Owner != id && leasing.Renter != id && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
-                    throw new ForbidenApiException();
+                    throw new ForbiddenApiException();
 
                 return Ok(pay);
             }

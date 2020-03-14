@@ -45,7 +45,7 @@ namespace Union.Backend.Service.Services
                 ["uuid"] = user.Id,
                 ["sub"] = user.Mail,
                 ["isAdmin"] = isAdmin,
-                ["exp"] = DateTime.UtcNow.AddDays(JwtConfigForBack.BaseAddDays).Subtract(new DateTime(1970, 1, 1)).TotalSeconds
+                ["exp"] = DateTime.UtcNow.AddDays(JwtConfigForBack.BaseAddDays).ToTimestamp()
             };
             return new TokenDto
             {

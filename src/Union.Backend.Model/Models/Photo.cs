@@ -7,8 +7,7 @@ namespace Union.Backend.Model.Models
     public class Photo<TRelated> : UniqueEntity 
         where TRelated : IPhotographable
     {
-        public string Path { get; set; }
         public string FileName { get; set; }
-        public Guid RelatedTo { get; set; }
+        public string Path { get; set; }
     }
 }

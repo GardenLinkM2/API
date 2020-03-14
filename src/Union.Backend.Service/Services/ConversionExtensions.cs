@@ -6,10 +6,11 @@ using System.Linq;
 using System.Net;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
+using static Union.Backend.Model.Models.ModelExtensions;
 
 namespace Union.Backend.Service.Services
 {
-    static class ModelExtensions
+    static class ConversionExtensions
     {
         public const string GEOCAL_API_URL = "https://api-adresse.data.gouv.fr/search/?q=";
 
@@ -25,7 +26,8 @@ namespace Union.Backend.Service.Services
                 Id = dto.Id, //Necessary
                 Mail = dto.Email,
                 LastName = dto.LastName,
-                FirstName = dto.FirstName
+                FirstName = dto.FirstName,
+                Photo = dto.Photo?.ConvertToModel<User>()
             };
         }
 
@@ -42,28 +44,24 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public static Photo<T> ConvertToModel<T>(this PhotoDto dto, Guid id)
+        public static Photo<T> ConvertToModel<T>(this PhotoDto dto)
             where T : IPhotographable
         {
             return new Photo<T>
             {
                 FileName = dto.FileName,
-                RelatedTo = id
+                Path = dto.Path
             };
         }
-
-        public static List<Photo<T>> ConvertToModel<T>(this List<PhotoDto> dto, Guid id)
+        
+        public static List<Photo<T>> ConvertToModel<T>(this List<PhotoDto> dtos)
             where T : IPhotographable
         {
             List<Photo<T>> photos = new List<Photo<T>>();
 
-            foreach (PhotoDto p in dto)
+            foreach (PhotoDto dto in dtos)
             {
-                photos.Add(new Photo<T>
-                {
-                    FileName = p.FileName,
-                    RelatedTo = id
-                });
+                photos.Add(dto.ConvertToModel<T>());
             }
 
             return photos;
@@ -74,8 +72,8 @@ namespace Union.Backend.Service.Services
         {
             return new PhotoDto
             {
-                Id = photo.Id,
-                FileName = photo.FileName
+                FileName = photo.FileName,
+                Path = photo.Path
             };
         }
 
@@ -94,7 +92,6 @@ namespace Union.Backend.Service.Services
             {
                 Id = garden.Id,
                 Name = garden.Name,
-                Size = garden.Size,
                 IsReserved = garden.IsReserved,
                 MinUse = garden.MinUse,
                 Description = garden.Description,
@@ -111,21 +108,15 @@ namespace Union.Backend.Service.Services
             return new Garden
             {
                 Name = dto.Name,
-                Size = dto.Size ?? 1,
                 IsReserved = dto.IsReserved ?? false,
                 MinUse = dto.MinUse ?? 1,
                 Description = dto.Description,
-                Location = dto.Location.ConvertToModel(),
-                Criteria = dto.Criteria.ConvertToModel(),
-                Validation = dto.Validation
+                Location = dto.Location?.ConvertToModel(),
+                Criteria = dto.Criteria?.ConvertToModel(),
+                Validation = dto.Validation,
+                Photos = dto.Photos?.ConvertToModel<Garden>()
             };
         }
-
-        public static long ToSecond(this TimeSpan timeSpan) =>
-            timeSpan.Ticks / 10000000;
-
-        public static TimeSpan ToTimeSpan(this long seconds) =>
-            new TimeSpan(seconds * 10000000);
 
         public static CriteriaDto ConvertToDto(this Criteria criteria)
         {
@@ -134,11 +125,11 @@ namespace Union.Backend.Service.Services
                 Area = criteria.Area,
                 DirectAccess = criteria.DirectAccess,
                 Equipments = criteria.Equipments,
-                Orientation = criteria.Orientation.ToString(),
+                Orientation = criteria.Orientation,
                 Price = criteria.Price,
                 TypeOfClay = criteria.TypeOfClay,
                 WaterAccess = criteria.WaterAccess,
-                LocationTime = criteria.LocationTime.ToSecond(),
+                LocationTime = criteria.LocationTime,
             };
         }
 
@@ -149,11 +140,11 @@ namespace Union.Backend.Service.Services
                 Area = dto.Area,
                 DirectAccess = dto.DirectAccess,
                 Equipments = dto.Equipments,
-                Orientation = (Orientation)Enum.Parse(typeof(Orientation), dto.Orientation),
+                Orientation = dto.Orientation,
                 Price = dto.Price,
                 TypeOfClay = dto.TypeOfClay,
                 WaterAccess = dto.WaterAccess,
-                LocationTime = dto.LocationTime.ToTimeSpan()
+                LocationTime = dto.LocationTime
             };
         }
 
@@ -206,11 +197,12 @@ namespace Union.Backend.Service.Services
             return new LeasingDto
             {
                 Id = leasing.Id,
-                Begin = leasing.Begin,
+                Creation = leasing.Creation.ToTimestamp(),
+                Begin = leasing.Begin.ToTimestamp(),
+                End = leasing.End.ToTimestamp(),
                 State = leasing.State,
-                End = leasing.End,
                 Renew = leasing.Renew,
-                Time = leasing.Time.ToSecond(),
+                Time = leasing.Time.ToSeconds(),
                 Garden = leasing.Garden.Id,
                 Renter = leasing.Renter.Id,
                 Owner = leasing.Garden.Owner.Id
@@ -221,11 +213,12 @@ namespace Union.Backend.Service.Services
         {
             return new Leasing
             {
-                Begin = dto.Begin.Value,
-                End = dto.End.Value,
+                Creation = dto.Creation.ToDateTime(),
+                Begin = dto.Begin?.ToDateTime() ?? DateTime.UtcNow,
+                End = dto.End?.ToDateTime() ?? DateTime.UtcNow.AddYears(1),
                 Renew = dto.Renew.Value,
                 State = dto.State.Value,
-                Time = dto.Time.Value.ToTimeSpan()
+                Time = dto.Time?.ToTimeSpan() ?? new TimeSpan(365, 0, 0, 0)
             };
         }
 
@@ -286,7 +279,6 @@ namespace Union.Backend.Service.Services
                 Mark = score.Mark,
                 Rater = score.Rater.Id,
                 Rated = score.Rated,
-                IsReported = score.IsReported
             };
         }
 
@@ -296,7 +288,6 @@ namespace Union.Backend.Service.Services
             {
                 Comment = dto.Comment,
                 Mark = dto.Mark,
-                IsReported = dto.IsReported
             };
         }
 

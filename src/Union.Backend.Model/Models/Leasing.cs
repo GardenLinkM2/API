@@ -12,6 +12,7 @@ namespace Union.Backend.Model.Models
 
     public class Leasing : UniqueEntity
     {
+        public DateTime Creation { get; set; }
         public TimeSpan Time { get; set; }
         public DateTime Begin { get; set; }
         public DateTime End { get; set; }

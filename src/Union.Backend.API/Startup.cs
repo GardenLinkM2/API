@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNet.OData.Builder;
-using Microsoft.AspNet.OData.Extensions;
+﻿using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Formatter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,9 +11,9 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Union.Backend.Model;
 using Union.Backend.Model.DAO;
-using Union.Backend.Model.Models;
 using Union.Backend.Service;
 using Union.Backend.Service.Services;
 using static Union.Backend.API.Program;
@@ -70,6 +67,7 @@ namespace Union.Backend.API
             .AddJsonOptions(opt =>
             {
                 opt.JsonSerializerOptions.IgnoreNullValues = true;
+                opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
             services.AddOData();
@@ -91,7 +89,13 @@ namespace Union.Backend.API
                 switch (dbContextConfig)
                 {
                     case DbContextConfig.Local: opt.UseInMemoryDatabase("LocalList"); break;
-                    default: opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext")); break;
+                    default: 
+                        opt.UseMySql(Configuration.GetConnectionString("GardenLinkContext"), 
+                                     mySqlOptions =>
+                                     {
+                                         mySqlOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+                                     });
+                        break;
                 }
             });
 
@@ -129,9 +133,6 @@ namespace Union.Backend.API
                 Console.WriteLine($"Environment is Prod mode");
             }
 
-            var BITE = new ODataConventionModelBuilder(app.ApplicationServices);
-            BITE.EntitySet<Garden>("Gardens");
-
             app.UseRouting();
             app.UseCors("LeMoulinPolicy");
             app.UseEndpoints(endpoints =>
@@ -140,9 +141,8 @@ namespace Union.Backend.API
             });
             app.UseMvc(builder =>
             {
-                builder.Select().Expand().Filter().OrderBy().Count();
+                builder.Expand().Filter().OrderBy().Count();
                 builder.EnableDependencyInjection();
-                builder.MapODataServiceRoute("gardens", "api", BITE.GetEdmModel());
             });
 
             app.UseHttpsRedirection();
@@ -152,6 +152,9 @@ namespace Union.Backend.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenLink v1");
             });
+
+            using var serviceScope = app.ApplicationServices.CreateScope();
+            serviceScope.ServiceProvider.GetService<GardenLinkContext>().Create();
         }
     }
 }

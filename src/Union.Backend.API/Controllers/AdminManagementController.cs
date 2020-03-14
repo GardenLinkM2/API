@@ -75,6 +75,14 @@ namespace Union.Backend.API.Controllers
             return Ok(await leasingsService.GetAllLeasings());
         }
 
+        [HttpGet("gardens/reported")]
+        [Authorize(PermissionType.Admin)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
+        public async Task<IActionResult> GetAllReportedGardens()
+        {
+            return Ok(await gardensService.GetReportedGardens());
+        }
+
         [HttpGet("leasing/user/{id}")]
         [Authorize(PermissionType.Admin)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<LeasingDto>))]
