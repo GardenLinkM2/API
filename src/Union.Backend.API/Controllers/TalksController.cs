@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
-using Union.Backend.Service.Auth;
 using System.Net;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.API.Controllers
 {
@@ -28,7 +28,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetMyTalks(id));
             }
             catch (HttpResponseException)
@@ -47,7 +47,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetTalkById(myId, talkId));
             }
             catch (HttpResponseException)
@@ -66,7 +66,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var talk = await service.CreateTalk(myId, talkDto);
                 
                 return Created($"{Request.Path.Value}/{talk.Data.Id}", talk);
@@ -87,7 +87,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var created = await service.PostMessageToTalk(myId, talkId, message);
 
                 var paths = Request.Path.Value.Split('/');
@@ -109,7 +109,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 await service.DeleteTalk(id, talkId);
                 return NoContent();
             }

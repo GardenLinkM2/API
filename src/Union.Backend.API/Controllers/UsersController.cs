@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
-using Union.Backend.Service.Auth;
 using System.Net;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.API.Controllers
 {
@@ -43,7 +43,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetMe(myId));
             }
             catch (HttpResponseException)
@@ -69,7 +69,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return await GetGardensByUserId(myId);
             }
             catch (HttpResponseException)
@@ -88,7 +88,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.ChangeUser(id, user));
             }
             catch (HttpResponseException)
@@ -107,7 +107,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 await service.DeleteUser(id);
                 return NoContent();
             }
@@ -127,7 +127,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.Photograph(me, photo));
             }
             catch (HttpResponseException)

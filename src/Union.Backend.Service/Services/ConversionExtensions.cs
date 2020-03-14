@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Union.Backend.Model;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using static Union.Backend.Model.Models.ModelExtensions;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.Service.Services
 {
     static class ConversionExtensions
     {
+        public static List<T> ToListIfNotEmpty<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Count() == 0 ? null : enumerable.ToList();
+        }
+
         public static User ConvertToModel(this UserDto dto)
         {
             return new User
@@ -145,7 +153,17 @@ namespace Union.Backend.Service.Services
                 StreetNumber = location.StreetNumber,
                 Street = location.Street,
                 PostalCode = location.PostalCode,
-                City = location.City
+                City = location.City,
+                LongitudeAndLatitude = location.Coordinates.ConvertToCoordinates()
+            };
+        }
+
+        public static Coordinates ConvertToCoordinates(this (double longitude, double latitude) tuple)
+        {
+            return new Coordinates
+            {
+                Longitude = tuple.longitude,
+                Latitude = tuple.latitude
             };
         }
 
@@ -156,8 +174,15 @@ namespace Union.Backend.Service.Services
                 StreetNumber = dto.StreetNumber,
                 Street = dto.Street,
                 PostalCode = dto.PostalCode,
-                City = dto.City
+                City = dto.City,
+                Coordinates = dto.ConvertToCoordinates()
             };
+        }
+
+        public static (double longitude, double latitude) ConvertToCoordinates(this LocationDto dto)
+        {
+            var queryString = $"?q={ dto.StreetNumber }+{ Regex.Replace(dto.Street.Trim(), @"\s+", "+") }+&postcode={ dto.PostalCode }";
+            return GetCoordinatesFromUrl(AppSettings.GEOCAL_API_URL + queryString);
         }
 
         public static Payment ConvertToModel(this PaymentDto dto)

@@ -4,10 +4,10 @@ using Union.Backend.Service.Services;
 using System;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
-using Union.Backend.Service.Auth;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.API.Controllers
 {
@@ -28,7 +28,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var result = await service.Contact(myId, contactId, demand);
                 return Created($"/api/contacts/{result.Data.Id}", result);
             }
@@ -48,7 +48,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetMyContacts(myId));
             }
             catch (HttpResponseException)
@@ -67,7 +67,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetContactbyId(myId, demandId));
             }
             catch (HttpResponseException)
@@ -86,7 +86,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.AcceptOrDenyContact(myId, demandId, demand));
             }
             catch (HttpResponseException)
@@ -105,7 +105,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 await service.DeleteContact(myId, friendId);
                 return NoContent();
             }

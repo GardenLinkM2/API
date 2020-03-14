@@ -22,6 +22,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<LeasingDto>> GetLeasing(Guid leasingId)
         {
             var leasing = await db.Leasings.Include(l => l.Garden)
+                                           .Include(l => l.Garden.Owner)
                                            .Include(l => l.Renter)
                                            .GetByIdAsync(leasingId) ?? throw new NotFoundApiException();
 
@@ -34,6 +35,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<LeasingDto>>> GetAllLeasings()
         {
             var leasings = db.Leasings.Include(l => l.Garden)
+                                      .Include(l => l.Garden.Owner)
                                       .Include(l => l.Renter)
                                       .Select(l => l.ConvertToDto());
 
@@ -47,6 +49,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<LeasingDto>>> GetAllLeasingsByUserId(Guid userId)
         {
             var leasings = db.Leasings.Include(l => l.Garden)
+                                      .Include(l => l.Garden.Owner)
                                       .Include(l => l.Renter)
                                       .Where(l => l.Garden.Owner.Id.Equals(userId) || l.Renter.Id.Equals(userId))
                                       .Select(l => l.ConvertToDto());
@@ -93,6 +96,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<LeasingDto>> ChangeLeasing(Guid id, LeasingDto dto)
         {
             var leasing = db.Leasings.Include(l => l.Garden)
+                                     .Include(l => l.Garden.Owner)
                                      .GetByIdAsync(id).Result ?? throw new NotFoundApiException();
 
             leasing.Begin = dto.Begin?.ToDateTime() ?? leasing.Begin;
