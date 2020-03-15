@@ -131,10 +131,8 @@ namespace Union.Backend.Service.Services
                                    .Include(g => g.Criteria)
                                    .Include(g => g.Owner)
                                    .GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
-            if (!garden.Owner.Equals(me))
+            if (!garden.Owner.Id.Equals(me))
                 throw new ForbiddenApiException();
-
-
 
             garden.Name = dto.Name ?? garden.Name;
             garden.MinUse = dto.MinUse ?? garden.MinUse;

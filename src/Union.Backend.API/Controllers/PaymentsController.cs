@@ -52,7 +52,7 @@ namespace Union.Backend.API.Controllers
                 var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
                 var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
-                if (leasing.Owner != id && leasing.Renter != id && !IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (!leasing.Owner.Equals(id) && leasing.Renter != id && !IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     throw new ForbiddenApiException();
 
                 return Ok(pay);
