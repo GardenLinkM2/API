@@ -78,6 +78,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<GardenDto>>> GetGardensByUserId(Guid myId)
         {
             var gardens = db.Gardens.Include(g => g.Photos)
+                                    .Include(g => g.Location)
                                     .Include(g => g.Criteria)
                                     .Include(g => g.Owner)
                                     .Where(g => g.Owner.Id.Equals(myId))
@@ -94,6 +95,7 @@ namespace Union.Backend.Service.Services
         {
             var garden = await db.Gardens.Include(g => g.Photos)
                                          .Include(g => g.Criteria)
+                                         .Include(g => g.Location)
                                          .Include(g => g.Owner)
                                          .GetByIdAsync(gardenId) ?? throw new NotFoundApiException();
 
@@ -182,6 +184,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<GardenDto>>> GetReportedGardens()
         {
             var gardens = db.Gardens.Include(g => g.Photos)
+                                    .Include(g => g.Location)
                                     .Include(g => g.Criteria)
                                     .Include(g => g.Owner)
                                     .Where(g => g.IsReported)
