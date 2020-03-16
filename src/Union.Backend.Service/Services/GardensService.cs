@@ -162,21 +162,32 @@ namespace Union.Backend.Service.Services
             garden.Validation = val.Status;
 
             db.Gardens.Update(garden);
-
             await db.SaveChangesAsync();
+
             return new QueryResults<GardenDto>
             {
                 Data = garden.ConvertToDto()
             };
         }
 
-        public async Task ReportGarden(Guid gardenId)
+        public async Task<QueryResults<ReportDto>> ReportGarden(Guid reporter, Guid gardenId, ReportDto dto)
         {
+            _ = await db.Users.GetByIdAsync(reporter) ?? throw new NotFoundApiException();
             var garden = await db.Gardens.GetByIdAsync(gardenId) ?? throw new NotFoundApiException();
-            garden.IsReported = true;
+
+            var report = dto.ConvertToModel();
+            report.Reporter = reporter;
+
+            garden.Reports = garden.Reports ?? new List<Report>();
+            garden.Reports.Add(report);
 
             db.Gardens.Update(garden);
             await db.SaveChangesAsync();
+
+            return new QueryResults<ReportDto>
+            {
+                Data = report.ConvertToDto()
+            };
         }
 
         public async Task<QueryResults<List<GardenDto>>> GetReportedGardens()
@@ -185,7 +196,8 @@ namespace Union.Backend.Service.Services
                                     .Include(g => g.Location)
                                     .Include(g => g.Criteria)
                                     .Include(g => g.Owner)
-                                    .Where(g => g.IsReported)
+                                    .Include(g => g.Reports)
+                                    .Where(g => g.Reports.Any())
                                     .Select(g => g.ConvertToDto());
 
             return new QueryResults<List<GardenDto>>

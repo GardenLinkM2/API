@@ -17,6 +17,8 @@ namespace Union.Backend.Model.DAO
             builder.HasOne(g => g.Owner).WithMany();
             builder.HasMany(g => g.Photos).WithOne();
             builder.HasMany(g => g.Leasings).WithOne(l => l.Garden);
+            
+            builder.HasMany(g => g.Reports).WithOne(r => r.OfGarden);
         }
     }
 }

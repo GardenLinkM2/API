@@ -15,6 +15,6 @@ namespace Union.Backend.Model.Models
         public List<Photo<Garden>> Photos { get; set; }
         public User Owner { get; set; }
         public ICollection<Leasing> Leasings { get; set; }
-        public bool IsReported { get; set; }
+        public ICollection<Report> Reports { get; set; }
     }
 }

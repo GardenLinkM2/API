@@ -52,7 +52,7 @@ namespace Union.Backend.Service.Services
             };
         }
         
-        public static List<Photo<T>> ConvertToModel<T>(this List<PhotoDto> dtos)
+        public static List<Photo<T>> ConvertToModel<T>(this ICollection<PhotoDto> dtos)
             where T : IPhotographable
         {
             List<Photo<T>> photos = new List<Photo<T>>();
@@ -97,7 +97,8 @@ namespace Union.Backend.Service.Services
                 Owner = garden.Owner.Id,
                 Criteria = garden.Criteria?.ConvertToDto(),
                 Validation = garden.Validation,
-                Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
+                Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty(),
+                Reports = garden.Reports?.Select(r => r.ConvertToDto()).ToListIfNotEmpty()
             };
         }
 
@@ -312,6 +313,26 @@ namespace Union.Backend.Service.Services
                 Contact = contact.MyContact.ConvertToDto(),
                 Status = contact.Status,
                 FirstMessage = contact.FirstMessage
+            };
+        }
+
+        public static ReportDto ConvertToDto(this Report report)
+        {
+            return new ReportDto
+            {
+                Id = report.Id,
+                Reason = report.Reason,
+                Comment = report.Comment,
+                OfGarden = report.OfGarden.Id
+            };
+        }
+
+        public static Report ConvertToModel(this ReportDto dto)
+        {
+            return new Report
+            {
+                Reason = dto.Reason,
+                Comment = dto.Comment
             };
         }
     }

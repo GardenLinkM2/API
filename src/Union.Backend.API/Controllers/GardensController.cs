@@ -89,11 +89,22 @@ namespace Union.Backend.API.Controllers
         }
 
         [HttpPost("{id}/report")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> ReportGarden([FromRoute(Name = "id")] Guid gardenId)
+        [ProducesResponseType(StatusCodes.Status201Created, Type=typeof(ReportDto))]
+        public async Task<IActionResult> ReportGarden([FromRoute(Name = "id")] Guid gardenId, [FromBody] ReportDto dto)
         {
-            await service.ReportGarden(gardenId);
-            return NoContent();
+            try
+            {
+                var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Created("/", await service.ReportGarden(me, gardenId, dto));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
         }
 
         [HttpDelete("{id}")]
