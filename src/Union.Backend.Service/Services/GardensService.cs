@@ -110,7 +110,7 @@ namespace Union.Backend.Service.Services
             var owner = await db.Users.GetByIdAsync(me) ?? throw new NotFoundApiException();
 
             dto.IsReserved = false;
-            dto.Validation = Status.Pending;
+            dto.Validation = Status.Accepted;
             var garden = dto.ConvertToModel();
 
             owner.Gardens = owner.Gardens ?? new List<Garden>();
