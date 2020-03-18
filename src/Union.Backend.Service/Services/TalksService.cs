@@ -21,6 +21,7 @@ namespace Union.Backend.Service.Services
         public async Task<QueryResults<List<TalkDto>>> GetMyTalks(Guid me)
         {
             var talks = db.Talks
+                .Include(t => t.Messages)
                 .Include(t => t.Sender)
                 .Include(t => t.Receiver)
                 .Where(t => (t.Sender.Id.Equals(me) || t.Receiver.Id.Equals(me)) && !t.IsArchived)
