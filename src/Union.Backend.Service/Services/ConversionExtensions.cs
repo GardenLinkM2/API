@@ -80,7 +80,7 @@ namespace Union.Backend.Service.Services
             return new WalletDto
             {
                 Id = wallet.Id,
-                Balance = wallet.Balance
+                Balance = wallet.RealTimeBalance
             };
         }
 
@@ -107,7 +107,6 @@ namespace Union.Backend.Service.Services
             return new Garden
             {
                 Name = dto.Name,
-                IsReserved = dto.IsReserved ?? false,
                 MinUse = dto.MinUse ?? 1,
                 Description = dto.Description,
                 Location = dto.Location?.ConvertToModel(),
@@ -232,7 +231,6 @@ namespace Union.Backend.Service.Services
                 End = dto.End?.ToDateTime() ?? DateTime.UtcNow.AddYears(1),
                 Renew = dto.Renew.Value,
                 State = dto.State.Value,
-                Time = dto.Time?.ToTimeSpan() ?? new TimeSpan(365, 0, 0, 0)
             };
         }
 

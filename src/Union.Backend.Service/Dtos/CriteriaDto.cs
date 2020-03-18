@@ -6,7 +6,7 @@ namespace Union.Backend.Service.Dtos
     {
         public long? LocationTime { get; set; }
         public int? Area { get; set; }
-        public double? Price { get; set; }
+        public float? Price { get; set; }
         public Orientation? Orientation { get; set; }
         public string TypeOfClay { get; set; }
         public bool? Equipments { get; set; }

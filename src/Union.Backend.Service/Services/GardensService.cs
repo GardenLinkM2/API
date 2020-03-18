@@ -45,33 +45,27 @@ namespace Union.Backend.Service.Services
                                                                        double? lati, 
                                                                        int? dist)
         {
-            var queryable = options.ApplyTo(db.Gardens.Where(g => g.Validation.Equals(Status.Accepted)
-                                                                  && !g.IsReserved))
+            var queryable = options.ApplyTo(db.Gardens.Where(g => g.Validation.Equals(Status.Accepted)))
                                    .OfType<Garden>();
 
-            IQueryable<GardenDto> gardens;
+            IQueryable<Garden> gardens = queryable.Include(g => g.Photos)
+                                                  .Include(g => g.Criteria)
+                                                  .Include(g => g.Leasings)
+                                                  .Include(g => g.Location)
+                                                  .Include(g => g.Owner);
+
             if (longi.HasValue && lati.HasValue && dist.HasValue)
             {
                 var coord = (longi.Value, lati.Value);
-                gardens = queryable.Include(g => g.Photos)
-                                   .Include(g => g.Criteria)
-                                   .Include(g => g.Location)
-                                   .Include(g => g.Owner)
-                                   .Where(g => g.Location.Coordinates.ComputeDistance(coord) <= dist.Value)
-                                   .Select(g => g.ConvertToDto());
+                gardens = gardens.Where(g => g.Location.Coordinates.ComputeDistance(coord) <= dist.Value);
             }
-            else
-            {
-                gardens = queryable.Include(g => g.Photos)
-                                   .Include(g => g.Criteria)
-                                   .Include(g => g.Location)
-                                   .Include(g => g.Owner)
-                                   .Select(g => g.ConvertToDto());
-            }
+
+            var noneReserved = (await gardens?.ToListAsync()).Where(g => !g.IsReserved);
+
             return new QueryResults<List<GardenDto>>
             {
-                Data = await gardens?.ToListAsync(),
-                Count = await gardens?.CountAsync()
+                Data = noneReserved?.Select(g => g.ConvertToDto()).ToList(),
+                Count = noneReserved?.Count()
             };
         }
 
@@ -209,9 +203,14 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteGarden(Guid gardenId)
         {
-            var garden = db.Gardens.GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+            var garden = db.Gardens.Include(g => g.Leasings)
+                                   .GetByIdAsync(gardenId).Result ?? throw new NotFoundApiException();
+
+            if (garden.Leasings?.Any(l => l.State.Equals(LeasingStatus.InProgress)) ?? false)
+                throw new BadRequestApiException("Impossible to delete a garden with current leasings.");
 
             db.Gardens.Remove(garden);
+            db.Leasings.RemoveRange(garden.Leasings.Where(l => l.State.Equals(LeasingStatus.InDemand)));
 
             await db.SaveChangesAsync();
         }

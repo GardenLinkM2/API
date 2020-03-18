@@ -16,6 +16,7 @@ namespace Union.Backend.Service.Dtos
         public Status Validation { get; set; }
         public CriteriaDto Criteria { get; set; }
         public ICollection<PhotoDto> Photos { get; set; }
+        [SwaggerExclude]
         public ICollection<ReportDto> Reports { get; set; }
     }
 }

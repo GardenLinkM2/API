@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Union.Backend.Model.Models
 {
@@ -13,7 +14,8 @@ namespace Union.Backend.Model.Models
     public class Leasing : UniqueEntity
     {
         public DateTime Creation { get; set; }
-        public TimeSpan Time { get; set; }
+        [NotMapped]
+        public TimeSpan Time { get => End.Subtract(Begin); }
         public DateTime Begin { get; set; }
         public DateTime End { get; set; }
         public bool Renew { get; set; }

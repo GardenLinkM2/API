@@ -19,16 +19,15 @@ namespace Union.Backend.Service.Services
             db = gardenLinkContext;
         }
 
-        public async Task<QueryResults<ContactDto>> Contact(Guid me, Guid contact, DemandDto demand)
+        public async Task<QueryResults<ContactDto>> Contact(Guid me, Guid contactId, DemandDto demand)
         {
-            var userMe = await db.Users.GetByIdAsync(me) ?? throw new NotFoundApiException();
-            if (!db.Users.Any(c => c.Id.Equals(contact)))
-                throw new NotFoundApiException();
+            _ = await db.Users.GetByIdAsync(me) ?? throw new NotFoundApiException();
+            var contact = await db.Users.GetByIdAsync(contactId) ?? throw new NotFoundApiException();
 
             var newContact = new Contact
             {
-                Me = contact,
-                MyContact = userMe,
+                Me = me,
+                MyContact = contact,
                 FirstMessage = demand.FirstMessage,
                 Status = Status.Pending
             };

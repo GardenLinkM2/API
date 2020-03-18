@@ -71,8 +71,19 @@ namespace Union.Backend.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PaymentDto))]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentDto Payment)
         {
-            var result = await paymentService.AddPayment(Payment);
-            return Created($"api/Payments/{result.Data.Id}", result);
+            try
+            {
+                var result = await paymentService.AddPayment(Payment);
+                return Created($"api/Payments/{result.Data.Id}", result);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
         }
     }
 }

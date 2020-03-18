@@ -115,6 +115,7 @@ namespace Union.Backend.API.Controllers
             {
                 var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 var garden = await service.GetGardenById(gardenId);
+
                 if (!garden.Data.Owner.Equals(me) && !IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     throw new ForbiddenApiException();
 

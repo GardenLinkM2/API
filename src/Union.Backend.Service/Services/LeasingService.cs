@@ -63,8 +63,14 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<LeasingDto>> AddLeasing(Guid me, LeasingDto dto)
         {
-            var renter = await db.Users.GetByIdAsync(me) ?? throw new NotFoundApiException();
+            var renter = await db.Users.Include(u => u.Wallet)
+                                       .ThenInclude(w => w.OfUser)
+                                           .ThenInclude(u => u.AsRenter)
+                                               .ThenInclude(l => l.Garden)
+                                                   .ThenInclude(g => g.Criteria)
+                                       .GetByIdAsync(me) ?? throw new NotFoundApiException();
             var garden = await db.Gardens.Include(g => g.Owner)
+                                         .Include(g => g.Criteria)
                                          .GetByIdAsync(dto.Garden) ?? throw new NotFoundApiException();
 
             if (!garden.Validation.Equals(Status.Accepted))
@@ -73,12 +79,16 @@ namespace Union.Backend.Service.Services
             if (garden.Owner.Id.Equals(me))
                 throw new BadRequestApiException("You are not authorize to rent your own garden.");
 
+            if(renter.Wallet.RealTimeBalance - garden.Criteria.Price < 0)
+                throw new BadRequestApiException("You have not enough money to rent this garden.");
+
             dto.Creation = DateTime.UtcNow.ToTimestamp();
             dto.State = LeasingStatus.InDemand;
             dto.Renew = false;
             dto.Renter = renter.Id;
 
             var leasing = dto.ConvertToModel();
+
             renter.AsRenter = renter.AsRenter ?? new List<Leasing>();
             renter.AsRenter.Add(leasing);
 
@@ -103,10 +113,6 @@ namespace Union.Backend.Service.Services
             leasing.End = dto.End?.ToDateTime() ?? leasing.End;
             leasing.Renew = dto.Renew ?? leasing.Renew;
             leasing.State = dto.State ?? leasing.State;
-            leasing.Time = (dto.Time?.ToTimeSpan() ?? leasing.Time);
-
-            if((dto.State ?? LeasingStatus.Refused).Equals(LeasingStatus.InProgress))
-                leasing.Garden.IsReserved = true;
 
             db.Update(leasing);
             await db.SaveChangesAsync();

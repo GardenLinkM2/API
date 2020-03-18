@@ -34,6 +34,10 @@ namespace Union.Backend.Service.Services
         {
             var user = await db.Users.Include(u => u.Photo)
                                      .Include(u => u.Wallet)
+                                        .ThenInclude(w => w.OfUser)
+                                            .ThenInclude(u => u.AsRenter)
+                                                .ThenInclude(l => l.Garden)
+                                                    .ThenInclude(g => g.Criteria)
                                      .GetByIdAsync(userId) ?? throw new NotFoundApiException();
 
             return new QueryResults<UserDto>
