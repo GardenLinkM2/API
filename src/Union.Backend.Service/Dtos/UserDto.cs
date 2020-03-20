@@ -9,7 +9,6 @@ namespace Union.Backend.Service.Dtos
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public PhotoDto Photo { get; set; }
-        [SwaggerExclude]
         public WalletDto Wallet { get; set; }
     }
 }
