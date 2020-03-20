@@ -253,7 +253,8 @@ namespace Union.Backend.Service.Services
             {
                 Subject = dto.Subject,
                 Sender = sender,
-                Receiver = receiver
+                Receiver = receiver,
+                Messages= dto.Messages?.Select(m => m.ConvertToModel()).ToList()
             };
         }
 
