@@ -107,11 +107,15 @@ namespace Union.Backend.Service.Services
             };
         }
 
-        public async Task<QueryResults<LeasingDto>> ChangeLeasing(Guid id, LeasingDto dto)
+        public async Task<QueryResults<LeasingDto>> ChangeLeasing(Guid me, Guid leasingId, LeasingDto dto, bool isAdmin)
         {
             var leasing = db.Leasings.Include(l => l.Garden)
+                                     .Include(l => l.Renter)
                                      .Include(l => l.Garden.Owner)
-                                     .GetByIdAsync(id).Result ?? throw new NotFoundApiException();
+                                     .GetByIdAsync(leasingId).Result ?? throw new NotFoundApiException();
+
+            if(!leasing.Renter.Id.Equals(me) && !leasing.Garden.Owner.Id.Equals(me) && !isAdmin)
+                throw new ForbiddenApiException();
 
             leasing.Begin = dto.Begin?.ToDateTime() ?? leasing.Begin;
             leasing.End = dto.End?.ToDateTime() ?? leasing.End;
