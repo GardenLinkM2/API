@@ -71,13 +71,14 @@ namespace Union.Backend.Service.Services
             if (!leasing.State.Equals(LeasingStatus.InDemand))
                 throw new BadRequestApiException("It is no longer possible to pay for this contract.");
 
-            if (leasing.Garden.Criteria.Price != dto.Sum)
+            var months = Utils.MonthDifference(leasing.End, leasing.Begin);
+            if (leasing.Garden.Criteria.Price * months != dto.Sum)
                 throw new BadRequestApiException("You are not paying the right amount.");
 
             if (leasing.Payment != null)
                 throw new BadRequestApiException("You have already paid for this garden.");
 
-            dto.Date = DateTime.UtcNow;
+            dto.Date = DateTime.UtcNow.ToTimestamp();
             leasing.Payment = dto.ConvertToModel();
 
             leasing.State = LeasingStatus.InProgress;

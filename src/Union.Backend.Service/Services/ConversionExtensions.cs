@@ -190,7 +190,7 @@ namespace Union.Backend.Service.Services
             return new Payment
             {
                 Sum = dto.Sum,
-                Date = dto.Date
+                Date = dto.Date.ToDateTime()
             };
         }
 
@@ -200,7 +200,7 @@ namespace Union.Backend.Service.Services
             {
                 Id = payment.Id,
                 Sum = payment.Sum,
-                Date = payment.Date,
+                Date = payment.Date.ToTimestamp(),
                 Leasing = payment.OfLeasing
             };
         }
@@ -263,7 +263,7 @@ namespace Union.Backend.Service.Services
             return new MessageDto
             {
                 Id = message.Id,
-                CreationDate = message.CreationDate,
+                CreationDate = message.CreationDate.ToTimestamp(),
                 Sender = message.Sender,
                 IsRead = message.IsRead,
                 Text = message.Text,
@@ -279,7 +279,8 @@ namespace Union.Backend.Service.Services
                 CreationDate = DateTime.UtcNow,
                 Sender = dto.Sender,
                 IsRead = dto.IsRead,
-                Text = dto.Text
+                Text = dto.Text,
+                Photos = dto.Photos?.Select(p => p.ConvertToModel<Message>()).ToList()
             };
         }
 

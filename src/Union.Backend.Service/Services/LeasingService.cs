@@ -79,8 +79,8 @@ namespace Union.Backend.Service.Services
             if (garden.Owner.Id.Equals(me))
                 throw new BadRequestApiException("You are not authorize to rent your own garden.");
 
-            if(renter.Wallet.RealTimeBalance - garden.Criteria.Price < 0)
-                throw new BadRequestApiException("You have not enough money to rent this garden.");
+            if (dto.End <= dto.Begin)
+                throw new BadRequestApiException("Your end date is less than your start date.");
 
             dto.Creation = DateTime.UtcNow.ToTimestamp();
             dto.State = LeasingStatus.InDemand;
@@ -88,6 +88,10 @@ namespace Union.Backend.Service.Services
             dto.Renter = renter.Id;
 
             var leasing = dto.ConvertToModel();
+
+            var months = Utils.MonthDifference(leasing.End, leasing.Begin);
+            if (renter.Wallet.RealTimeBalance - (garden.Criteria.Price * months) < 0)
+                throw new BadRequestApiException("You have not enough money to rent this garden.");
 
             renter.AsRenter = renter.AsRenter ?? new List<Leasing>();
             renter.AsRenter.Add(leasing);

@@ -99,5 +99,10 @@ namespace Union.Backend.Service
                 throw new BadRequestApiException("Wrong syntax of location.");
             }
         }
+
+        public static int MonthDifference(this DateTime lValue, DateTime rValue)
+        {
+            return Math.Abs((lValue.Month - rValue.Month) + 12 * (lValue.Year - rValue.Year));
+        }
     }
 }
