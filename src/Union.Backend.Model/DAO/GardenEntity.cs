@@ -13,9 +13,12 @@ namespace Union.Backend.Model.DAO
             builder.Property(g => g.Name).IsRequired();
             builder.Property(g => g.MinUse).IsRequired();
             builder.Property(g => g.Validation).IsRequired();
-
+            
+            builder.HasOne(g => g.Owner).WithMany();
             builder.HasMany(g => g.Photos).WithOne();
             builder.HasMany(g => g.Leasings).WithOne(l => l.Garden);
+            
+            builder.HasMany(g => g.Reports).WithOne(r => r.OfGarden);
         }
     }
 }

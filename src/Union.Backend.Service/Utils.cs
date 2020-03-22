@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Union.Backend.Service.Dtos;
 using Union.Backend.Service.Exceptions;
 
-namespace Union.Backend.Service.Auth
+namespace Union.Backend.Service
 {
     public static class Utils
     {
@@ -34,18 +34,16 @@ namespace Union.Backend.Service.Auth
                 throw new BadRequestApiException($"<{host}> respond with the <{result.StatusCode} code>");
         }
 
-        public static async Task<HttpResponseMessage> HttpPostAsync(
-            string host,
-            HttpContent content,
-            params (HttpRequestHeader, string)[] headers)
+        public static async Task<HttpResponseMessage> HttpPostAsync(string host,
+                                                                    HttpContent content,
+                                                                    params (HttpRequestHeader, string)[] headers)
         {
             var httpClient = new HttpClient().SetHeaders(headers);
             return await httpClient.PostAsync(host, content);
         }
-        public static async Task<T> HttpPostAsync<T>(
-            string host, 
-            HttpContent content,
-            params (HttpRequestHeader, string)[] headers)
+        public static async Task<T> HttpPostAsync<T>(string host, 
+                                                     HttpContent content,
+                                                     params (HttpRequestHeader, string)[] headers)
         {
             var result = await HttpPostAsync(host, content, headers);
             if (result.StatusCode.Equals(HttpStatusCode.OK))
@@ -80,6 +78,31 @@ namespace Union.Backend.Service.Auth
         {
             var accessToken = JWT.Payload<TokenDto>(SanitizeToken(token));
             return accessToken.IsAdmin ?? false;
+        }
+
+        public static (double longitude, double latitude) GetCoordinatesFromUrl(string url)
+        {
+            try
+            {
+                var res = HttpGetAsync<dynamic>(url).Result;
+                dynamic features = res.features;
+                if (features.Count == 0)
+                    return (0, 0);
+
+                double longitude = res.features[0].geometry.coordinates[0];
+                double latitude = res.features[0].geometry.coordinates[1];
+
+                return (longitude, latitude);
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException("Wrong syntax of location.");
+            }
+        }
+
+        public static int MonthDifference(this DateTime lValue, DateTime rValue)
+        {
+            return Math.Abs((lValue.Month - rValue.Month) + 12 * (lValue.Year - rValue.Year));
         }
     }
 }

@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
-using Union.Backend.Service.Auth;
 using System.Net;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.API.Controllers
 {
@@ -29,7 +29,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await paymentService.GetMyPayments(me));
             }
             catch (HttpResponseException)
@@ -50,9 +50,9 @@ namespace Union.Backend.API.Controllers
             {
                 var pay = await paymentService.GetPayment(paymentId);
                 var leasing = leasingService.GetLeasing(pay.Data.Leasing).Result.Data;
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
-                if (leasing.Owner != id && leasing.Renter != id && !Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
+                if (!leasing.Owner.Equals(id) && leasing.Renter != id && !IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()]))
                     throw new ForbiddenApiException();
 
                 return Ok(pay);
@@ -71,8 +71,19 @@ namespace Union.Backend.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PaymentDto))]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentDto Payment)
         {
-            var result = await paymentService.AddPayment(Payment);
-            return Created($"api/Payments/{result.Data.Id}", result);
+            try
+            {
+                var result = await paymentService.AddPayment(Payment);
+                return Created($"api/Payments/{result.Data.Id}", result);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
         }
     }
 }

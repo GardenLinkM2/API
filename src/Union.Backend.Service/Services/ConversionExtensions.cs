@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Union.Backend.Model;
 using Union.Backend.Model.Models;
 using Union.Backend.Service.Dtos;
 using static Union.Backend.Model.Models.ModelExtensions;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.Service.Services
 {
     static class ConversionExtensions
     {
+        public static List<T> ToListIfNotEmpty<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Count() == 0 ? null : enumerable.ToList();
+        }
+
         public static User ConvertToModel(this UserDto dto)
         {
             return new User
@@ -16,7 +24,8 @@ namespace Union.Backend.Service.Services
                 Id = dto.Id, //Necessary
                 Mail = dto.Email,
                 LastName = dto.LastName,
-                FirstName = dto.FirstName
+                FirstName = dto.FirstName,
+                Photo = dto.Photo?.ConvertToModel<User>()
             };
         }
 
@@ -43,7 +52,7 @@ namespace Union.Backend.Service.Services
             };
         }
         
-        public static List<Photo<T>> ConvertToModel<T>(this List<PhotoDto> dtos)
+        public static List<Photo<T>> ConvertToModel<T>(this ICollection<PhotoDto> dtos)
             where T : IPhotographable
         {
             List<Photo<T>> photos = new List<Photo<T>>();
@@ -71,7 +80,7 @@ namespace Union.Backend.Service.Services
             return new WalletDto
             {
                 Id = wallet.Id,
-                Balance = wallet.Balance
+                Balance = wallet.RealTimeBalance
             };
         }
 
@@ -88,7 +97,8 @@ namespace Union.Backend.Service.Services
                 Owner = garden.Owner.Id,
                 Criteria = garden.Criteria?.ConvertToDto(),
                 Validation = garden.Validation,
-                Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty()
+                Photos = garden.Photos?.Select(p => p.ConvertToDto()).ToListIfNotEmpty(),
+                Reports = garden.Reports?.Select(r => r.ConvertToDto()).ToListIfNotEmpty()
             };
         }
 
@@ -97,7 +107,6 @@ namespace Union.Backend.Service.Services
             return new Garden
             {
                 Name = dto.Name,
-                IsReserved = dto.IsReserved ?? false,
                 MinUse = dto.MinUse ?? 1,
                 Description = dto.Description,
                 Location = dto.Location?.ConvertToModel(),
@@ -144,7 +153,17 @@ namespace Union.Backend.Service.Services
                 StreetNumber = location.StreetNumber,
                 Street = location.Street,
                 PostalCode = location.PostalCode,
-                City = location.City
+                City = location.City,
+                LongitudeAndLatitude = location.Coordinates.ConvertToCoordinates()
+            };
+        }
+
+        public static Coordinates ConvertToCoordinates(this (double longitude, double latitude) tuple)
+        {
+            return new Coordinates
+            {
+                Longitude = tuple.longitude,
+                Latitude = tuple.latitude
             };
         }
 
@@ -155,8 +174,15 @@ namespace Union.Backend.Service.Services
                 StreetNumber = dto.StreetNumber,
                 Street = dto.Street,
                 PostalCode = dto.PostalCode,
-                City = dto.City
+                City = dto.City,
+                Coordinates = dto.ConvertToCoordinates()
             };
+        }
+
+        public static (double longitude, double latitude) ConvertToCoordinates(this LocationDto dto)
+        {
+            var queryString = $"?q={ dto.StreetNumber }+{ Regex.Replace(dto.Street.Trim(), @"\s+", "+") }+&postcode={ dto.PostalCode }";
+            return GetCoordinatesFromUrl(AppSettings.GEOCAL_API_URL + queryString);
         }
 
         public static Payment ConvertToModel(this PaymentDto dto)
@@ -164,7 +190,7 @@ namespace Union.Backend.Service.Services
             return new Payment
             {
                 Sum = dto.Sum,
-                Date = dto.Date
+                Date = dto.Date.ToDateTime()
             };
         }
 
@@ -174,7 +200,7 @@ namespace Union.Backend.Service.Services
             {
                 Id = payment.Id,
                 Sum = payment.Sum,
-                Date = payment.Date,
+                Date = payment.Date.ToTimestamp(),
                 Leasing = payment.OfLeasing
             };
         }
@@ -184,10 +210,10 @@ namespace Union.Backend.Service.Services
             return new LeasingDto
             {
                 Id = leasing.Id,
-                Creation = leasing.Creation,
-                Begin = leasing.Begin,
+                Creation = leasing.Creation.ToTimestamp(),
+                Begin = leasing.Begin.ToTimestamp(),
+                End = leasing.End.ToTimestamp(),
                 State = leasing.State,
-                End = leasing.End,
                 Renew = leasing.Renew,
                 Time = leasing.Time.ToSeconds(),
                 Garden = leasing.Garden.Id,
@@ -200,12 +226,11 @@ namespace Union.Backend.Service.Services
         {
             return new Leasing
             {
-                Creation = dto.Creation,
-                Begin = dto.Begin.Value,
-                End = dto.End.Value,
+                Creation = dto.Creation.ToDateTime(),
+                Begin = dto.Begin?.ToDateTime() ?? DateTime.UtcNow,
+                End = dto.End?.ToDateTime() ?? DateTime.UtcNow.AddYears(1),
                 Renew = dto.Renew.Value,
                 State = dto.State.Value,
-                Time = dto.Time.Value.ToTimeSpan()
             };
         }
 
@@ -228,7 +253,8 @@ namespace Union.Backend.Service.Services
             {
                 Subject = dto.Subject,
                 Sender = sender,
-                Receiver = receiver
+                Receiver = receiver,
+                Messages= dto.Messages?.Select(m => m.ConvertToModel()).ToList()
             };
         }
 
@@ -237,7 +263,7 @@ namespace Union.Backend.Service.Services
             return new MessageDto
             {
                 Id = message.Id,
-                CreationDate = message.CreationDate,
+                CreationDate = message.CreationDate.ToTimestamp(),
                 Sender = message.Sender,
                 IsRead = message.IsRead,
                 Text = message.Text,
@@ -253,7 +279,8 @@ namespace Union.Backend.Service.Services
                 CreationDate = DateTime.UtcNow,
                 Sender = dto.Sender,
                 IsRead = dto.IsRead,
-                Text = dto.Text
+                Text = dto.Text,
+                Photos = dto.Photos?.Select(p => p.ConvertToModel<Message>()).ToList()
             };
         }
 
@@ -286,6 +313,26 @@ namespace Union.Backend.Service.Services
                 Contact = contact.MyContact.ConvertToDto(),
                 Status = contact.Status,
                 FirstMessage = contact.FirstMessage
+            };
+        }
+
+        public static ReportDto ConvertToDto(this Report report)
+        {
+            return new ReportDto
+            {
+                Id = report.Id,
+                Reason = report.Reason,
+                Comment = report.Comment,
+                OfGarden = report.OfGarden.Id
+            };
+        }
+
+        public static Report ConvertToModel(this ReportDto dto)
+        {
+            return new Report
+            {
+                Reason = dto.Reason,
+                Comment = dto.Comment
             };
         }
     }

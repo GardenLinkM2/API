@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Exceptions;
 using Union.Backend.Service.Dtos;
-using Union.Backend.Service.Auth;
 using System.Net;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.API.Controllers
 {
@@ -37,21 +37,40 @@ namespace Union.Backend.API.Controllers
             return Ok(await service.GetUserById(userId));
         }
 
-        [HttpGet("{id}/gardens")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
-        public async Task<IActionResult> GetMyGardens([FromRoute(Name = "id")] Guid userId)
-        {
-            return Ok(await gardensService.GetMyGardens(userId));
-        }
-
         [HttpGet("me")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<IActionResult> GetMe()
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetMe(myId));
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new BadRequestApiException();
+            }
+        }
+
+        [HttpGet("{id}/gardens")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
+        public async Task<IActionResult> GetGardensByUserId([FromRoute(Name = "id")] Guid userId)
+        {
+            return Ok(await gardensService.GetGardensByUserId(userId));
+        }
+
+        [HttpGet("me/gardens")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GardenDto>))]
+        public async Task<IActionResult> GetMyGardens()
+        {
+            try
+            {
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return await GetGardensByUserId(myId);
             }
             catch (HttpResponseException)
             {
@@ -69,7 +88,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.ChangeUser(id, user));
             }
             catch (HttpResponseException)
@@ -88,7 +107,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 await service.DeleteUser(id);
                 return NoContent();
             }
@@ -102,18 +121,14 @@ namespace Union.Backend.API.Controllers
             }
         }
 
-        [HttpPut("{id}/photo")]
+        [HttpPut("me/photo")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PhotoDto))]
-        public async Task<IActionResult> Photograph([FromRoute(Name = "id")] Guid id, [FromBody] PhotoDto photo)
+        public async Task<IActionResult> Photograph([FromBody] PhotoDto photo)
         {
             try
             {
-                var me = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
-                if (!me.Equals(id))
-                    throw new ForbiddenApiException();
-
-                return Ok(await service.Photograph(id, photo));
-
+                var me = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                return Ok(await service.Photograph(me, photo));
             }
             catch (HttpResponseException)
             {

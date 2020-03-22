@@ -20,11 +20,12 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<List<TalkDto>>> GetMyTalks(Guid me)
         {
-            var talks = db.Talks
-                .Include(t => t.Sender)
-                .Include(t => t.Receiver)
-                .Where(t => (t.Sender.Id.Equals(me) || t.Receiver.Id.Equals(me)) && !t.IsArchived)
-                .Select(t => t.ConvertToDto());
+            var talks = db.Talks.Include(t => t.Messages)
+                                    .ThenInclude(m => m.Photos)
+                                .Include(t => t.Sender)
+                                .Include(t => t.Receiver)
+                                .Where(t => (t.Sender.Id.Equals(me) || t.Receiver.Id.Equals(me)) && !t.IsArchived)
+                                .Select(t => t.ConvertToDto());
 
             return new QueryResults<List<TalkDto>>
             {
@@ -35,11 +36,11 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<TalkDto>> GetTalkById(Guid me, Guid talkId)
         {
-            var talk = await db.Talks
-                .Include(t => t.Messages)
-                .Include(t => t.Sender)
-                .Include(t => t.Receiver)
-                .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
+            var talk = await db.Talks.Include(t => t.Messages)
+                                         .ThenInclude(m => m.Photos)
+                                     .Include(t => t.Sender)
+                                     .Include(t => t.Receiver)
+                                     .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
 
             if (talk.Sender.Id != me && talk.Receiver.Id != me)
                 throw new ForbiddenApiException();
@@ -67,11 +68,10 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<MessageDto>> PostMessageToTalk(Guid me, Guid talkId, MessageDto messageDto)
         {
-            var talk = await db.Talks
-                .Include(t => t.Messages)
-                .Include(t => t.Sender)
-                .Include(t => t.Receiver)
-                .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
+            var talk = await db.Talks.Include(t => t.Messages)
+                                     .Include(t => t.Sender)
+                                     .Include(t => t.Receiver)
+                                     .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
 
             if (talk.Sender.Id != me && talk.Receiver.Id != me)
                 throw new ForbiddenApiException();
@@ -91,9 +91,8 @@ namespace Union.Backend.Service.Services
 
         public async Task DeleteTalk(Guid me, Guid talkId)
         {
-            var talk = await db.Talks
-                .Include(t => t.Sender)
-                .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
+            var talk = await db.Talks.Include(t => t.Sender)
+                                     .GetByIdAsync(talkId) ?? throw new NotFoundApiException();
 
             if (talk.Sender.Id != me)
                 throw new ForbiddenApiException();

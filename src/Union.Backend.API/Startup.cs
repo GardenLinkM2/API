@@ -117,7 +117,7 @@ namespace Union.Backend.API
             services.AddTransient<UsersService, UsersService>();
             services.AddTransient<WalletsService, WalletsService>();
 
-            services.Configure<AuthSettings>(Configuration.GetSection("authServer"));
+            services.Configure<AppSettings>(Configuration.GetSection("authServer"));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

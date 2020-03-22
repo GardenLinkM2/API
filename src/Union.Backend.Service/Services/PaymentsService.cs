@@ -58,12 +58,32 @@ namespace Union.Backend.Service.Services
 
         public async Task<QueryResults<PaymentDto>> AddPayment(PaymentDto dto)
         {
-            var leasing = await db.Leasings.GetByIdAsync(dto.Leasing) ?? throw new NotFoundApiException();
-            if (leasing.State.Equals(LeasingStatus.Refused) || leasing.State.Equals(LeasingStatus.Finished))
+            var leasing = await db.Leasings.Include(l => l.Payment)
+                                           .Include(l => l.Garden)
+                                               .ThenInclude(g => g.Owner)
+                                                    .ThenInclude(u => u.Wallet)
+                                           .Include(l => l.Garden)
+                                               .ThenInclude(g => g.Criteria)
+                                           .Include(l => l.Renter)
+                                                .ThenInclude(u => u.Wallet)
+                                           .GetByIdAsync(dto.Leasing) ?? throw new NotFoundApiException();
+
+            if (!leasing.State.Equals(LeasingStatus.InDemand))
                 throw new BadRequestApiException("It is no longer possible to pay for this contract.");
 
-            dto.Date = DateTime.UtcNow;
+            var months = Utils.MonthDifference(leasing.End, leasing.Begin);
+            if (leasing.Garden.Criteria.Price * months != dto.Sum)
+                throw new BadRequestApiException("You are not paying the right amount.");
+
+            if (leasing.Payment != null)
+                throw new BadRequestApiException("You have already paid for this garden.");
+
+            dto.Date = DateTime.UtcNow.ToTimestamp();
             leasing.Payment = dto.ConvertToModel();
+
+            leasing.State = LeasingStatus.InProgress;
+            leasing.Renter.Wallet.TrueBalance -= dto.Sum;
+            leasing.Garden.Owner.Wallet.TrueBalance += dto.Sum;
 
             await db.SaveChangesAsync();
 

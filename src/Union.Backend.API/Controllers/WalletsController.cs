@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Union.Backend.Service.Services;
 using Union.Backend.Service.Dtos;
-using Union.Backend.Service.Auth;
 using System.Net;
 using Union.Backend.Service.Exceptions;
 using System;
 using Microsoft.AspNetCore.Http;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.API.Controllers
 {
@@ -28,7 +28,7 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var id = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var id = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
                 return Ok(await service.GetWalletByUserId(id));
             }
             catch (HttpResponseException)
@@ -47,12 +47,12 @@ namespace Union.Backend.API.Controllers
         {
             try
             {
-                var myId = Utils.ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
+                var myId = ExtractIdFromToken(Request.Headers[HttpRequestHeader.Authorization.ToString()]);
 
                 return Ok(await service.ChangeWallet(myId, 
                                                      walletId, 
                                                      dto,
-                                                     Utils.IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()])));
+                                                     IsAdmin(Request.Headers[HttpRequestHeader.Authorization.ToString()])));
             }
             catch (HttpResponseException)
             {

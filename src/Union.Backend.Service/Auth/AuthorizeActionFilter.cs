@@ -8,7 +8,7 @@ using System.Net;
 using Union.Backend.Model;
 using Union.Backend.Model.DAO;
 using Union.Backend.Service.Dtos;
-using static Union.Backend.Service.Auth.Utils;
+using static Union.Backend.Service.Utils;
 
 namespace Union.Backend.Service.Auth
 {
@@ -27,12 +27,12 @@ namespace Union.Backend.Service.Auth
     public class AuthorizeActionFilter : IAuthorizationFilter
     {
         private readonly GardenLinkContext db;
-        private readonly IOptions<AuthSettings> auth;
+        private readonly IOptions<AppSettings> auth;
         private readonly PermissionType permission;
 
         public AuthorizeActionFilter(
             GardenLinkContext gardenLinkContext,
-            IOptions<AuthSettings> auth, 
+            IOptions<AppSettings> auth, 
             PermissionType permission)
         {
             db = gardenLinkContext;
