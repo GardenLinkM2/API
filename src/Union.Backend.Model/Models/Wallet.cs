@@ -11,7 +11,7 @@ namespace Union.Backend.Model.Models
         public float RealTimeBalance 
         {
             get => TrueBalance - (OfUser.AsRenter?.Where(l => l.State.Equals(LeasingStatus.InDemand))
-                                                  .Sum(l => l.Garden.Criteria.Price ?? 0) 
+                                                  .Sum(l => l.Garden.Criteria.Price * l.MonthDifference ?? 0) 
                                  ?? 0);
         }
         public Guid OfUserId { get; set; }

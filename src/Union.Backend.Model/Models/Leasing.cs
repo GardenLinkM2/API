@@ -23,5 +23,7 @@ namespace Union.Backend.Model.Models
         public Garden Garden { get; set; }
         public User Renter { get; set; }
         public Payment Payment { get; set; }
+        [NotMapped]
+        public int MonthDifference { get => End.MonthDifference(Begin); }
     }
 }

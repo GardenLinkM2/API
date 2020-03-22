@@ -71,8 +71,7 @@ namespace Union.Backend.Service.Services
             if (!leasing.State.Equals(LeasingStatus.InDemand))
                 throw new BadRequestApiException("It is no longer possible to pay for this contract.");
 
-            var months = Utils.MonthDifference(leasing.End, leasing.Begin);
-            if (leasing.Garden.Criteria.Price * months != dto.Sum)
+            if (leasing.Garden.Criteria.Price * leasing.MonthDifference != dto.Sum)
                 throw new BadRequestApiException("You are not paying the right amount.");
 
             if (leasing.Payment != null)

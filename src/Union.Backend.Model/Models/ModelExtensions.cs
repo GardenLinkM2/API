@@ -45,5 +45,10 @@ namespace Union.Backend.Model.Models
             int distance = Convert.ToInt32(Math.Floor(1.852 * 60 * z));
             return distance;
         }
+
+        public static int MonthDifference(this DateTime lValue, DateTime rValue)
+        {
+            return Math.Abs((lValue.Month - rValue.Month) + 12 * (lValue.Year - rValue.Year));
+        }
     }
 }

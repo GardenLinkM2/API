@@ -89,8 +89,7 @@ namespace Union.Backend.Service.Services
 
             var leasing = dto.ConvertToModel();
 
-            var months = Utils.MonthDifference(leasing.End, leasing.Begin);
-            if (renter.Wallet.RealTimeBalance - (garden.Criteria.Price * months) < 0)
+            if (renter.Wallet.RealTimeBalance - (garden.Criteria.Price * leasing.MonthDifference) < 0)
                 throw new BadRequestApiException("You have not enough money to rent this garden.");
 
             renter.AsRenter = renter.AsRenter ?? new List<Leasing>();
